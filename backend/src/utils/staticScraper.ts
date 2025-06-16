@@ -32,7 +32,7 @@ export interface ScrapedContent {
   };
   wordCount: number;
   scrapedAt: Date;
-  method: 'static';
+  method: 'static' | 'dynamic' | 'stealth' | 'adaptive';
 }
 
 export interface ScrapeOptions {
@@ -87,47 +87,99 @@ export class StaticScraper {
       const metaDescription = $('meta[name="description"]').attr('content') || 
                              $('meta[property="og:description"]').attr('content') || '';
 
-      // Extract content (prioritize main content areas)
+      // Comprehensive content extraction with maximum depth
       const contentSelectors = [
         'main',
         'article',
         '[role="main"]',
+        '[data-testid*="content"]',
+        '[class*="content"]',
+        '[class*="post"]',
+        '[class*="article"]',
+        '[class*="story"]',
+        '[class*="text"]',
+        '[class*="body"]',
+        '[class*="description"]',
+        '[class*="details"]',
+        '[class*="info"]',
+        '[class*="summary"]',
         '.content',
         '.post-content',
         '.entry-content',
+        '.article-content',
+        '.content-body',
+        '.main-content',
         '#content',
+        '#main',
+        '#article',
+        '[id*="content"]',
+        '[id*="article"]',
+        '[id*="post"]',
+        'section',
+        '.section',
+        'div[class*="container"]',
+        'div[class*="wrapper"]',
         'body'
       ];
 
       let content = '';
+      let bestContent = '';
+      let maxLength = 0;
+
+      // Try all selectors and pick the one with most content
       for (const selector of contentSelectors) {
-        const element = $(selector).first();
-        if (element.length > 0) {
-          // Remove script, style, nav, footer, aside elements
-          element.find('script, style, nav, footer, aside, .nav, .navigation, .sidebar').remove();
-          content = element.text().replace(/\s+/g, ' ').trim();
-          if (content.length > 100) break; // Use this content if it's substantial
-        }
+        const elements = $(selector);
+        elements.each((_, element) => {
+          const $element = $(element);
+          
+          // Remove unwanted elements but preserve structure
+          const clonedElement = $element.clone();
+          clonedElement.find(`
+            script, style, nav, footer, aside, header,
+            .nav, .navigation, .sidebar, .ad, .advertisement,
+            [class*="ad-"], [id*="ad-"], [class*="banner"],
+            [class*="popup"], [class*="modal"], [class*="overlay"],
+            [class*="cookie"], [class*="gdpr"], [class*="consent"],
+            [class*="share"], [class*="social"], [class*="comment"],
+            [class*="related"], [class*="recommend"]
+          `).remove();
+          
+          const text = clonedElement.text().replace(/\s+/g, ' ').trim();
+          if (text.length > maxLength && text.length > 50) {
+            maxLength = text.length;
+            bestContent = text;
+          }
+        });
       }
 
-      // Fallback to body text if no content found
-      if (!content) {
-        $('script, style, nav, footer, aside').remove();
-        content = $('body').text().replace(/\s+/g, ' ').trim();
+      content = bestContent;
+
+      // Enhanced fallback content extraction - get everything
+      if (!content || content.length < 200) {
+        const bodyClone = $('body').clone();
+        bodyClone.find(`
+          script, style, nav, footer, aside, header,
+          .nav, .navigation, .sidebar, .ad, .advertisement,
+          [class*="ad-"], [id*="ad-"], [class*="banner"],
+          [class*="popup"], [class*="modal"], [class*="overlay"],
+          [class*="cookie"], [class*="gdpr"], [class*="consent"]
+        `).remove();
+        
+        content = bodyClone.text().replace(/\s+/g, ' ').trim();
       }
 
-      // Extract links
+      // Extract all links comprehensively
       const links = $('a[href]').map((_, el) => {
         const $link = $(el);
         const href = $link.attr('href');
         const text = $link.text().trim();
         
-        if (!href || !text) return null;
+        if (!href) return null;
 
         try {
           const linkUrl = new URL(href, url);
           return {
-            text,
+            text: text || href,
             href: linkUrl.href,
             internal: linkUrl.hostname === parsedUrl.hostname
           };
@@ -136,14 +188,14 @@ export class StaticScraper {
         }
       }).get().filter(Boolean);
 
-      // Extract images
-      const images = $('img[src]').map((_, el) => {
+      // Extract all images and media comprehensively
+      const images = $('img[src], img[data-src], img[data-lazy-src], picture source[srcset], video[poster]').map((_, el) => {
         const $img = $(el);
-        const src = $img.attr('src');
+        const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src') || $img.attr('srcset') || $img.attr('poster');
         if (!src) return null;
 
         try {
-          const imgUrl = new URL(src, url);
+          const imgUrl = new URL(src.split(' ')[0], url); // Handle srcset
           return {
             src: imgUrl.href,
             alt: $img.attr('alt') || '',
@@ -183,8 +235,8 @@ export class StaticScraper {
         title,
         description: metaDescription,
         content,
-        links: links.slice(0, 100), // Limit to first 100 links
-        images: images.slice(0, 50), // Limit to first 50 images
+        links: links, // No artificial limits - get everything
+        images: images, // No artificial limits - get everything
         headings,
         metadata,
         wordCount,

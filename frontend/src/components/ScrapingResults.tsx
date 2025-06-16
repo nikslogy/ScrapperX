@@ -8,7 +8,7 @@ interface ScrapingResultsProps {
   originalUrl: string;
 }
 
-export default function ScrapingResults({ data, originalUrl }: ScrapingResultsProps) {
+export default function ScrapingResults({ data }: ScrapingResultsProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'links' | 'images' | 'metadata'>('overview');
 
   const formatDate = (dateString: string) => {
@@ -100,8 +100,8 @@ ${data.images.map(img => `- ${img.alt || 'No alt text'}: ${img.src}`).join('\n')
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      {/* Enhanced Stats with Intelligence Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-600">{data.wordCount}</div>
           <div className="text-xs text-gray-600">Words</div>
@@ -118,7 +118,150 @@ ${data.images.map(img => `- ${img.alt || 'No alt text'}: ${img.src}`).join('\n')
           <div className="text-2xl font-bold text-orange-600">{data.headings.length}</div>
           <div className="text-xs text-gray-600">Headings</div>
         </div>
+        {data.qualityScore && (
+          <div className="text-center">
+            <div className="text-2xl font-bold text-indigo-600">{data.qualityScore}%</div>
+            <div className="text-xs text-gray-600">Quality</div>
+          </div>
+        )}
+        {data.completenessScore && (
+          <div className="text-center">
+            <div className="text-2xl font-bold text-pink-600">{data.completenessScore}%</div>
+            <div className="text-xs text-gray-600">Complete</div>
+          </div>
+        )}
       </div>
+
+      {/* Intelligent Scraping Strategy Info */}
+      {data.strategy && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-blue-900">🧠 Intelligent Scraping Strategy</h4>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              data.strategy.method === 'static' ? 'bg-green-100 text-green-800' :
+              data.strategy.method === 'dynamic' ? 'bg-blue-100 text-blue-800' :
+              data.strategy.method === 'stealth' ? 'bg-purple-100 text-purple-800' :
+              data.strategy.method === 'adaptive' ? 'bg-indigo-100 text-indigo-800' :
+              data.strategy.method === 'api' ? 'bg-orange-100 text-orange-800' :
+              'bg-gray-100 text-gray-800'
+            }`}>
+              {data.strategy.method === 'stealth' ? '🥷 STEALTH' :
+               data.strategy.method === 'adaptive' ? '🧠 ADAPTIVE' :
+               data.strategy.method.toUpperCase()}
+            </span>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-blue-800 mb-2">
+                <strong>Confidence:</strong> {data.strategy.confidence}%
+              </p>
+              <p className="text-blue-800">
+                <strong>Time:</strong> {data.strategy.estimatedTime.toFixed(2)}s
+              </p>
+            </div>
+            <div>
+              <p className="text-blue-800 mb-1"><strong>Strategy Reasons:</strong></p>
+              <ul className="text-blue-700 text-xs space-y-1">
+                {data.strategy.reasons.map((reason, index) => (
+                  <li key={index}>• {reason}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          
+          {/* Advanced Strategy Details */}
+          {(data.strategy.method === 'stealth' || data.strategy.method === 'adaptive') && (
+            <div className="mt-4 pt-4 border-t border-blue-200">
+              <div className="grid md:grid-cols-2 gap-4 text-xs">
+                {data.strategy.method === 'stealth' && (
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <h5 className="font-medium text-purple-900 mb-2">🥷 Stealth Features Used</h5>
+                    <ul className="text-purple-800 space-y-1">
+                      <li>• Browser fingerprinting protection</li>
+                      <li>• Human-like behavior simulation</li>
+                      <li>• Anti-bot detection bypass</li>
+                      <li>• Dynamic user agent rotation</li>
+                    </ul>
+                  </div>
+                )}
+                {data.strategy.method === 'adaptive' && (
+                  <div className="bg-indigo-50 p-3 rounded-lg">
+                    <h5 className="font-medium text-indigo-900 mb-2">🧠 Adaptive Learning</h5>
+                    <ul className="text-indigo-800 space-y-1">
+                      <li>• Website-specific optimization</li>
+                      <li>• Success rate tracking</li>
+                      <li>• Dynamic strategy selection</li>
+                      <li>• Continuous improvement</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Performance Metrics */}
+      {data.performanceMetrics && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h4 className="font-medium text-green-900 mb-3">⚡ Performance Metrics</h4>
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-green-800">
+                <strong>Total Time:</strong> {data.performanceMetrics.totalTime}ms
+              </p>
+              <p className="text-green-700 text-xs mt-1">
+                Methods: {data.performanceMetrics.methodsAttempted.join(' → ')}
+              </p>
+            </div>
+            {data.performanceMetrics.staticTime && (
+              <div>
+                <p className="text-green-800">
+                  <strong>Static:</strong> {data.performanceMetrics.staticTime}ms
+                </p>
+              </div>
+            )}
+            {data.performanceMetrics.dynamicTime && (
+              <div>
+                <p className="text-green-800">
+                  <strong>Dynamic:</strong> {data.performanceMetrics.dynamicTime}ms
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* API Data Summary */}
+      {data.apiData && data.apiData.dataPointsExtracted > 0 && (
+        <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+          <h4 className="font-medium text-purple-900 mb-3">🔌 API Data Extracted</h4>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-purple-800">
+                <strong>Endpoints Found:</strong> {data.apiData.endpointsFound}
+              </p>
+              <p className="text-purple-800">
+                <strong>Data Points:</strong> {data.apiData.dataPointsExtracted}
+              </p>
+            </div>
+            <div>
+              <p className="text-purple-800 mb-1"><strong>Structured Content:</strong></p>
+              <div className="text-purple-700 text-xs space-y-1">
+                {data.apiData.structuredContent.articles && data.apiData.structuredContent.articles.length > 0 && (
+                  <p>• Articles: {data.apiData.structuredContent.articles.length}</p>
+                )}
+                {data.apiData.structuredContent.products && data.apiData.structuredContent.products.length > 0 && (
+                  <p>• Products: {data.apiData.structuredContent.products.length}</p>
+                )}
+                {data.apiData.structuredContent.comments && data.apiData.structuredContent.comments.length > 0 && (
+                  <p>• Comments: {data.apiData.structuredContent.comments.length}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 mb-6">

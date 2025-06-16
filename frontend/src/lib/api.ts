@@ -1,4 +1,4 @@
-import { ApiResponse, RobotsCheckData, ScrapedData, ScrapeOptions } from '@/types/scraper';
+import { ApiResponse, RobotsCheckData, ScrapedData, ScrapeOptions, WebsiteProfile, SuccessRatesSummary } from '@/types/scraper';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -69,6 +69,82 @@ export const healthCheck = async (): Promise<ApiResponse<any>> => {
     return await handleApiResponse(response);
   } catch (error) {
     throw new ApiError('Backend service is not available.');
+  }
+};
+
+// Adaptive scraping analytics
+export const getAdaptiveStats = async (domain?: string): Promise<ApiResponse<WebsiteProfile | WebsiteProfile[]>> => {
+  try {
+    const url = domain 
+      ? `${API_BASE_URL}/api/scraper/adaptive/stats?domain=${encodeURIComponent(domain)}`
+      : `${API_BASE_URL}/api/scraper/adaptive/stats`;
+    
+    const response = await fetch(url);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get adaptive stats.');
+  }
+};
+
+export const getSuccessRates = async (): Promise<ApiResponse<SuccessRatesSummary>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scraper/adaptive/success-rates`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get success rates.');
+  }
+};
+
+export const clearAdaptiveProfile = async (domain: string): Promise<ApiResponse<{ message: string }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scraper/adaptive/profile/${encodeURIComponent(domain)}`, {
+      method: 'DELETE'
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to clear adaptive profile.');
+  }
+};
+
+export const exportAdaptiveProfiles = async (): Promise<string> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scraper/adaptive/export`);
+    if (!response.ok) {
+      throw new ApiError(`HTTP ${response.status}`);
+    }
+    return await response.text();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to export adaptive profiles.');
+  }
+};
+
+export const importAdaptiveProfiles = async (profiles: string): Promise<ApiResponse<{ message: string }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scraper/adaptive/import`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ profiles }),
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to import adaptive profiles.');
   }
 };
 
