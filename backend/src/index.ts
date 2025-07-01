@@ -3,9 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import dotenv from 'dotenv';
+import path from 'path';
 import { connectDB } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
+import { CrawlerController } from './controllers/crawlerController';
 
 // Import routes
 import scraperRoutes from './routes/scraperRoutes';
@@ -48,6 +50,10 @@ app.use('/api/', rateLimiter);
 
 // Health check
 app.use('/health', healthRoutes);
+
+// Download route for exported files
+const crawlerController = new CrawlerController();
+app.get('/api/downloads/:fileName', crawlerController.downloadExport);
 
 // API routes
 app.use('/api/scraper', scraperRoutes);

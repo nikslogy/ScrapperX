@@ -2,12 +2,16 @@ import { Request, Response } from 'express';
 import Joi from 'joi';
 import { DomainCrawlerService } from '../services/domainCrawler';
 import { RawContent } from '../models/crawlerModels';
+import { ExportService } from '../services/exportService';
+import { ExportOptions } from '../services/exporters/baseExporter';
 
 export class CrawlerController {
   private crawlerService: DomainCrawlerService;
+  private exportService: ExportService;
 
   constructor() {
     this.crawlerService = new DomainCrawlerService();
+    this.exportService = new ExportService();
   }
 
   /**
@@ -27,7 +31,27 @@ export class CrawlerController {
           includePatterns: Joi.array().items(Joi.string()).default([]),
           excludePatterns: Joi.array().items(Joi.string()).default([]),
           userAgent: Joi.string().optional(),
-          timeout: Joi.number().integer().min(5000).max(120000).default(30000)
+          timeout: Joi.number().integer().min(5000).max(120000).default(30000),
+          authentication: Joi.object({
+            type: Joi.string().valid('none', 'basic', 'form', 'bearer', 'cookie').default('none'),
+            credentials: Joi.object({
+              username: Joi.string().optional(),
+              password: Joi.string().optional(),
+              token: Joi.string().optional(),
+              cookies: Joi.object().optional(),
+              loginUrl: Joi.string().uri().optional(),
+              usernameField: Joi.string().default('username'),
+              passwordField: Joi.string().default('password'),
+              submitSelector: Joi.string().default('input[type="submit"], button[type="submit"]'),
+              successIndicator: Joi.string().optional()
+            }).optional()
+          }).optional(),
+          extraction: Joi.object({
+            enableStructuredData: Joi.boolean().default(true),
+            customSelectors: Joi.object().optional(),
+            dataTypes: Joi.array().items(Joi.string()).optional(),
+            qualityThreshold: Joi.number().min(0).max(1).default(0.7)
+          }).optional()
         }).default({})
       });
 
@@ -362,69 +386,71 @@ export class CrawlerController {
   };
 
   /**
-   * Export session data
+   * Enhanced export session data with multiple formats
    */
   exportSessionData = async (req: Request, res: Response): Promise<void> => {
     try {
       const { sessionId } = req.params;
-      const { format = 'json' } = req.query;
+      const { 
+        format = 'json',
+        includeStructuredData = 'true',
+        includeAIAnalysis = 'true', 
+        includePatternAnalysis = 'false',
+        minQualityScore = '0.5',
+        compress = 'false',
+        multiFormat = 'false'
+      } = req.query;
 
-      // Get session
-      const session = await this.crawlerService.getSession(sessionId);
-      if (!session) {
-        res.status(404).json({
+      // Validate export options
+      const options: ExportOptions = {
+        format: format as 'json' | 'csv' | 'excel' | 'xml',
+        includeStructuredData: includeStructuredData === 'true',
+        includeAIAnalysis: includeAIAnalysis === 'true',
+        includePatternAnalysis: includePatternAnalysis === 'true',
+        minQualityScore: parseFloat(minQualityScore as string),
+        compress: compress === 'true'
+      };
+
+      // Validate format
+      if (!['json', 'csv', 'excel'].includes(options.format)) {
+        res.status(400).json({
           success: false,
-          message: 'Session not found'
+          message: 'Unsupported export format. Supported formats: json, csv, excel'
         });
         return;
       }
 
-      // Get all content
-      const content = await RawContent.find({ sessionId })
-        .select('-htmlContent')
-        .sort({ createdAt: 1 });
+      let result;
 
-      const exportData = {
-        session: {
-          sessionId: session.sessionId,
-          domain: session.domain,
-          startUrl: session.startUrl,
-          status: session.status,
-          config: session.config,
-          stats: session.stats,
-          createdAt: session.createdAt,
-          updatedAt: session.updatedAt
-        },
-        content: content.map(item => ({
-          url: item.url,
-          title: item.metadata.title,
-          description: item.metadata.description,
-          processingStatus: item.processingStatus,
-          metadata: {
-            title: item.metadata.title,
-            description: item.metadata.description,
-            aiContentType: item.metadata.aiContentType,
-            confidence: item.metadata.confidence,
-            relevanceScore: item.metadata.relevanceScore,
-            structuredData: item.metadata.structuredData,
-            aiAnalysis: item.metadata.aiAnalysis
-          },
-          contentChunks: item.contentChunks,
-          extractedLinks: item.extractedLinks,
-          createdAt: item.createdAt
-        }))
-      };
-
-      if (format === 'json') {
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', `attachment; filename="crawl-${sessionId}.json"`);
-        res.json(exportData);
+             if (multiFormat === 'true') {
+         // Export in multiple formats
+         const formats: Array<'json' | 'csv' | 'excel'> = ['json', 'csv', 'excel'];
+         result = await this.exportService.exportMultipleFormats(sessionId, formats, options);
       } else {
-        res.status(400).json({
-          success: false,
-          message: 'Unsupported export format. Currently only JSON is supported.'
-        });
+        // Export in single format
+        result = await this.exportService.exportSession(sessionId, options);
       }
+
+      if (!result.success) {
+        res.status(500).json({
+          success: false,
+          message: 'Export failed',
+          error: result.error
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Export completed successfully',
+        data: {
+          fileName: result.fileName,
+          size: result.size,
+          mimeType: result.mimeType,
+          downloadUrl: result.downloadUrl,
+          format: multiFormat === 'true' ? 'multi-format' : options.format
+        }
+      });
 
     } catch (error) {
       console.error('Error exporting session data:', error);
@@ -491,6 +517,330 @@ export class CrawlerController {
       res.status(500).json({
         success: false,
         message: 'Failed to export pattern analysis',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Get structured data extraction results
+   */
+  getStructuredData = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { sessionId } = req.params;
+      const { minQuality = 0.5 } = req.query;
+
+      // Get content with structured data
+      const content = await RawContent.find({
+        sessionId,
+        'metadata.extractedData': { $exists: true },
+        'metadata.extractedData.qualityScore': { $gte: Number(minQuality) }
+      }).select('-htmlContent').sort({ 'metadata.extractedData.qualityScore': -1 });
+
+      if (content.length === 0) {
+        res.status(404).json({
+          success: false,
+          message: 'No structured data found for this session'
+        });
+        return;
+      }
+
+      // Group by schema type
+      const groupedData: { [key: string]: any[] } = {};
+      let totalItems = 0;
+      let averageQuality = 0;
+
+      content.forEach(item => {
+        const extractedData = item.metadata.extractedData;
+        if (extractedData) {
+          const schema = extractedData.schema;
+          if (!groupedData[schema]) {
+            groupedData[schema] = [];
+          }
+          
+          groupedData[schema].push({
+            url: item.url,
+            schema: extractedData.schema,
+            version: extractedData.version,
+            fields: extractedData.fields,
+            nestedStructures: extractedData.nestedStructures,
+            qualityScore: extractedData.qualityScore,
+            extractionMethod: extractedData.extractionMethod,
+            extractedAt: extractedData.extractedAt
+          });
+
+          totalItems++;
+          averageQuality += extractedData.qualityScore;
+        }
+      });
+
+      averageQuality = totalItems > 0 ? averageQuality / totalItems : 0;
+
+      res.json({
+        success: true,
+        data: {
+          sessionId,
+          totalItems,
+          averageQuality: Math.round(averageQuality * 100) / 100,
+          schemas: Object.keys(groupedData),
+          extractedData: groupedData
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting structured data:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get structured data',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Get structured data by schema type
+   */
+  getStructuredDataBySchema = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { sessionId, schema } = req.params;
+      const { minQuality = 0.5, limit = 100 } = req.query;
+
+      const content = await RawContent.find({
+        sessionId,
+        'metadata.extractedData.schema': schema,
+        'metadata.extractedData.qualityScore': { $gte: Number(minQuality) }
+      }).select('url metadata.extractedData')
+        .sort({ 'metadata.extractedData.qualityScore': -1 })
+        .limit(Number(limit));
+
+      if (content.length === 0) {
+        res.status(404).json({
+          success: false,
+          message: `No ${schema} data found for this session`
+        });
+        return;
+      }
+
+      const structuredData = content.map(item => ({
+        url: item.url,
+        ...item.metadata.extractedData
+      }));
+
+      res.json({
+        success: true,
+        data: {
+          sessionId,
+          schema,
+          count: structuredData.length,
+          items: structuredData
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting structured data by schema:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get structured data by schema',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Test authentication configuration
+   */
+  testAuthentication = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Validate request
+      const schema = Joi.object({
+        url: Joi.string().uri().required(),
+        authentication: Joi.object({
+          type: Joi.string().valid('basic', 'form', 'bearer', 'cookie').required(),
+          credentials: Joi.object({
+            username: Joi.string().optional(),
+            password: Joi.string().optional(),
+            token: Joi.string().optional(),
+            cookies: Joi.object().optional(),
+            loginUrl: Joi.string().uri().optional(),
+            usernameField: Joi.string().default('username'),
+            passwordField: Joi.string().default('password'),
+            submitSelector: Joi.string().default('input[type="submit"], button[type="submit"]'),
+            successIndicator: Joi.string().optional()
+          }).required()
+        }).required()
+      });
+
+      const { error, value } = schema.validate(req.body);
+      if (error) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid request data',
+          errors: error.details.map(d => d.message)
+        });
+        return;
+      }
+
+      const { url, authentication } = value;
+
+      // Test authentication (this would be a simplified test)
+      res.json({
+        success: true,
+        message: 'Authentication configuration is valid',
+        data: {
+          url,
+          authenticationType: authentication.type,
+          testResult: 'Configuration validated successfully'
+        }
+      });
+
+    } catch (error) {
+      console.error('Error testing authentication:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to test authentication',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Get available extraction schemas
+   */
+  getAvailableSchemas = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // This would come from the StructuredExtractor service
+      const schemas = [
+        'product', 'article', 'contact', 'event', 'job', 'generic'
+      ];
+
+      res.json({
+        success: true,
+        data: {
+          schemas,
+          count: schemas.length
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting available schemas:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get available schemas',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Get export history
+   */
+  getExportHistory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const history = await this.exportService.getExportHistory();
+
+      res.json({
+        success: true,
+        data: {
+          exports: history,
+          count: history.length
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting export history:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get export history',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Clean up old export files
+   */
+  cleanupExports = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { olderThanDays = '7' } = req.query;
+      const days = parseInt(olderThanDays as string);
+
+      if (isNaN(days) || days < 1) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid olderThanDays parameter. Must be a positive integer.'
+        });
+        return;
+      }
+
+      const deletedCount = await this.exportService.cleanupOldExports(days);
+
+      res.json({
+        success: true,
+        message: `Cleanup completed successfully`,
+        data: {
+          deletedFiles: deletedCount,
+          olderThanDays: days
+        }
+      });
+
+    } catch (error) {
+      console.error('Error cleaning up exports:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to cleanup exports',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  /**
+   * Download exported file
+   */
+  downloadExport = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { fileName } = req.params;
+      
+      if (!fileName) {
+        res.status(400).json({
+          success: false,
+          message: 'File name is required'
+        });
+        return;
+      }
+
+      const filePath = require('path').join(process.cwd(), 'exports', fileName);
+      
+      // Check if file exists
+      try {
+        await require('fs/promises').access(filePath);
+      } catch {
+        res.status(404).json({
+          success: false,
+          message: 'File not found'
+        });
+        return;
+      }
+
+      // Set appropriate headers
+      const mimeTypes: { [key: string]: string } = {
+        '.json': 'application/json',
+        '.csv': 'text/csv',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.zip': 'application/zip'
+      };
+
+      const ext = require('path').extname(fileName);
+      const mimeType = mimeTypes[ext] || 'application/octet-stream';
+
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.sendFile(filePath);
+
+    } catch (error) {
+      console.error('Error downloading export:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to download export',
         error: error instanceof Error ? error.message : String(error)
       });
     }

@@ -8,6 +8,8 @@ import { CrawlSession, ICrawlSession, RawContent } from '../models/crawlerModels
 import { URLQueueService } from './urlQueue';
 import { ContentExtractorService } from './contentExtractor';
 import { PatternRecognizer } from './patternRecognizer';
+import { AuthenticationHandler, AuthConfig } from './authenticationHandler';
+import { StructuredExtractor } from './structuredExtractor';
 // import { checkRobotsTxt } from '../utils/robotsChecker';
 
 export interface CrawlConfig {
@@ -20,6 +22,13 @@ export interface CrawlConfig {
   excludePatterns: string[];
   userAgent?: string;
   timeout?: number;
+  authentication?: AuthConfig;
+  extraction?: {
+    enableStructuredData: boolean;
+    customSelectors?: { [key: string]: string };
+    dataTypes?: string[];
+    qualityThreshold?: number;
+  };
 }
 
 export interface CrawlProgress {
@@ -38,6 +47,8 @@ export class DomainCrawlerService {
   private urlQueue: URLQueueService;
   private contentExtractor: ContentExtractorService;
   private patternRecognizer: PatternRecognizer;
+  private authHandler: AuthenticationHandler;
+  private structuredExtractor: StructuredExtractor;
   private activeCrawlers: Map<string, { browser: Browser; pages: Page[] }> = new Map();
   private crawlProgress: Map<string, CrawlProgress> = new Map();
 
@@ -45,6 +56,8 @@ export class DomainCrawlerService {
     this.urlQueue = new URLQueueService();
     this.contentExtractor = new ContentExtractorService();
     this.patternRecognizer = new PatternRecognizer();
+    this.authHandler = new AuthenticationHandler();
+    this.structuredExtractor = new StructuredExtractor();
   }
 
   /**
@@ -166,6 +179,20 @@ export class DomainCrawlerService {
     config: CrawlConfig,
     robotsRules: any
   ): Promise<void> {
+    // Handle authentication if configured
+    let isAuthenticated = false;
+    if (config.authentication && config.authentication.type !== 'none') {
+      console.log(`🔐 Attempting authentication for ${domain} using ${config.authentication.type}`);
+      const authResult = await this.authHandler.authenticatePage(page, config.authentication, domain);
+      if (authResult.success) {
+        isAuthenticated = true;
+        console.log(`✅ Authentication successful for ${domain}`);
+      } else {
+        console.error(`❌ Authentication failed for ${domain}:`, authResult.error);
+        // Continue without authentication - some pages might still be accessible
+      }
+    }
+
     while (true) {
       // Get next URL from queue
       const urlItem = await this.urlQueue.getNextUrl(sessionId);
@@ -203,6 +230,20 @@ export class DomainCrawlerService {
           continue;
         }
 
+        // Apply stored authentication if available
+        if (isAuthenticated && !this.authHandler.isAuthenticated(domain)) {
+          const authApplied = await this.authHandler.applyStoredAuth(page, domain);
+          if (!authApplied) {
+            // Re-authenticate if stored auth failed
+            if (config.authentication && config.authentication.type !== 'none') {
+              const authResult = await this.authHandler.authenticatePage(page, config.authentication, domain);
+              if (!authResult.success) {
+                console.warn(`Re-authentication failed for ${urlItem.url}`);
+              }
+            }
+          }
+        }
+
         // Crawl the page
         const html = await this.crawlPage(page, urlItem.url);
         
@@ -230,6 +271,23 @@ export class DomainCrawlerService {
         });
 
         await rawContent.save();
+
+        // Phase 3: Structured Data Extraction
+        if (config.extraction?.enableStructuredData) {
+          try {
+            console.log(`📊 Extracting structured data from ${urlItem.url}`);
+            const structuredData = await this.structuredExtractor.extractStructuredData(rawContent);
+            
+            // Update raw content with structured data
+            rawContent.metadata.extractedData = structuredData;
+            rawContent.processingStatus = 'extracted';
+            await rawContent.save();
+            
+            console.log(`✅ Structured data extracted: ${structuredData.schema} (Score: ${structuredData.qualityScore})`);
+          } catch (error) {
+            console.warn(`Failed to extract structured data from ${urlItem.url}:`, error);
+          }
+        }
 
         // Add discovered internal links to queue
         const newUrls = extractedContent.extractedLinks.internal

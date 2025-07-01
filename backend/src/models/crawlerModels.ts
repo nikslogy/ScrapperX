@@ -14,6 +14,26 @@ export interface ICrawlSession extends Document {
     concurrent: number;
     includePatterns: string[];
     excludePatterns: string[];
+    authentication?: {
+      type: 'none' | 'basic' | 'form' | 'bearer' | 'cookie';
+      credentials?: {
+        username?: string;
+        password?: string;
+        token?: string;
+        cookies?: { [key: string]: string };
+        loginUrl?: string;
+        usernameField?: string;
+        passwordField?: string;
+        submitSelector?: string;
+        successIndicator?: string;
+      };
+    };
+    extraction?: {
+      enableStructuredData: boolean;
+      customSelectors?: { [key: string]: string };
+      dataTypes?: string[];
+      qualityThreshold?: number;
+    };
   };
   stats: {
     totalUrls: number;
@@ -54,7 +74,31 @@ const crawlSessionSchema = new Schema<ICrawlSession>({
     delay: { type: Number, default: 1000 },
     concurrent: { type: Number, default: 3 },
     includePatterns: [{ type: String }],
-    excludePatterns: [{ type: String }]
+    excludePatterns: [{ type: String }],
+    authentication: {
+      type: { 
+        type: String, 
+        enum: ['none', 'basic', 'form', 'bearer', 'cookie'],
+        default: 'none'
+      },
+      credentials: {
+        username: { type: String },
+        password: { type: String },
+        token: { type: String },
+        cookies: { type: Schema.Types.Mixed },
+        loginUrl: { type: String },
+        usernameField: { type: String, default: 'username' },
+        passwordField: { type: String, default: 'password' },
+        submitSelector: { type: String, default: 'input[type="submit"], button[type="submit"]' },
+        successIndicator: { type: String }
+      }
+    },
+    extraction: {
+      enableStructuredData: { type: Boolean, default: true },
+      customSelectors: { type: Schema.Types.Mixed },
+      dataTypes: [{ type: String }],
+      qualityThreshold: { type: Number, default: 0.7 }
+    }
   },
   stats: {
     totalUrls: { type: Number, default: 0 },
@@ -141,6 +185,16 @@ export interface IRawContent extends Document {
       extractedFields: number;
       reasoning: string;
     };
+    // Phase 3: Structured extraction fields
+    extractedData?: {
+      schema: string;
+      version: string;
+      fields: { [key: string]: any };
+      nestedStructures: any[];
+      qualityScore: number;
+      extractionMethod: 'ai' | 'pattern' | 'selector' | 'heuristic';
+      extractedAt: Date;
+    };
   };
   extractedLinks: {
     internal: string[];
@@ -182,6 +236,19 @@ const rawContentSchema = new Schema<IRawContent>({
       patterns: { type: Number },
       extractedFields: { type: Number },
       reasoning: { type: String }
+    },
+    // Phase 3: Structured extraction fields
+    extractedData: {
+      schema: { type: String },
+      version: { type: String },
+      fields: { type: Schema.Types.Mixed },
+      nestedStructures: [{ type: Schema.Types.Mixed }],
+      qualityScore: { type: Number, min: 0, max: 1 },
+      extractionMethod: { 
+        type: String, 
+        enum: ['ai', 'pattern', 'selector', 'heuristic']
+      },
+      extractedAt: { type: Date }
     }
   },
   extractedLinks: {
