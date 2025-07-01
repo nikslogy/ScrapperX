@@ -1,0 +1,583 @@
+import { Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
+import { URL } from 'url';
+import { v4 as uuidv4 } from 'uuid';
+import robotsParser from 'robots-parser';
+
+import { CrawlSession, ICrawlSession, RawContent } from '../models/crawlerModels';
+import { URLQueueService } from './urlQueue';
+import { ContentExtractorService } from './contentExtractor';
+import { PatternRecognizer } from './patternRecognizer';
+// import { checkRobotsTxt } from '../utils/robotsChecker';
+
+export interface CrawlConfig {
+  maxPages: number;
+  maxDepth: number;
+  respectRobots: boolean;
+  delay: number;
+  concurrent: number;
+  includePatterns: string[];
+  excludePatterns: string[];
+  userAgent?: string;
+  timeout?: number;
+}
+
+export interface CrawlProgress {
+  sessionId: string;
+  status: string;
+  totalUrls: number;
+  processedUrls: number;
+  failedUrls: number;
+  extractedItems: number;
+  currentUrl?: string;
+  estimatedCompletion?: Date;
+  errors: string[];
+}
+
+export class DomainCrawlerService {
+  private urlQueue: URLQueueService;
+  private contentExtractor: ContentExtractorService;
+  private patternRecognizer: PatternRecognizer;
+  private activeCrawlers: Map<string, { browser: Browser; pages: Page[] }> = new Map();
+  private crawlProgress: Map<string, CrawlProgress> = new Map();
+
+  constructor() {
+    this.urlQueue = new URLQueueService();
+    this.contentExtractor = new ContentExtractorService();
+    this.patternRecognizer = new PatternRecognizer();
+  }
+
+  /**
+   * Start domain crawling
+   */
+  async startDomainCrawl(startUrl: string, config: CrawlConfig): Promise<string> {
+    const sessionId = uuidv4();
+    const domain = this.extractDomain(startUrl);
+
+    if (!domain) {
+      throw new Error('Invalid URL provided');
+    }
+
+    // Create crawl session
+    const session = new CrawlSession({
+      sessionId,
+      domain,
+      startUrl,
+      config,
+      status: 'pending'
+    });
+
+    await session.save();
+
+    // Initialize progress tracking
+    this.crawlProgress.set(sessionId, {
+      sessionId,
+      status: 'pending',
+      totalUrls: 0,
+      processedUrls: 0,
+      failedUrls: 0,
+      extractedItems: 0,
+      errors: []
+    });
+
+    // Start crawling process (non-blocking)
+    this.executeCrawl(sessionId, startUrl, config).catch(error => {
+      console.error(`Crawl session ${sessionId} failed:`, error);
+      this.updateSessionStatus(sessionId, 'failed');
+    });
+
+    return sessionId;
+  }
+
+  /**
+   * Execute the crawling process
+   */
+  private async executeCrawl(sessionId: string, startUrl: string, config: CrawlConfig): Promise<void> {
+    const domain = this.extractDomain(startUrl);
+    if (!domain) throw new Error('Invalid domain');
+
+    try {
+      // Update session status
+      await this.updateSessionStatus(sessionId, 'running');
+
+      // Check robots.txt if required
+      let robotsRules: any = null;
+      if (config.respectRobots) {
+        try {
+          robotsRules = await this.getRobotsRules(domain, config.userAgent);
+        } catch (error) {
+          console.warn(`Could not fetch robots.txt for ${domain}:`, error);
+        }
+      }
+
+      // Initialize browser
+      const browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+
+      // Create concurrent pages
+      const pages: Page[] = [];
+      for (let i = 0; i < config.concurrent; i++) {
+        const page = await browser.newPage({
+          userAgent: config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        });
+        
+        // Set timeout
+        page.setDefaultTimeout(config.timeout || 30000);
+        pages.push(page);
+      }
+
+      // Store browser and pages for cleanup
+      this.activeCrawlers.set(sessionId, { browser, pages });
+
+      // Add initial URL to queue
+      await this.urlQueue.addUrl(sessionId, startUrl, 0, undefined, 10);
+
+      // Start crawling workers
+      const workers = pages.map(page => this.crawlWorker(sessionId, page, domain, config, robotsRules));
+      
+      // Wait for all workers to complete
+      await Promise.all(workers);
+
+      // Run AI pattern analysis
+      console.log(`🤖 Starting AI pattern analysis for session ${sessionId}`);
+      await this.runPatternAnalysis(sessionId);
+
+      // Cleanup
+      await this.cleanup(sessionId);
+      await this.updateSessionStatus(sessionId, 'completed');
+
+    } catch (error) {
+      console.error(`Crawl execution failed for session ${sessionId}:`, error);
+      await this.cleanup(sessionId);
+      await this.updateSessionStatus(sessionId, 'failed');
+      throw error;
+    }
+  }
+
+  /**
+   * Individual crawler worker
+   */
+  private async crawlWorker(
+    sessionId: string,
+    page: Page,
+    domain: string,
+    config: CrawlConfig,
+    robotsRules: any
+  ): Promise<void> {
+    while (true) {
+      // Get next URL from queue
+      const urlItem = await this.urlQueue.getNextUrl(sessionId);
+      if (!urlItem) {
+        // No more URLs to process
+        await this.delay(1000); // Wait a bit before checking again
+        
+        // Check if there are any pending URLs
+        const pendingCount = await this.urlQueue.getPendingCount(sessionId);
+        if (pendingCount === 0) {
+          break; // No more work to do
+        }
+        continue;
+      }
+
+      try {
+        // Update progress
+        this.updateProgress(sessionId, { currentUrl: urlItem.url });
+
+        // Check robots.txt
+        if (robotsRules && !robotsRules.isAllowed(urlItem.url)) {
+          await this.urlQueue.markFailed(String(urlItem._id), 'Blocked by robots.txt');
+          continue;
+        }
+
+        // Check depth limit
+        if (urlItem.depth >= config.maxDepth) {
+          await this.urlQueue.markCompleted(String(urlItem._id));
+          continue;
+        }
+
+        // Check URL patterns
+        if (!this.matchesPatterns(urlItem.url, config.includePatterns, config.excludePatterns)) {
+          await this.urlQueue.markCompleted(String(urlItem._id));
+          continue;
+        }
+
+        // Crawl the page
+        const html = await this.crawlPage(page, urlItem.url);
+        
+        // Extract content
+        const extractedContent = await this.contentExtractor.extractContent(html, urlItem.url, domain);
+
+        // Store raw content
+        const rawContent = new RawContent({
+          sessionId,
+          url: urlItem.url,
+          contentHash: extractedContent.contentHash,
+          htmlContent: extractedContent.htmlContent,
+          textContent: extractedContent.textContent,
+          metadata: {
+            title: extractedContent.title,
+            description: extractedContent.description,
+            keywords: extractedContent.keywords,
+            contentType: extractedContent.contentType,
+            charset: extractedContent.charset,
+            language: extractedContent.language
+          },
+          extractedLinks: extractedContent.extractedLinks,
+          contentChunks: extractedContent.contentChunks,
+          processingStatus: 'raw'
+        });
+
+        await rawContent.save();
+
+        // Add discovered internal links to queue
+        const newUrls = extractedContent.extractedLinks.internal
+          .filter(url => this.urlQueue.isInternalUrl(url, domain))
+          .map(url => ({
+            url: this.urlQueue.normalizeUrl(url),
+            depth: urlItem.depth + 1,
+            parentUrl: urlItem.url,
+            priority: this.calculatePriority(url, urlItem.depth + 1)
+          }));
+
+        if (newUrls.length > 0) {
+          await this.urlQueue.addUrls(sessionId, newUrls);
+        }
+
+        // Mark URL as completed
+        await this.urlQueue.markCompleted(String(urlItem._id));
+
+        // Update progress
+        this.updateProgress(sessionId, {
+          processedUrls: (this.crawlProgress.get(sessionId)?.processedUrls || 0) + 1,
+          extractedItems: (this.crawlProgress.get(sessionId)?.extractedItems || 0) + extractedContent.contentChunks.length
+        });
+
+        // Respect delay
+        if (config.delay > 0) {
+          await this.delay(config.delay);
+        }
+
+      } catch (error) {
+        console.error(`Error crawling ${urlItem.url}:`, error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        await this.urlQueue.markFailed(String(urlItem._id), errorMessage);
+        
+        // Update progress
+        this.updateProgress(sessionId, {
+          failedUrls: (this.crawlProgress.get(sessionId)?.failedUrls || 0) + 1,
+          errors: [...(this.crawlProgress.get(sessionId)?.errors || []), `${urlItem.url}: ${errorMessage}`]
+        });
+      }
+
+      // Check if we've reached the page limit
+      const stats = await this.urlQueue.getQueueStats(sessionId);
+      if (stats.completed >= config.maxPages) {
+        break;
+      }
+    }
+  }
+
+  /**
+   * Crawl a single page
+   */
+  private async crawlPage(page: Page, url: string): Promise<string> {
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    
+    // Wait for any dynamic content to load
+    await page.waitForTimeout(2000);
+    
+    // Get HTML content
+    const html = await page.content();
+    return html;
+  }
+
+  /**
+   * Get robots.txt rules
+   */
+  private async getRobotsRules(domain: string, userAgent: string = '*'): Promise<any> {
+    try {
+      const robotsUrl = `https://${domain}/robots.txt`;
+      // Simple robots.txt fetch - will implement proper robots checker later
+      const response = await fetch(robotsUrl);
+      if (response.ok) {
+        const robotsContent = await response.text();
+        return robotsParser(robotsUrl, robotsContent);
+      }
+    } catch (error) {
+      console.warn(`Could not fetch robots.txt for ${domain}:`, error);
+    }
+    
+    return null;
+  }
+
+  /**
+   * Calculate URL priority based on depth and URL characteristics
+   */
+  private calculatePriority(url: string, depth: number): number {
+    let priority = 10 - depth; // Higher priority for shallower pages
+    
+    // Boost priority for important pages
+    const importantPatterns = ['/about', '/contact', '/products', '/services', '/blog'];
+    if (importantPatterns.some(pattern => url.includes(pattern))) {
+      priority += 5;
+    }
+    
+    // Lower priority for less important pages
+    const lowPriorityPatterns = ['/tag/', '/category/', '/archive/', '/page/'];
+    if (lowPriorityPatterns.some(pattern => url.includes(pattern))) {
+      priority -= 3;
+    }
+    
+    return Math.max(0, priority);
+  }
+
+  /**
+   * Check if URL matches include/exclude patterns
+   */
+  private matchesPatterns(url: string, includePatterns: string[], excludePatterns: string[]): boolean {
+    // Check exclude patterns first
+    if (excludePatterns.length > 0) {
+      for (const pattern of excludePatterns) {
+        if (url.includes(pattern) || new RegExp(pattern).test(url)) {
+          return false;
+        }
+      }
+    }
+    
+    // Check include patterns
+    if (includePatterns.length > 0) {
+      for (const pattern of includePatterns) {
+        if (url.includes(pattern) || new RegExp(pattern).test(url)) {
+          return true;
+        }
+      }
+      return false; // If include patterns exist but none match
+    }
+    
+    return true; // No patterns or passed all checks
+  }
+
+  /**
+   * Update session status
+   */
+  private async updateSessionStatus(sessionId: string, status: ICrawlSession['status']): Promise<void> {
+    await CrawlSession.findOneAndUpdate(
+      { sessionId },
+      { 
+        status,
+        ...(status === 'completed' && { 'stats.endTime': new Date() })
+      }
+    );
+
+    // Update progress tracking
+    const progress = this.crawlProgress.get(sessionId);
+    if (progress) {
+      progress.status = status;
+      this.crawlProgress.set(sessionId, progress);
+    }
+  }
+
+  /**
+   * Update crawl progress
+   */
+  private updateProgress(sessionId: string, updates: Partial<CrawlProgress>): void {
+    const progress = this.crawlProgress.get(sessionId);
+    if (progress) {
+      Object.assign(progress, updates);
+      this.crawlProgress.set(sessionId, progress);
+    }
+  }
+
+  /**
+   * Get crawl progress
+   */
+  async getCrawlProgress(sessionId: string): Promise<CrawlProgress | null> {
+    const progress = this.crawlProgress.get(sessionId);
+    if (progress) {
+      // Update with latest queue stats
+      const queueStats = await this.urlQueue.getQueueStats(sessionId);
+      progress.totalUrls = queueStats.total;
+      progress.processedUrls = queueStats.completed;
+      progress.failedUrls = queueStats.failed;
+      
+      return progress;
+    }
+    
+    return null;
+  }
+
+  /**
+   * Pause crawl session
+   */
+  async pauseCrawl(sessionId: string): Promise<void> {
+    await this.updateSessionStatus(sessionId, 'paused');
+    await this.cleanup(sessionId);
+  }
+
+  /**
+   * Resume crawl session
+   */
+  async resumeCrawl(sessionId: string): Promise<void> {
+    const session = await CrawlSession.findOne({ sessionId });
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    if (session.status !== 'paused') {
+      throw new Error('Session is not paused');
+    }
+
+    // Restart the crawl process
+    this.executeCrawl(sessionId, session.startUrl, session.config).catch(error => {
+      console.error(`Resume crawl session ${sessionId} failed:`, error);
+      this.updateSessionStatus(sessionId, 'failed');
+    });
+  }
+
+  /**
+   * Stop crawl session
+   */
+  async stopCrawl(sessionId: string): Promise<void> {
+    await this.updateSessionStatus(sessionId, 'failed');
+    await this.cleanup(sessionId);
+  }
+
+  /**
+   * Cleanup resources
+   */
+  private async cleanup(sessionId: string): Promise<void> {
+    const crawler = this.activeCrawlers.get(sessionId);
+    if (crawler) {
+      try {
+        // Close all pages
+        await Promise.all(crawler.pages.map(page => page.close()));
+        // Close browser
+        await crawler.browser.close();
+      } catch (error) {
+        console.error(`Error cleaning up crawler ${sessionId}:`, error);
+      }
+      
+      this.activeCrawlers.delete(sessionId);
+    }
+  }
+
+  /**
+   * Extract domain from URL
+   */
+  private extractDomain(url: string): string | null {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.hostname;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Delay helper
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Get session details
+   */
+  async getSession(sessionId: string): Promise<ICrawlSession | null> {
+    return await CrawlSession.findOne({ sessionId });
+  }
+
+  /**
+   * Get all sessions
+   */
+  async getAllSessions(): Promise<ICrawlSession[]> {
+    return await CrawlSession.find().sort({ createdAt: -1 });
+  }
+
+  /**
+   * Delete session and associated data
+   */
+  async deleteSession(sessionId: string): Promise<void> {
+    // Stop crawl if running
+    await this.stopCrawl(sessionId);
+    
+    // Delete session data
+    await CrawlSession.deleteOne({ sessionId });
+    await RawContent.deleteMany({ sessionId });
+    
+    // Clean up queue
+    await this.urlQueue.cleanupOldUrls(sessionId, 0);
+    
+    // Remove from progress tracking
+    this.crawlProgress.delete(sessionId);
+  }
+
+  /**
+   * Run AI pattern analysis on crawled content
+   */
+  private async runPatternAnalysis(sessionId: string): Promise<void> {
+    try {
+      // Get all raw content for this session
+      const contents = await RawContent.find({ sessionId }).exec();
+      
+      if (contents.length === 0) {
+        console.log(`No content found for pattern analysis in session ${sessionId}`);
+        return;
+      }
+
+      console.log(`Analyzing ${contents.length} content items for patterns...`);
+      
+      // Run pattern recognition
+      const stats = await this.patternRecognizer.recognizePatterns(contents, sessionId);
+      
+      // Generate domain insights
+      const insights = this.patternRecognizer.generateDomainInsights(stats);
+      
+      // Update session with analysis results
+      await CrawlSession.findOneAndUpdate(
+        { sessionId },
+        {
+          $set: {
+            'stats.aiAnalysis': {
+              patternsFound: stats.patternsFound,
+              averageConfidence: stats.averageConfidence,
+              primaryContentType: insights.primaryContentType,
+              qualityScore: insights.qualityScore,
+              analyzedPages: stats.analyzedPages,
+              contentTypes: stats.contentTypes,
+              recommendations: insights.recommendations,
+              completedAt: new Date()
+            }
+          }
+        }
+      );
+
+      console.log(`✅ Pattern analysis completed for session ${sessionId}`);
+      console.log(`   - Primary content type: ${insights.primaryContentType}`);
+      console.log(`   - Quality score: ${insights.qualityScore.toFixed(1)}/100`);
+      console.log(`   - Patterns found: ${stats.patternsFound}`);
+      console.log(`   - Average confidence: ${(stats.averageConfidence * 100).toFixed(1)}%`);
+
+    } catch (error) {
+      console.error(`Error running pattern analysis for session ${sessionId}:`, error);
+      // Don't throw - pattern analysis failure shouldn't break the crawl
+    }
+  }
+
+  /**
+   * Get AI analysis results for a session
+   */
+  async getAIAnalysis(sessionId: string): Promise<any> {
+    const session = await CrawlSession.findOne({ sessionId }).exec();
+    return session?.stats.aiAnalysis || null;
+  }
+
+  /**
+   * Get pattern analysis export
+   */
+  async exportPatternAnalysis(sessionId: string): Promise<any> {
+    return this.patternRecognizer.exportPatternAnalysis();
+  }
+} 

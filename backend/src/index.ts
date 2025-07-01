@@ -10,6 +10,7 @@ import { rateLimiter } from './middleware/rateLimiter';
 // Import routes
 import scraperRoutes from './routes/scraperRoutes';
 import healthRoutes from './routes/healthRoutes';
+import crawlerRoutes from './routes/crawlerRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +51,7 @@ app.use('/health', healthRoutes);
 
 // API routes
 app.use('/api/scraper', scraperRoutes);
+app.use('/api/crawler', crawlerRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
