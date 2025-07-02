@@ -1,0 +1,926 @@
+{
+  "metadata": {
+    "exportedAt": "2025-07-02T14:59:33.194Z",
+    "exporter": "ScrapperX Enhanced JSON Exporter v1.0",
+    "format": "json",
+    "options": {
+      "format": "json",
+      "includeStructuredData": true,
+      "includeAIAnalysis": true,
+      "includePatternAnalysis": false,
+      "minQualityScore": 0.5,
+      "compress": false
+    }
+  },
+  "session": {
+    "sessionId": "f78bd9ae-62eb-48ee-9a40-04f9e57b0020",
+    "domain": "indiandistricts.in",
+    "startUrl": "https://indiandistricts.in/",
+    "status": "completed",
+    "config": {
+      "authentication": {
+        "credentials": {
+          "username": "ckauser",
+          "password": "cka@123",
+          "usernameField": "username",
+          "passwordField": "password",
+          "submitSelector": "input[type=\"submit\"], button[type=\"submit\"]"
+        },
+        "type": "basic"
+      },
+      "extraction": {
+        "enableStructuredData": true,
+        "dataTypes": [
+          "product",
+          "article",
+          "contact"
+        ],
+        "qualityThreshold": 0.7
+      },
+      "maxPages": 10,
+      "maxDepth": 3,
+      "respectRobots": true,
+      "delay": 1000,
+      "concurrent": 3,
+      "includePatterns": [],
+      "excludePatterns": []
+    },
+    "stats": {
+      "aiAnalysis": {
+        "patternsFound": 24,
+        "averageConfidence": 0.8555555555555556,
+        "primaryContentType": "contact",
+        "qualityScore": 78.22222222222223,
+        "analyzedPages": 9,
+        "contentTypes": {
+          "listing": 2,
+          "contact": 4,
+          "article": 1,
+          "unknown": 2
+        },
+        "recommendations": [
+          "Extract contact information and business details",
+          "Focus on location and communication channels",
+          "Limited content patterns - focus on specific page types",
+          "Small site - consider deeper crawling or include more page types"
+        ],
+        "completedAt": "2025-07-02T14:58:54.750Z"
+      },
+      "totalUrls": 0,
+      "processedUrls": 0,
+      "failedUrls": 0,
+      "extractedItems": 0,
+      "startTime": "2025-07-02T14:56:43.340Z",
+      "endTime": "2025-07-02T14:58:55.524Z"
+    },
+    "createdAt": "2025-07-02T14:56:43.342Z",
+    "updatedAt": "2025-07-02T14:58:55.524Z"
+  },
+  "summary": {
+    "totalPages": 9,
+    "structuredDataItems": 9,
+    "hasAIAnalysis": true,
+    "hasPatternAnalysis": false
+  },
+  "content": [
+    {
+      "url": "https://indiandistricts.in/",
+      "title": "Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "listing",
+        "confidence": 0.95,
+        "relevanceScore": 0.92,
+        "structuredData": {
+          "title": "INDIAN DISTRICTS CULTURE & STATISTICS",
+          "description": "Explore India one district at a time through comprehensive cultural and statistical data",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Cultural & Statistical Database",
+          "tags": [
+            "Indian Districts",
+            "Culture",
+            "Statistics",
+            "Geography",
+            "Education"
+          ],
+          "rating": null,
+          "images": [],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 3,
+          "extractedFields": 12,
+          "reasoning": "High-quality educational resource providing structured district-level data with verified institutional backing. Contains valuable contact information and demonstrates systematic organization of geographical/cultural information. Licensing information (Creative Commons) adds credibility."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548af994d59c712c7f3fa"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:56:47.964Z"
+    },
+    {
+      "url": "https://indiandistricts.in/project",
+      "title": "Project | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Project | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "article",
+        "confidence": 0.85,
+        "relevanceScore": 0.82,
+        "structuredData": {
+          "title": "Project",
+          "description": "The project aims to create knowledge about India by documenting its places at the district level through comprehensive mapping of statistics and culture. It focuses on collecting, synthesizing, and representing information about Indian districts across 12 chapters in two categories: Culture (qualitative) and Data (quantitative).",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Research Documentation",
+          "tags": [
+            "Indian districts",
+            "cultural documentation",
+            "data analysis",
+            "research dissemination"
+          ],
+          "rating": null,
+          "images": [],
+          "email": null,
+          "phone": null,
+          "address": "FLAME University"
+        },
+        "aiAnalysis": {
+          "patterns": 3,
+          "extractedFields": 12,
+          "reasoning": "Content provides substantial information about a research initiative documenting Indian districts, with clear value for academic/research purposes. Contains structured data categories, organizational information, and project methodology. Lacks commercial elements but offers educational resource potential."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "listing",
+          "selector": "ul > li",
+          "content": "Culture (local stories, handicrafts, political history etc.)",
+          "confidence": 0.7,
+          "_id": "686548b3994d59c712c7f41f"
+        },
+        {
+          "type": "listing",
+          "selector": "ul > li",
+          "content": "Data (health, education, agriculture etc.).",
+          "confidence": 0.7,
+          "_id": "686548b3994d59c712c7f420"
+        },
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548b3994d59c712c7f421"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:56:51.773Z"
+    },
+    {
+      "url": "https://indiandistricts.in/people",
+      "title": "Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "listing",
+        "confidence": 0.95,
+        "relevanceScore": 0.88,
+        "structuredData": {
+          "title": "INDIAN DISTRICTS CULTURE & STATISTICS",
+          "description": "Welcome to the most comprehensive encyclopedia of Indian districts. Explore India one district at a time",
+          "category": "Geographical Database",
+          "tags": [
+            "Indian districts",
+            "statistics",
+            "culture",
+            "encyclopedia"
+          ],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 2,
+          "extractedFields": 7,
+          "reasoning": "Contains structured geographical data with institutional backing, contact information, and comprehensive district listings. Valuable for researchers studying Indian administrative divisions with verified contact details and licensing information."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548b7994d59c712c7f433"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:56:55.290Z"
+    },
+    {
+      "url": "https://indiandistricts.in/suggest-edits",
+      "title": "Suggest Edits | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Suggest Edits | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "contact",
+        "confidence": 0.8,
+        "relevanceScore": 0.7,
+        "structuredData": {
+          "title": "Suggest Edits | Centre For Knowledge Alternatives",
+          "description": "You must log in to proceed. The Project is licensed under a Creative Commons Attribution 4.0 International License",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Administrative",
+          "tags": [
+            "edits",
+            "collaboration",
+            "university"
+          ],
+          "rating": null,
+          "images": [],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 4,
+          "extractedFields": 12,
+          "reasoning": "Page serves as contact/contribution interface with valuable institutional information, authentication requirements, and verified contact details. Contains essential organizational metadata for verification purposes."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548ba994d59c712c7f448"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:56:58.798Z"
+    },
+    {
+      "url": "https://indiandistricts.in/patnerships",
+      "title": "Patnerships | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Patnerships | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "contact",
+        "confidence": 0.85,
+        "relevanceScore": 0.75,
+        "structuredData": {
+          "title": "Patnerships | Centre For Knowledge Alternatives",
+          "description": null,
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Organization Information",
+          "tags": [
+            "Partnerships",
+            "University",
+            "Contact"
+          ],
+          "rating": null,
+          "images": [],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 2,
+          "extractedFields": 12,
+          "reasoning": "Contains essential contact information and organizational details valuable for partnership inquiries, though lacks specific partnership program details. High-quality contact data with verified institutional affiliation through FLAME University references."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548be994d59c712c7f45d"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:57:02.185Z"
+    },
+    {
+      "url": "https://indiandistricts.in/careers",
+      "title": "Careers | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Careers | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "contact",
+        "confidence": 0.75,
+        "relevanceScore": 0.65,
+        "structuredData": {
+          "title": "Careers | Centre For Knowledge Alternatives",
+          "description": "N/A",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Organization Information",
+          "tags": [
+            "Careers",
+            "Contact Information",
+            "University"
+          ],
+          "rating": null,
+          "images": [],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 3,
+          "extractedFields": 12,
+          "reasoning": "Contains valuable contact information and institutional details with clear navigation structure. While primarily a careers page, lacks specific job listings but provides essential organizational contact data and legal information."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548c1994d59c712c7f46f"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:57:05.650Z"
+    },
+    {
+      "url": "https://indiandistricts.in/subscribe",
+      "title": "Subscribe | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Subscribe | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "contact",
+        "confidence": 0.9,
+        "relevanceScore": 0.7,
+        "structuredData": {
+          "title": "Subscribe | Centre For Knowledge Alternatives",
+          "description": null,
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Institutional Information",
+          "tags": [
+            "Education",
+            "University",
+            "Subscriptions",
+            "Legal"
+          ],
+          "rating": null,
+          "images": [],
+          "email": "cka@flame.edu.in",
+          "phone": "+91-20-67906000",
+          "address": "FLAME University, Lavale, Pune 412115, India"
+        },
+        "aiAnalysis": {
+          "patterns": 3,
+          "extractedFields": 12,
+          "reasoning": "Page contains essential contact information and institutional details with clear navigation patterns. High-value contact data (email, phone, address) extracted. Lacks subscription-specific content despite page title."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548c5994d59c712c7f484"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:57:09.048Z"
+    },
+    {
+      "url": "https://indiandistricts.in/terms-and-conditions",
+      "title": "Terms & Conditions | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Terms & Conditions | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "unknown",
+        "confidence": 0.95,
+        "relevanceScore": 0.85,
+        "structuredData": {
+          "title": "Terms & Conditions | Centre For Knowledge Alternatives",
+          "description": "Legal agreement outlining user responsibilities and organizational obligations",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Legal Documentation",
+          "tags": [
+            "legal",
+            "terms",
+            "liability",
+            "user agreement"
+          ],
+          "rating": null,
+          "images": [],
+          "email": null,
+          "phone": null,
+          "address": "FLAME University, Gat No. 1270, Lavale, Pune 412115"
+        },
+        "aiAnalysis": {
+          "patterns": 2,
+          "extractedFields": 12,
+          "reasoning": "Contains essential legal terms and liability clauses critical for user agreements. High relevance for compliance documentation despite lacking commercial elements. Structured patterns of legal disclaimers and prohibited activities demonstrate clear organizational policies."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any loss that was not foreseeable to the user or us when the agreement was formed,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f499"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any loss that was not caused by any breach on our part,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49a"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any business loss (including business interruption, or loss of revenues, sales or business opportunity),",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49b"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any loss of profits, anticipated savings, goodwill, reputation, or data,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49c"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any loss of use or corruption of software or technical equipment, and",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49d"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Any indirect or consequential loss.",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49e"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Violating someone else’s rights, including privacy,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f49f"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Engaging in a fraud through the Portal,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a0"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Knowingly or intentionally posting content that constitutes libel or defamation,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a1"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Contributing content that is known to the contributor to be false or inaccurate,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a2"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Contributing something an intention to deceive,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a3"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Impersonating another user or individual, misrepresenting one’s affiliation with any individual or entity, or using the username of another user with the intent to deceive,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a4"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Harassing, threatening, stalking, vandalizing other users,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a5"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Spamming, trolling or transmitting chain mail, or junk mail through the Portal to anyone or other users,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a6"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Infringing copyrights, trademarks, patents, or other proprietary rights under the applicable law,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a7"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Posting obscene or vulgar content unlawful under applicable law,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a8"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Posting, contributing or distributing through the Portal, content that carries viruses, malware, worms, Trojan horses, malicious code, or other devices or programmes that could harm our technical infrastructure or system or that of our users,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4a9"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Disrupting the services by placing an undue burden on the Portal or the networks or servers connected with the Portal,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4aa"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Disrupting the services by inundating the Portal with communications or other traffic that suggests no serious intent to use the Portal for its stated purpose,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4ab"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Bypassing any measures placed by CKA to restrict or prevent access to the Portal,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4ac"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Knowingly accessing, tampering with, or using any of our non-public areas in our computer systems without authorization,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4ad"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Probing, scanning, or testing the vulnerability of any of our technical systems or networks unless reporting our technical vulnerabilities to us,",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4ae"
+        },
+        {
+          "type": "listing",
+          "selector": "ol > li",
+          "content": "Using any automated means, including robots, scrapers, spiders, robots, crawlers, data mining tools or the like to download data or content from the Portal.",
+          "confidence": 0.7,
+          "_id": "686548c8994d59c712c7f4af"
+        },
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548c8994d59c712c7f4b0"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/disclaimers",
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:57:12.557Z"
+    },
+    {
+      "url": "https://indiandistricts.in/disclaimers",
+      "title": "Disclaimers | Centre For Knowledge Alternatives",
+      "description": "",
+      "processingStatus": "analyzed",
+      "metadata": {
+        "title": "Disclaimers | Centre For Knowledge Alternatives",
+        "description": "",
+        "aiContentType": "unknown",
+        "confidence": 0.7,
+        "relevanceScore": 0.5,
+        "structuredData": {
+          "title": "Disclaimers | Centre For Knowledge Alternatives",
+          "description": "Legal and methodological disclosures for indiandistricts.in portal",
+          "price": null,
+          "author": null,
+          "date": null,
+          "category": "Legal/Institutional Information",
+          "tags": [
+            "disclaimers",
+            "methodology",
+            "university",
+            "data sources"
+          ],
+          "rating": null,
+          "images": [],
+          "email": null,
+          "phone": null,
+          "address": "FLAME University, Gat No. 1270, Lavale, Pune 412115"
+        },
+        "aiAnalysis": {
+          "patterns": 2,
+          "extractedFields": 12,
+          "reasoning": "Contains essential legal disclaimers and institutional information crucial for understanding data sourcing and portal governance, but limited general user value beyond compliance purposes."
+        }
+      },
+      "contentChunks": [
+        {
+          "type": "footer",
+          "selector": ".footer",
+          "content": "Project\n                    People\n                    Suggest Edits\n                    Patnerships\n                    Careers\n                \n\n                \n                    About Centre for Knowledge Alternatives\n                    About FLAME University\n                    Subscribe\n                    Terms & Conditions\n                    Disclaimers\n                \n                \n                \n                    Centre for Knowledge Alternatives,        FLAME University,        Lavale, Pune 412115, India\n                    cka@flame.edu.in\n                    +91-20-67906000\n                \n            \n        \n        \n            \n                \n                    \n                        The Project is licensed under a Creative Commons Attribution 4.0 International License Disclaimer: This data is being furnished to you for your information.   \n                        We make every effort to use reliable and comprehensive information, but we do not represent that this information is accurate \n                        or complete.This data has been collated without regard to the objectives or opinions of those who may receive it.s",
+          "confidence": 0.9,
+          "_id": "686548cc994d59c712c7f4c5"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/project",
+          "https://indiandistricts.in/people",
+          "https://indiandistricts.in/suggest-edits",
+          "https://indiandistricts.in/patnerships",
+          "https://indiandistricts.in/careers",
+          "https://indiandistricts.in/subscribe",
+          "https://indiandistricts.in/terms-and-conditions",
+          "https://indiandistricts.in/disclaimers"
+        ],
+        "external": [
+          "https://www.flame.edu.in/cka/",
+          "https://www.flame.edu.in/"
+        ]
+      },
+      "createdAt": "2025-07-02T14:57:16.084Z"
+    }
+  ],
+  "structuredData": {
+    "summary": {
+      "totalItems": 9,
+      "schemas": [
+        "job",
+        "article"
+      ],
+      "averageQuality": 0.4955555555555555
+    },
+    "items": [
+      {
+        "url": "https://indiandistricts.in/terms-and-conditions",
+        "schema": "article",
+        "version": "1.0",
+        "fields": {
+          "title": "Terms & Conditions",
+          "tags": []
+        },
+        "nestedStructures": [
+          {
+            "type": "list",
+            "selector": ".row",
+            "count": 3,
+            "items": [
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/cka/",
+                "image": "/img/logo.png"
+              },
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/cka/",
+                "image": "/img/logo.png"
+              },
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/",
+                "image": "/img/flame-logo.png"
+              }
+            ]
+          }
+        ],
+        "qualityScore": 0.55,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-07-02T14:57:12.592Z"
+      },
+      {
+        "url": "https://indiandistricts.in/disclaimers",
+        "schema": "article",
+        "version": "1.0",
+        "fields": {
+          "title": "Disclaimers",
+          "tags": []
+        },
+        "nestedStructures": [
+          {
+            "type": "list",
+            "selector": ".row",
+            "count": 3,
+            "items": [
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/cka/",
+                "image": "/img/logo.png"
+              },
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/cka/",
+                "image": "/img/logo.png"
+              },
+              {
+                "title": "",
+                "link": "https://www.flame.edu.in/",
+                "image": "/img/flame-logo.png"
+              }
+            ]
+          }
+        ],
+        "qualityScore": 0.55,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-07-02T14:57:16.095Z"
+      }
+    ]
+  },
+  "aiAnalysis": {
+    "patternsFound": 24,
+    "averageConfidence": 0.8555555555555556,
+    "primaryContentType": "contact",
+    "qualityScore": 78.22222222222223,
+    "analyzedPages": 9,
+    "contentTypes": {
+      "listing": 2,
+      "contact": 4,
+      "article": 1,
+      "unknown": 2
+    },
+    "recommendations": [
+      "Extract contact information and business details",
+      "Focus on location and communication channels",
+      "Limited content patterns - focus on specific page types",
+      "Small site - consider deeper crawling or include more page types"
+    ],
+    "completedAt": "2025-07-02T14:58:54.750Z"
+  }
+}

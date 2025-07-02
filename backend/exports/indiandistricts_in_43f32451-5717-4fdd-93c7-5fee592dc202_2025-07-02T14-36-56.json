@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "exportedAt": "2025-07-02T14:36:56.276Z",
+    "exporter": "ScrapperX Enhanced JSON Exporter v1.0",
+    "format": "json",
+    "options": {
+      "format": "json",
+      "includeStructuredData": true,
+      "includeAIAnalysis": true,
+      "includePatternAnalysis": false,
+      "minQualityScore": 0.5,
+      "compress": false
+    }
+  },
+  "session": {
+    "sessionId": "43f32451-5717-4fdd-93c7-5fee592dc202",
+    "domain": "indiandistricts.in",
+    "startUrl": "https://indiandistricts.in/",
+    "status": "completed",
+    "config": {
+      "authentication": {
+        "credentials": {
+          "username": "ckauser",
+          "password": "cka@123",
+          "loginUrl": "https://indiandistricts.in/",
+          "usernameField": "username",
+          "passwordField": "password",
+          "submitSelector": "input[type=\"submit\"], button[type=\"submit\"]"
+        },
+        "type": "form"
+      },
+      "extraction": {
+        "enableStructuredData": true,
+        "dataTypes": [
+          "product",
+          "article",
+          "contact"
+        ],
+        "qualityThreshold": 0.9
+      },
+      "maxPages": 50,
+      "maxDepth": 3,
+      "respectRobots": true,
+      "delay": 1000,
+      "concurrent": 3,
+      "includePatterns": [],
+      "excludePatterns": []
+    },
+    "stats": {
+      "aiAnalysis": {
+        "recommendations": []
+      },
+      "totalUrls": 0,
+      "processedUrls": 0,
+      "failedUrls": 0,
+      "extractedItems": 0,
+      "startTime": "2025-07-02T14:36:37.323Z",
+      "endTime": "2025-07-02T14:36:49.919Z"
+    },
+    "createdAt": "2025-07-02T14:36:37.329Z",
+    "updatedAt": "2025-07-02T14:36:49.919Z"
+  },
+  "summary": {
+    "totalPages": 0,
+    "structuredDataItems": 0,
+    "hasAIAnalysis": true,
+    "hasPatternAnalysis": false
+  },
+  "content": [],
+  "structuredData": {
+    "summary": {
+      "totalItems": 0,
+      "schemas": [],
+      "averageQuality": null
+    },
+    "items": []
+  },
+  "aiAnalysis": {
+    "recommendations": []
+  }
+}

@@ -155,11 +155,18 @@ export class DomainCrawlerService {
 
       // Run AI pattern analysis
       console.log(`🤖 Starting AI pattern analysis for session ${sessionId}`);
-      await this.runPatternAnalysis(sessionId);
+      try {
+        await this.runPatternAnalysis(sessionId);
+      } catch (analysisError) {
+        console.warn(`Pattern analysis failed for session ${sessionId}:`, analysisError);
+        // Don't fail the entire crawl if pattern analysis fails
+      }
 
       // Cleanup
       await this.cleanup(sessionId);
       await this.updateSessionStatus(sessionId, 'completed');
+
+      console.log(`✅ Crawl session ${sessionId} completed successfully`);
 
     } catch (error) {
       console.error(`Crawl execution failed for session ${sessionId}:`, error);
@@ -189,7 +196,10 @@ export class DomainCrawlerService {
         console.log(`✅ Authentication successful for ${domain}`);
       } else {
         console.error(`❌ Authentication failed for ${domain}:`, authResult.error);
-        // Continue without authentication - some pages might still be accessible
+        // If authentication is required but failed, we should not continue crawling
+        // as we'll likely get access denied pages
+        console.log(`🚫 Skipping crawling due to authentication failure`);
+        return;
       }
     }
 
@@ -250,13 +260,20 @@ export class DomainCrawlerService {
         // Extract content
         const extractedContent = await this.contentExtractor.extractContent(html, urlItem.url, domain);
 
+        // Validate extracted content before saving
+        if (!extractedContent.textContent || extractedContent.textContent.trim().length === 0) {
+          console.warn(`⚠️ Empty text content for ${urlItem.url}, skipping...`);
+          await this.urlQueue.markFailed(String(urlItem._id), 'Empty content extracted');
+          continue;
+        }
+
         // Store raw content
         const rawContent = new RawContent({
           sessionId,
           url: urlItem.url,
           contentHash: extractedContent.contentHash,
           htmlContent: extractedContent.htmlContent,
-          textContent: extractedContent.textContent,
+          textContent: extractedContent.textContent || ' ', // Ensure non-empty textContent
           metadata: {
             title: extractedContent.title,
             description: extractedContent.description,
@@ -587,11 +604,28 @@ export class DomainCrawlerService {
 
       console.log(`Analyzing ${contents.length} content items for patterns...`);
       
-      // Run pattern recognition
-      const stats = await this.patternRecognizer.recognizePatterns(contents, sessionId);
+      // Run pattern recognition with error handling
+      let stats: any;
+      let insights: any;
       
-      // Generate domain insights
-      const insights = this.patternRecognizer.generateDomainInsights(stats);
+      try {
+        stats = await this.patternRecognizer.recognizePatterns(contents, sessionId);
+        insights = this.patternRecognizer.generateDomainInsights(stats);
+      } catch (patternError) {
+        console.warn(`Pattern recognition failed: ${patternError}`);
+        // Create fallback stats
+        stats = {
+          patternsFound: 0,
+          averageConfidence: 0.5,
+          analyzedPages: contents.length,
+          contentTypes: { unknown: contents.length }
+        };
+        insights = {
+          primaryContentType: 'unknown',
+          qualityScore: 50,
+          recommendations: ['Pattern analysis failed - using fallback data']
+        };
+      }
       
       // Update session with analysis results
       await CrawlSession.findOneAndUpdate(
@@ -599,13 +633,13 @@ export class DomainCrawlerService {
         {
           $set: {
             'stats.aiAnalysis': {
-              patternsFound: stats.patternsFound,
-              averageConfidence: stats.averageConfidence,
-              primaryContentType: insights.primaryContentType,
-              qualityScore: insights.qualityScore,
-              analyzedPages: stats.analyzedPages,
-              contentTypes: stats.contentTypes,
-              recommendations: insights.recommendations,
+              patternsFound: stats.patternsFound || 0,
+              averageConfidence: stats.averageConfidence || 0.5,
+              primaryContentType: insights.primaryContentType || 'unknown',
+              qualityScore: insights.qualityScore || 50,
+              analyzedPages: stats.analyzedPages || contents.length,
+              contentTypes: stats.contentTypes || { unknown: contents.length },
+              recommendations: insights.recommendations || [],
               completedAt: new Date()
             }
           }
@@ -613,14 +647,14 @@ export class DomainCrawlerService {
       );
 
       console.log(`✅ Pattern analysis completed for session ${sessionId}`);
-      console.log(`   - Primary content type: ${insights.primaryContentType}`);
-      console.log(`   - Quality score: ${insights.qualityScore.toFixed(1)}/100`);
-      console.log(`   - Patterns found: ${stats.patternsFound}`);
-      console.log(`   - Average confidence: ${(stats.averageConfidence * 100).toFixed(1)}%`);
+      console.log(`   - Primary content type: ${insights.primaryContentType || 'unknown'}`);
+      console.log(`   - Quality score: ${(insights.qualityScore || 50).toFixed(1)}/100`);
+      console.log(`   - Patterns found: ${stats.patternsFound || 0}`);
+      console.log(`   - Average confidence: ${((stats.averageConfidence || 0.5) * 100).toFixed(1)}%`);
 
     } catch (error) {
-      console.error(`Error running pattern analysis for session ${sessionId}:`, error);
-      // Don't throw - pattern analysis failure shouldn't break the crawl
+      console.error(`Pattern analysis error for session ${sessionId}:`, error);
+      // Don't throw error - allow crawl to complete even if pattern analysis fails
     }
   }
 

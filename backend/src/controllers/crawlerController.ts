@@ -682,14 +682,19 @@ export class CrawlerController {
 
       const { url, authentication } = value;
 
-      // Test authentication (this would be a simplified test)
+      // Test authentication using the enhanced authentication handler
+      const authHandler = new (require('../services/authenticationHandler').AuthenticationHandler)();
+      const testResult = await authHandler.testAuthentication(authentication, url);
+
       res.json({
-        success: true,
-        message: 'Authentication configuration is valid',
+        success: testResult.success,
+        message: testResult.success ? 'Authentication test successful' : 'Authentication test failed',
         data: {
           url,
           authenticationType: authentication.type,
-          testResult: 'Configuration validated successfully'
+          testResult: testResult.success ? 'Authentication successful' : testResult.error,
+          sessionData: testResult.sessionData,
+          error: testResult.error
         }
       });
 

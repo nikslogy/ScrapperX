@@ -98,12 +98,28 @@ export class AuthenticationHandler {
 
     // Wait for page to load
     await page.waitForTimeout(2000);
+    
+    // Check if there are any iframes that might contain the login form
+    const frames = page.frames();
+    console.log(`🎭 Found ${frames.length} frames on page`);
+    
+    // Log current page title and URL for debugging
+    const pageTitle = await page.title();
+    const currentUrl = page.url();
+    console.log(`📄 Page: "${pageTitle}" at ${currentUrl}`);
 
     // Check if this is a modal-based login - look for login triggers
     const loginTriggers = [
       'button:has-text("Login")', 'button:has-text("Sign in")', 'a:has-text("Login")', 
       'a:has-text("Sign in")', '[class*="login"]', '[id*="login"]',
-      'button:has-text("Sign In")', 'a:has-text("Sign In")'
+      'button:has-text("Sign In")', 'a:has-text("Sign In")',
+      // Additional triggers
+      'button:has-text("Log in")', 'a:has-text("Log in")',
+      '.login-btn', '.signin-btn', '.auth-btn',
+      '[data-toggle="modal"]', '[data-bs-toggle="modal"]',
+      // Generic login buttons
+      'button[class*="login" i]', 'a[class*="login" i]',
+      'button[id*="login" i]', 'a[id*="login" i]'
     ];
 
     let modalTriggered = false;
@@ -112,10 +128,15 @@ export class AuthenticationHandler {
         const element = await page.$(trigger);
         if (element) {
           console.log(`🔗 Found login trigger: ${trigger}`);
-          await element.click();
-          await page.waitForTimeout(1000);
-          modalTriggered = true;
-          break;
+          
+          // Check if element is visible before clicking
+          const isVisible = await element.isVisible();
+          if (isVisible) {
+            await element.click();
+            await page.waitForTimeout(1500);
+            modalTriggered = true;
+            break;
+          }
         }
       } catch (e) {
         // Continue trying other triggers
@@ -124,34 +145,106 @@ export class AuthenticationHandler {
 
     if (modalTriggered) {
       console.log(`✅ Login modal triggered, waiting for form...`);
+      
+      // Wait for modal to appear with multiple strategies
+      const modalSelectors = [
+        '.modal', '[role="dialog"]', '.popup', '.overlay',
+        '.login-modal', '.auth-modal', '.signin-modal'
+      ];
+      
+      let modalFound = false;
+      for (const selector of modalSelectors) {
+        try {
+          await page.waitForSelector(selector, { timeout: 3000 });
+          console.log(`📋 Modal found: ${selector}`);
+          modalFound = true;
+          break;
+        } catch (e) {
+          // Continue
+        }
+      }
+      
+      if (!modalFound) {
+        console.log(`⚠️ Modal not detected, but login trigger was clicked`);
+      }
+      
       await page.waitForTimeout(2000);
     }
 
-    // Fill username field
+    // Fill username field - with comprehensive selectors
     const usernameSelectors = [
       usernameField, // Use the provided selector first
       `input[name="${usernameField}"]`,
       `input[id="${usernameField}"]`,
       'input[type="email"]',
+      'input[type="text"]', // Added generic text input
       'input[name="email"]',
       'input[name="login"]',
       'input[name="user"]',
       'input[name="username"]',
+      'input[name="userid"]',
+      'input[name="user_id"]',
+      'input[name="loginid"]',
+      'input[name="account"]',
       'input[placeholder*="username" i]',
-      'input[placeholder*="email" i]'
+      'input[placeholder*="email" i]',
+      'input[placeholder*="user" i]',
+      'input[placeholder*="login" i]',
+      'input[aria-label*="username" i]',
+      'input[aria-label*="email" i]',
+      'input[aria-label*="user" i]',
+      'input[autocomplete="username"]',
+      'input[autocomplete="email"]',
+      // Look for any input that's the first in a form
+      'form input[type="text"]:first-of-type',
+      'form input:not([type="password"]):not([type="submit"]):not([type="button"]):not([type="hidden"]):first-of-type',
+      // Modal-specific selectors
+      '.modal input[type="text"]',
+      '.modal input[type="email"]',
+      '[role="dialog"] input[type="text"]',
+      '[role="dialog"] input[type="email"]'
     ];
 
     let usernameElement = null;
+    console.log(`🔍 Searching for username field with ${usernameSelectors.length} selectors...`);
+    
     for (const selector of usernameSelectors) {
       try {
         usernameElement = await page.$(selector);
-        if (usernameElement) break;
+        if (usernameElement) {
+          console.log(`✅ Username field found with selector: ${selector}`);
+          break;
+        }
       } catch (e) {
         continue;
       }
     }
 
     if (!usernameElement) {
+      console.log(`❌ No username field found. Available inputs on page:`);
+      try {
+        const allInputs = await page.$$eval('input', inputs => 
+          inputs.map(input => ({
+            type: input.type,
+            name: input.name,
+            id: input.id,
+            placeholder: input.placeholder,
+            className: input.className,
+            visible: !input.hidden && input.offsetParent !== null
+          }))
+        );
+        console.log(JSON.stringify(allInputs, null, 2));
+      } catch (e) {
+        console.log(`Could not analyze page inputs`);
+      }
+      // Take screenshot for debugging
+      try {
+        await page.screenshot({ path: `debug-auth-${domain}-${Date.now()}.png`, fullPage: true });
+        console.log(`📸 Screenshot saved for debugging`);
+      } catch (e) {
+        // Ignore screenshot errors
+      }
+      
       throw new Error('Could not find username field');
     }
 
@@ -166,20 +259,35 @@ export class AuthenticationHandler {
       'input[type="password"]',
       'input[name="pass"]',
       'input[name="password"]',
-      'input[placeholder*="password" i]'
+      'input[name="pwd"]',
+      'input[name="passwd"]',
+      'input[placeholder*="password" i]',
+      'input[placeholder*="pass" i]',
+      'input[aria-label*="password" i]',
+      'input[autocomplete="current-password"]',
+      'input[autocomplete="password"]',
+      // Modal-specific selectors
+      '.modal input[type="password"]',
+      '[role="dialog"] input[type="password"]'
     ];
 
     let passwordElement = null;
+    console.log(`🔍 Searching for password field with ${passwordSelectors.length} selectors...`);
+    
     for (const selector of passwordSelectors) {
       try {
         passwordElement = await page.$(selector);
-        if (passwordElement) break;
+        if (passwordElement) {
+          console.log(`✅ Password field found with selector: ${selector}`);
+          break;
+        }
       } catch (e) {
         continue;
       }
     }
 
     if (!passwordElement) {
+      console.log(`❌ No password field found`);
       throw new Error('Could not find password field');
     }
 
@@ -386,6 +494,64 @@ export class AuthenticationHandler {
     } catch (error) {
       console.error(`Auth validation failed for ${domain}:`, error);
       return false;
+    }
+  }
+
+  /**
+   * Test authentication process independently for debugging
+   */
+  async testAuthentication(authConfig: AuthConfig, testUrl: string): Promise<AuthResult> {
+    const { chromium } = require('playwright');
+    
+    console.log(`🧪 Testing authentication for ${testUrl}`);
+    
+    const browser = await chromium.launch({ headless: false }); // Run in visible mode for debugging
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    
+    try {
+      const result = await this.authenticatePage(page, authConfig, new URL(testUrl).hostname);
+      
+      if (result.success) {
+        console.log(`✅ Authentication test successful`);
+        
+        // Try to navigate to a page that might require authentication
+        await page.goto(testUrl);
+        await page.waitForTimeout(3000);
+        
+        const finalUrl = page.url();
+        const finalTitle = await page.title();
+        console.log(`🎯 Final page: "${finalTitle}" at ${finalUrl}`);
+        
+        // Take a screenshot of the final state
+        await page.screenshot({ path: `auth-test-success-${Date.now()}.png` });
+        console.log(`📸 Success screenshot saved`);
+      } else {
+        console.log(`❌ Authentication test failed: ${result.error}`);
+        
+        // Take a screenshot of the failure state
+        await page.screenshot({ path: `auth-test-failure-${Date.now()}.png` });
+        console.log(`📸 Failure screenshot saved`);
+      }
+      
+      await browser.close();
+      return result;
+      
+    } catch (error) {
+      console.error(`🚨 Authentication test error:`, error);
+      
+      try {
+        await page.screenshot({ path: `auth-test-error-${Date.now()}.png` });
+        console.log(`📸 Error screenshot saved`);
+      } catch (e) {
+        // Ignore screenshot errors
+      }
+      
+      await browser.close();
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown test error' 
+      };
     }
   }
 } 

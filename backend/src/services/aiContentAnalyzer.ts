@@ -61,47 +61,54 @@ export class AIContentAnalyzer {
   }
 
   /**
-   * Analyze content using AI to detect patterns and extract structured data
+   * Analyze content using AI
    */
   async analyzeContent(content: IRawContent): Promise<AIAnalysisResult> {
+    // If AI is not enabled, use fallback analysis
     if (!this.isEnabled || !this.openai) {
+      console.log('AI not available, using fallback analysis');
       return this.getFallbackAnalysis(content);
     }
 
     try {
       const analysisPrompt = this.buildAnalysisPrompt(content);
-      
+
       const response = await this.openai.chat.completions.create({
-        model: process.env.OPENROUTER_MODEL || 'deepseek/deepseek-r1:free',
+        model: 'deepseek/deepseek-r1:free',
         messages: [
           {
             role: 'system',
-            content: `You are an expert web content analyzer. Analyze web content and return structured JSON data about content patterns, types, and extracted information. Focus on identifying:
+            content: `You are an expert web content analyzer. Analyze web content and return ONLY valid JSON data about content patterns, types, and extracted information. 
+            
+            CRITICAL: Your response must be ONLY valid JSON with no additional text, explanations, or markdown formatting.
+            
+            Focus on identifying:
             1. Content type (product, article, listing, navigation, contact, pricing, testimonial, etc.)
             2. Structured data extraction (titles, prices, descriptions, contact info, etc.)
             3. Content relevance and quality
             4. Recurring patterns and selectors
             
-            Always respond with valid JSON matching the expected schema.`
+            Respond with valid JSON only.`
           },
           {
             role: 'user',
             content: analysisPrompt
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000
+        temperature: 0.1,
+        max_tokens: 1500
       });
 
       const aiResponse = response.choices[0]?.message?.content;
-      if (!aiResponse) {
-        throw new Error('No response from AI');
+      if (!aiResponse || aiResponse.trim().length === 0) {
+        console.log('Empty AI response, using fallback');
+        return this.getFallbackAnalysis(content);
       }
 
       return this.parseAIResponse(aiResponse, content);
 
     } catch (error) {
-      console.error('AI Analysis error:', error);
+      console.log('AI Analysis error, using fallback:', error instanceof Error ? error.message : 'Unknown error');
       return this.getFallbackAnalysis(content);
     }
   }
@@ -165,11 +172,34 @@ Focus on extracting meaningful, structured data that would be valuable for users
    */
   private parseAIResponse(aiResponse: string, content: IRawContent): AIAnalysisResult {
     try {
-      // Extract JSON from response if it's wrapped in markdown or text
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? jsonMatch[0] : aiResponse;
+      // Clean the response - remove any markdown, extra text, etc.
+      let cleanResponse = aiResponse.trim();
       
-      const parsed = JSON.parse(jsonStr);
+      // Extract JSON from response if it's wrapped in markdown or text
+      const jsonMatch = cleanResponse.match(/\{[\s\S]*?\}(?:\s*$|\s*```|\s*\n\n)/);
+      if (jsonMatch) {
+        cleanResponse = jsonMatch[0].replace(/```.*$/, '').trim();
+      }
+      
+      // Additional cleanup for common JSON issues
+      cleanResponse = cleanResponse
+        .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+        .replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g, '$1"$2":') // Quote unquoted keys
+        .replace(/:\s*'([^']*)'/g, ': "$1"') // Replace single quotes with double quotes
+        .replace(/\n/g, ' ') // Remove newlines
+        .replace(/\t/g, ' ') // Remove tabs
+        .replace(/\s+/g, ' '); // Normalize whitespace
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(cleanResponse);
+      } catch (parseError) {
+        console.log('Initial JSON parse failed, attempting repair...');
+        
+        // Try to fix common issues
+        const repaired = this.repairJSON(cleanResponse);
+        parsed = JSON.parse(repaired);
+      }
       
       // Validate and sanitize the response
       return {
@@ -183,8 +213,39 @@ Focus on extracting meaningful, structured data that would be valuable for users
       };
 
     } catch (error) {
-      console.error('Error parsing AI response:', error);
+      console.log('Failed to parse AI response, using fallback:', error instanceof Error ? error.message : 'Parse error');
       return this.getFallbackAnalysis(content);
+    }
+  }
+
+  /**
+   * Attempt to repair malformed JSON
+   */
+  private repairJSON(jsonStr: string): string {
+    try {
+      // Handle common JSON repair scenarios
+      let repaired = jsonStr;
+      
+      // Ensure proper object wrapping
+      if (!repaired.trim().startsWith('{')) {
+        repaired = '{' + repaired;
+      }
+      if (!repaired.trim().endsWith('}')) {
+        repaired = repaired + '}';
+      }
+      
+      // Remove trailing commas more aggressively
+      repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+      
+      // Fix arrays with trailing commas
+      repaired = repaired.replace(/,(\s*\])/g, '$1');
+      
+      // Ensure all strings are properly quoted
+      repaired = repaired.replace(/:\s*([^",\[\]{}\s]+)(?=\s*[,}])/g, ': "$1"');
+      
+      return repaired;
+    } catch (error) {
+      throw new Error('JSON repair failed');
     }
   }
 

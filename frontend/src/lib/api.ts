@@ -72,7 +72,208 @@ export const healthCheck = async (): Promise<ApiResponse<any>> => {
   }
 };
 
-// Adaptive scraping analytics
+// Domain Crawler APIs
+export const startDomainCrawl = async (url: string, config: any): Promise<ApiResponse<{ sessionId: string }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/start-domain-crawl`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url, config }),
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to start domain crawl.');
+  }
+};
+
+export const getCrawlSessions = async (): Promise<ApiResponse<{ sessions: any[] }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/sessions`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to fetch crawl sessions.');
+  }
+};
+
+export const getCrawlProgress = async (sessionId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/progress`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get crawl progress.');
+  }
+};
+
+export const pauseCrawl = async (sessionId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/pause`, {
+      method: 'POST'
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to pause crawl.');
+  }
+};
+
+export const resumeCrawl = async (sessionId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/resume`, {
+      method: 'POST'
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to resume crawl.');
+  }
+};
+
+export const stopCrawl = async (sessionId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/stop`, {
+      method: 'POST'
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to stop crawl.');
+  }
+};
+
+// Export APIs
+export const exportSession = async (
+  sessionId: string, 
+  format: string,
+  options?: {
+    includeStructuredData?: boolean;
+    includeAIAnalysis?: boolean;
+    multiFormat?: boolean;
+    qualityFilter?: number;
+  }
+): Promise<ApiResponse<{ downloadUrl: string; filename: string; size: number }>> => {
+  try {
+    const params = new URLSearchParams();
+    params.append('format', format);
+    
+    if (options?.includeStructuredData) params.append('includeStructuredData', 'true');
+    if (options?.includeAIAnalysis) params.append('includeAIAnalysis', 'true');
+    if (options?.multiFormat) params.append('multiFormat', 'true');
+    if (options?.qualityFilter) params.append('qualityFilter', options.qualityFilter.toString());
+
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/export?${params.toString()}`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to export session data.');
+  }
+};
+
+export const getExportHistory = async (): Promise<ApiResponse<any[]>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/exports/history`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get export history.');
+  }
+};
+
+export const cleanupExports = async (): Promise<ApiResponse<{ cleaned: number }>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/exports/cleanup`, {
+      method: 'POST'
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to cleanup exports.');
+  }
+};
+
+// Analytics APIs
+export const getAnalytics = async (timeRange?: string): Promise<ApiResponse<any>> => {
+  try {
+    const params = timeRange ? `?timeRange=${timeRange}` : '';
+    const response = await fetch(`${API_BASE_URL}/api/crawler/analytics${params}`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to fetch analytics.');
+  }
+};
+
+export const getStructuredData = async (
+  sessionId: string,
+  filters?: {
+    dataType?: string;
+    minQuality?: number;
+    limit?: number;
+    offset?: number;
+  }
+): Promise<ApiResponse<any>> => {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.dataType) params.append('dataType', filters.dataType);
+    if (filters?.minQuality) params.append('minQuality', filters.minQuality.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.offset) params.append('offset', filters.offset.toString());
+
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/structured-data?${params.toString()}`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to fetch structured data.');
+  }
+};
+
+export const testAuthentication = async (config: any): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/test-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to test authentication.');
+  }
+};
+
+// Legacy Adaptive scraping analytics (keeping for compatibility)
 export const getAdaptiveStats = async (domain?: string): Promise<ApiResponse<WebsiteProfile | WebsiteProfile[]>> => {
   try {
     const url = domain 
