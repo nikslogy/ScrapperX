@@ -10,6 +10,7 @@ import {
 import { JSONExporter } from './exporters/jsonExporter';
 import { CSVExporter } from './exporters/csvExporter';
 import { ExcelExporter } from './exporters/excelExporter';
+import { MarkdownExporter } from './exporters/markdownExporter';
 import fs from 'fs/promises';
 import path from 'path';
 const archiver = require('archiver');
@@ -30,7 +31,7 @@ export class ExportService {
       const exportData = await this.prepareExportData(sessionId, options);
       
       // Select exporter based on format
-      let exporter;
+      let exporter: any;
       switch (options.format) {
         case 'json':
           exporter = new JSONExporter(sessionId, exportData, options);
@@ -40,6 +41,9 @@ export class ExportService {
           break;
         case 'excel':
           exporter = new ExcelExporter(sessionId, exportData, options);
+          break;
+        case 'markdown':
+          exporter = new MarkdownExporter(sessionId, exportData, options);
           break;
         default:
           throw new Error(`Unsupported export format: ${options.format}`);
@@ -72,7 +76,7 @@ export class ExportService {
    */
   async exportMultipleFormats(
     sessionId: string, 
-    formats: Array<'json' | 'csv' | 'excel'>,
+    formats: Array<'json' | 'csv' | 'excel' | 'markdown'>,
     baseOptions: Omit<ExportOptions, 'format'>
   ): Promise<ExportResult> {
     try {
@@ -94,6 +98,11 @@ export class ExportService {
           case 'excel':
             exporter = new ExcelExporter(sessionId, exportData, options);
             break;
+          case 'markdown':
+            exporter = new MarkdownExporter(sessionId, exportData, options);
+            break;
+          default:
+            throw new Error(`Unsupported export format: ${format}`);
         }
 
         const result = await exporter.export();
@@ -211,6 +220,7 @@ export class ExportService {
       },
       contentChunks: item.contentChunks,
       extractedLinks: item.extractedLinks,
+      images: item.images,
       createdAt: item.createdAt
     }));
 

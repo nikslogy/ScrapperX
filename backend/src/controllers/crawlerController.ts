@@ -32,6 +32,7 @@ export class CrawlerController {
           excludePatterns: Joi.array().items(Joi.string()).default([]),
           userAgent: Joi.string().optional(),
           timeout: Joi.number().integer().min(5000).max(120000).default(30000),
+          enableAI: Joi.boolean().default(false),
           authentication: Joi.object({
             type: Joi.string().valid('none', 'basic', 'form', 'bearer', 'cookie').default('none'),
             credentials: Joi.object({
@@ -403,7 +404,7 @@ export class CrawlerController {
 
       // Validate export options
       const options: ExportOptions = {
-        format: format as 'json' | 'csv' | 'excel' | 'xml',
+        format: format as 'json' | 'csv' | 'excel' | 'markdown' | 'xml',
         includeStructuredData: includeStructuredData === 'true',
         includeAIAnalysis: includeAIAnalysis === 'true',
         includePatternAnalysis: includePatternAnalysis === 'true',
@@ -412,10 +413,10 @@ export class CrawlerController {
       };
 
       // Validate format
-      if (!['json', 'csv', 'excel'].includes(options.format)) {
+      if (!['json', 'csv', 'excel', 'markdown'].includes(options.format)) {
         res.status(400).json({
           success: false,
-          message: 'Unsupported export format. Supported formats: json, csv, excel'
+          message: 'Unsupported export format. Supported formats: json, csv, excel, markdown'
         });
         return;
       }
@@ -423,9 +424,9 @@ export class CrawlerController {
       let result;
 
              if (multiFormat === 'true') {
-         // Export in multiple formats
-         const formats: Array<'json' | 'csv' | 'excel'> = ['json', 'csv', 'excel'];
-         result = await this.exportService.exportMultipleFormats(sessionId, formats, options);
+                 // Export in multiple formats
+        const formats: Array<'json' | 'csv' | 'excel' | 'markdown'> = ['json', 'csv', 'excel', 'markdown'];
+        result = await this.exportService.exportMultipleFormats(sessionId, formats, options);
       } else {
         // Export in single format
         result = await this.exportService.exportSession(sessionId, options);
@@ -831,6 +832,7 @@ export class CrawlerController {
         '.json': 'application/json',
         '.csv': 'text/csv',
         '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.md': 'text/markdown',
         '.zip': 'application/zip'
       };
 

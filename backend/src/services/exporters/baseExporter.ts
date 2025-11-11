@@ -31,6 +31,14 @@ export interface ContentItem {
   };
   contentChunks: Array<string | { type: string; selector: string; content: string; confidence: number; }>;
   extractedLinks: string[] | { internal: string[]; external: string[]; };
+  images?: {
+    src: string;
+    alt?: string;
+    title?: string;
+    width?: number;
+    height?: number;
+    type: 'logo' | 'product' | 'content' | 'avatar' | 'icon' | 'unknown';
+  }[];
   createdAt: Date;
 }
 
@@ -46,7 +54,7 @@ export interface StructuredDataItem {
 }
 
 export interface ExportOptions {
-  format: 'json' | 'csv' | 'excel' | 'xml';
+  format: 'json' | 'csv' | 'excel' | 'markdown' | 'xml';
   includeStructuredData?: boolean;
   includeAIAnalysis?: boolean;
   includePatternAnalysis?: boolean;

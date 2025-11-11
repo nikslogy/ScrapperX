@@ -14,7 +14,11 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  Loader2
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Brain,
+  Zap
 } from 'lucide-react';
 
 interface CrawlConfig {
@@ -23,6 +27,7 @@ interface CrawlConfig {
   delay: number;
   concurrent: number;
   respectRobots: boolean;
+  enableAI?: boolean; // New AI toggle
   authentication?: {
     type: 'none' | 'basic' | 'form' | 'bearer' | 'cookie';
     credentials?: {
@@ -83,6 +88,14 @@ interface PageResult {
   };
   contentChunks?: any[];
   extractedLinks?: any;
+  images?: {
+    src: string;
+    alt?: string;
+    title?: string;
+    width?: number;
+    height?: number;
+    type: 'logo' | 'product' | 'content' | 'avatar' | 'icon' | 'unknown';
+  }[];
   createdAt: string;
 }
 
@@ -94,6 +107,7 @@ export default function DomainCrawler() {
     delay: 1000,
     concurrent: 3,
     respectRobots: true,
+    enableAI: false, // AI disabled by default
     authentication: {
       type: 'none'
     },
@@ -109,6 +123,7 @@ export default function DomainCrawler() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [progress, setProgress] = useState<any>(null);
   const [showDetailedResults, setShowDetailedResults] = useState(false);
   const [detailedResults, setDetailedResults] = useState<PageResult[]>([]);
@@ -220,7 +235,8 @@ export default function DomainCrawler() {
     
     setLoadingResults(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/crawler/session/${session.sessionId}/export?format=json&includeStructuredData=true&includeAIAnalysis=true`);
+      const includeAI = config.enableAI ? '&includeAIAnalysis=true' : '';
+      const response = await fetch(`http://localhost:5000/api/crawler/session/${session.sessionId}/export?format=json&includeStructuredData=true${includeAI}`);
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data.downloadUrl) {
@@ -235,6 +251,60 @@ export default function DomainCrawler() {
       console.error('Failed to load detailed results:', err);
     } finally {
       setLoadingResults(false);
+    }
+  };
+
+  const downloadPageImages = async (page: PageResult) => {
+    if (!page.images || page.images.length === 0) {
+      alert('No images found on this page');
+      return;
+    }
+
+    try {
+      // Create a structured folder approach by downloading images as a zip
+      const imageUrls = page.images.map(img => img.src);
+      const pageTitle = page.title || 'page';
+      const safeName = pageTitle.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+      
+      // Download images one by one (simple approach)
+      for (let i = 0; i < Math.min(imageUrls.length, 10); i++) {
+        const imageUrl = imageUrls[i];
+        const image = page.images[i];
+        
+        try {
+          const response = await fetch(imageUrl);
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            
+            // Extract file extension from URL or use jpg as default
+            const extension = imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
+            const fileName = `${safeName}_${i + 1}_${image.type}.${extension}`;
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            // Small delay between downloads
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } catch (err) {
+          console.warn('Failed to download image:', imageUrl, err);
+        }
+      }
+      
+      if (page.images.length > 10) {
+        alert(`Downloaded first 10 images. Total found: ${page.images.length}`);
+      } else {
+        alert(`Downloaded ${page.images.length} images successfully!`);
+      }
+    } catch (err) {
+      console.error('Failed to download images:', err);
+      alert('Failed to download images');
     }
   };
 
@@ -270,274 +340,306 @@ export default function DomainCrawler() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Header - Simplified */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
             <Globe className="w-6 h-6 text-white" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Domain Crawler</h2>
-            <p className="text-gray-600">Crawl entire websites with AI-powered content extraction</p>
+            <p className="text-gray-600">Extract structured data from entire websites</p>
           </div>
         </div>
 
-        {/* URL Input */}
+        {/* Simple Interface - URL + Basic Settings */}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Target Domain
+              Website URL
             </label>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               disabled={loading || (session?.status === 'running')}
             />
           </div>
 
-          {/* Quick Config */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Basic Settings Row */}
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Max Pages</label>
-              <input
-                type="number"
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pages to Crawl</label>
+              <select
                 value={String(config.maxPages)}
                 onChange={(e) => setConfig({...config, maxPages: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                min="1"
-                max="1000"
-              />
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value={5}>5 pages</option>
+                <option value={10}>10 pages</option>
+                <option value={25}>25 pages</option>
+                <option value={50}>50 pages</option>
+                <option value={100}>100 pages</option>
+                <option value={250}>250 pages</option>
+                <option value={500}>500 pages</option>
+              </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Max Depth</label>
-              <input
-                type="number"
-                value={String(config.maxDepth)}
-                onChange={(e) => setConfig({...config, maxDepth: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                min="1"
-                max="10"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Delay (ms)</label>
-              <input
-                type="number"
+              <label className="block text-sm font-medium text-gray-700 mb-1">Crawl Speed</label>
+              <select
                 value={String(config.delay)}
                 onChange={(e) => setConfig({...config, delay: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                min="500"
-                max="10000"
-                step="500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Quality</label>
-              <select
-                value={String(config.extraction.qualityThreshold)}
-                onChange={(e) => setConfig({
-                  ...config, 
-                  extraction: { ...config.extraction, qualityThreshold: parseFloat(e.target.value) }
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value={0.5}>Low (0.5)</option>
-                <option value={0.7}>Medium (0.7)</option>
-                <option value={0.8}>High (0.8)</option>
-                <option value={0.9}>Very High (0.9)</option>
+                <option value={500}>Fast (0.5s delay)</option>
+                <option value={1000}>Normal (1s delay)</option>
+                <option value={2000}>Slow (2s delay)</option>
+                <option value={3000}>Very Slow (3s delay)</option>
               </select>
             </div>
           </div>
 
+          {/* Start Button - Prominent */}
+          <div className="pt-2">
+            <button
+              onClick={startCrawl}
+              disabled={!url || loading}
+              className="w-full md:w-auto flex items-center justify-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+              <span>{loading ? 'Starting Crawl...' : 'Start Crawling'}</span>
+            </button>
+          </div>
+
           {/* Advanced Options Toggle */}
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center space-x-2 text-sm text-purple-600 hover:text-purple-700"
-          >
-            <Settings className="w-4 h-4" />
-            <span>{showAdvanced ? 'Hide' : 'Show'} Advanced Options</span>
-          </button>
+          <div className="border-t pt-4">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
+            >
+              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <Settings className="w-4 h-4" />
+              <span>{showAdvanced ? 'Hide' : 'Show'} Advanced Options</span>
+            </button>
+          </div>
 
           {/* Advanced Options */}
           {showAdvanced && (
-            <div className="border border-gray-200 rounded-lg p-4 space-y-4">
-              <h4 className="font-medium text-gray-900">Authentication Settings</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Auth Type</label>
-                  <select
-                    value={config.authentication?.type || 'none'}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      authentication: { 
-                        type: e.target.value as 'none' | 'basic' | 'form' | 'bearer' | 'cookie',
-                        credentials: config.authentication?.credentials
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            <div className="border border-gray-200 rounded-lg p-6 space-y-6 bg-gray-50">
+              {/* Crawl Settings */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Crawl Settings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Depth</label>
+                    <input
+                      type="number"
+                      value={String(config.maxDepth)}
+                      onChange={(e) => setConfig({...config, maxDepth: parseInt(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="1"
+                      max="10"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Concurrent Pages</label>
+                    <input
+                      type="number"
+                      value={String(config.concurrent)}
+                      onChange={(e) => setConfig({...config, concurrent: parseInt(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="1"
+                      max="10"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-3 pt-6">
+                    <input
+                      type="checkbox"
+                      id="respect-robots"
+                      checked={config.respectRobots}
+                      onChange={(e) => setConfig({...config, respectRobots: e.target.checked})}
+                      className="rounded border-gray-300"
+                    />
+                    <label htmlFor="respect-robots" className="text-sm text-gray-700">
+                      Respect robots.txt
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Features Section */}
+              <div className="border-t pt-4">
+                <div className="flex items-center space-x-3 mb-3">
+                  <Brain className="w-5 h-5 text-purple-600" />
+                  <h4 className="font-medium text-gray-900">AI-Powered Analysis</h4>
+                  <button
+                    onClick={() => setShowAIFeatures(!showAIFeatures)}
+                    className="text-sm text-purple-600 hover:text-purple-700"
                   >
-                    <option value="none">No Authentication</option>
-                    <option value="basic">HTTP Basic Auth (Server popup)</option>
-                    <option value="form">Form-based Login (Login page)</option>
-                    <option value="bearer">Bearer Token</option>
-                  </select>
-                  {config.authentication?.type === 'basic' && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Use this for sites that show a browser authentication popup
-                    </p>
-                  )}
-                  {config.authentication?.type === 'form' && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Use this for sites with login forms on a webpage
-                    </p>
-                  )}
+                    {showAIFeatures ? 'Hide' : 'Show'} AI Options
+                  </button>
+                </div>
+                
+                <div className="flex items-center space-x-3 mb-3">
+                  <input
+                    type="checkbox"
+                    id="enable-ai"
+                    checked={config.enableAI}
+                    onChange={(e) => setConfig({...config, enableAI: e.target.checked})}
+                    className="rounded border-gray-300"
+                  />
+                  <label htmlFor="enable-ai" className="text-sm text-gray-700">
+                    Enable AI content analysis and pattern recognition
+                  </label>
+                  <span className="text-xs text-gray-500">(Slower but smarter extraction)</span>
                 </div>
 
-                {(config.authentication?.type === 'basic' || config.authentication?.type === 'form') && (
-                  <>
+                {showAIFeatures && config.enableAI && (
+                  <div className="bg-white rounded-lg p-4 space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                      <input
-                        type="text"
-                        placeholder={config.authentication?.type === 'basic' ? 'Basic Auth Username' : 'Username'}
-                        value={config.authentication?.credentials?.username || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        onChange={(e) => setConfig({
-                          ...config,
-                          authentication: {
-                            type: config.authentication?.type || 'form',
-                            credentials: { ...config.authentication?.credentials, username: e.target.value }
-                          }
-                        })}
-                      />
+                      <label className="block text-sm font-medium text-gray-700 mb-2">AI Data Types</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['product', 'article', 'contact', 'event', 'job', 'generic'].map(type => (
+                          <label key={type} className="flex items-center space-x-1">
+                            <input
+                              type="checkbox"
+                              checked={config.extraction.dataTypes.includes(type)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setConfig({
+                                    ...config,
+                                    extraction: {
+                                      ...config.extraction,
+                                      dataTypes: [...config.extraction.dataTypes, type]
+                                    }
+                                  });
+                                } else {
+                                  setConfig({
+                                    ...config,
+                                    extraction: {
+                                      ...config.extraction,
+                                      dataTypes: config.extraction.dataTypes.filter(t => t !== type)
+                                    }
+                                  });
+                                }
+                              }}
+                              className="rounded border-gray-300"
+                            />
+                            <span className="text-sm text-gray-700 capitalize">{type}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                      <input
-                        type="password"
-                        placeholder={config.authentication?.type === 'basic' ? 'Basic Auth Password' : 'Password'}
-                        value={config.authentication?.credentials?.password || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        onChange={(e) => setConfig({
-                          ...config,
-                          authentication: {
-                            type: config.authentication?.type || 'form',
-                            credentials: { ...config.authentication?.credentials, password: e.target.value }
-                          }
-                        })}
-                      />
+                    <div className="text-xs text-purple-600 bg-purple-50 p-2 rounded">
+                      💡 AI will automatically categorize content, extract structured data, and provide quality insights
                     </div>
-                    {config.authentication?.type === 'form' && (
+                  </div>
+                )}
+              </div>
+
+              {/* Authentication Settings */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-gray-900 mb-3">Authentication</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Auth Type</label>
+                    <select
+                      value={config.authentication?.type || 'none'}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        authentication: { 
+                          type: e.target.value as 'none' | 'basic' | 'form' | 'bearer' | 'cookie',
+                          credentials: config.authentication?.credentials
+                        }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="none">No Authentication</option>
+                      <option value="basic">HTTP Basic Auth</option>
+                      <option value="form">Form-based Login</option>
+                      <option value="bearer">Bearer Token</option>
+                    </select>
+                  </div>
+
+                  {(config.authentication?.type === 'basic' || config.authentication?.type === 'form') && (
+                    <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Login URL</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                         <input
-                          type="url"
-                          placeholder="https://example.com/login"
-                          value={config.authentication?.credentials?.loginUrl || ''}
+                          type="text"
+                          placeholder="Username"
+                          value={config.authentication?.credentials?.username || ''}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
                           onChange={(e) => setConfig({
                             ...config,
                             authentication: {
                               type: config.authentication?.type || 'form',
-                              credentials: { ...config.authentication?.credentials, loginUrl: e.target.value }
+                              credentials: { ...config.authentication?.credentials, username: e.target.value }
                             }
                           })}
                         />
                       </div>
-                    )}
-                  </>
-                )}
-
-                {config.authentication?.type === 'bearer' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Bearer Token</label>
-                    <input
-                      type="text"
-                      placeholder="Your bearer token"
-                      value={config.authentication?.credentials?.token || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      onChange={(e) => setConfig({
-                        ...config,
-                        authentication: {
-                          type: 'bearer',
-                          credentials: { ...config.authentication?.credentials, token: e.target.value }
-                        }
-                      })}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <h4 className="font-medium text-gray-900 pt-4">Extraction Settings</h4>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="structured-data"
-                    checked={config.extraction.enableStructuredData}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      extraction: { ...config.extraction, enableStructuredData: e.target.checked }
-                    })}
-                    className="rounded border-gray-300"
-                  />
-                  <label htmlFor="structured-data" className="text-sm text-gray-700">
-                    Enable structured data extraction
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Data Types</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['product', 'article', 'contact', 'event', 'job', 'generic'].map(type => (
-                      <label key={type} className="flex items-center space-x-1">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <input
-                          type="checkbox"
-                          checked={config.extraction.dataTypes.includes(type)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setConfig({
-                                ...config,
-                                extraction: {
-                                  ...config.extraction,
-                                  dataTypes: [...config.extraction.dataTypes, type]
-                                }
-                              });
-                            } else {
-                              setConfig({
-                                ...config,
-                                extraction: {
-                                  ...config.extraction,
-                                  dataTypes: config.extraction.dataTypes.filter(t => t !== type)
-                                }
-                              });
+                          type="password"
+                          placeholder="Password"
+                          value={config.authentication?.credentials?.password || ''}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          onChange={(e) => setConfig({
+                            ...config,
+                            authentication: {
+                              type: config.authentication?.type || 'form',
+                              credentials: { ...config.authentication?.credentials, password: e.target.value }
                             }
-                          }}
-                          className="rounded border-gray-300"
+                          })}
                         />
-                        <span className="text-sm text-gray-700 capitalize">{type}</span>
-                      </label>
-                    ))}
-                  </div>
+                      </div>
+                      {config.authentication?.type === 'form' && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Login URL</label>
+                          <input
+                            type="url"
+                            placeholder="https://example.com/login"
+                            value={config.authentication?.credentials?.loginUrl || ''}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            onChange={(e) => setConfig({
+                              ...config,
+                              authentication: {
+                                type: config.authentication?.type || 'form',
+                                credentials: { ...config.authentication?.credentials, loginUrl: e.target.value }
+                              }
+                            })}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {config.authentication?.type === 'bearer' && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bearer Token</label>
+                      <input
+                        type="text"
+                        placeholder="Your bearer token"
+                        value={config.authentication?.credentials?.token || ''}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        onChange={(e) => setConfig({
+                          ...config,
+                          authentication: {
+                            type: 'bearer',
+                            credentials: { ...config.authentication?.credentials, token: e.target.value }
+                          }
+                        })}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={startCrawl}
-              disabled={!url || loading}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              <span>{loading ? 'Starting...' : 'Start Crawl'}</span>
-            </button>
-          </div>
 
           {/* Error Display */}
           {error && (
@@ -549,10 +651,10 @@ export default function DomainCrawler() {
         </div>
       </div>
 
-      {/* Current Session Progress */}
+      {/* Current Session Progress - Simplified */}
       {session && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Session</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Crawling Progress</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-gray-50 rounded-lg p-4">
@@ -566,7 +668,7 @@ export default function DomainCrawler() {
             </div>
             
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Pages Processed</div>
+              <div className="text-sm text-gray-600 mb-1">Pages</div>
               <div className="text-2xl font-bold text-gray-900">
                 {progress?.processedUrls || session.stats.pagesProcessed}
                 <span className="text-sm text-gray-500 ml-1">
@@ -576,7 +678,7 @@ export default function DomainCrawler() {
             </div>
             
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Items Extracted</div>
+              <div className="text-sm text-gray-600 mb-1">Data Extracted</div>
               <div className="text-2xl font-bold text-gray-900">
                 {progress?.extractedItems || session.stats.extractedItems}
               </div>
@@ -590,15 +692,15 @@ export default function DomainCrawler() {
             </div>
           </div>
 
-          {/* Current URL and Progress Details */}
+          {/* Live Progress */}
           {(session.status === 'running' || session.status === 'pending') && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 rounded-lg p-4 mb-6">
               <h4 className="font-medium text-gray-900 mb-3">Live Progress</h4>
               
               {progress?.currentUrl && (
                 <div className="mb-3">
                   <span className="text-sm text-gray-600">Currently Processing:</span>
-                  <div className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded mt-1 break-all">
+                  <div className="text-sm font-mono text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 break-all">
                     {progress.currentUrl}
                   </div>
                 </div>
@@ -610,9 +712,9 @@ export default function DomainCrawler() {
                     <span>Progress</span>
                     <span>{Math.round((progress.processedUrls / progress.totalUrls) * 100)}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-3">
                     <div 
-                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                       style={{ width: `${Math.round((progress.processedUrls / progress.totalUrls) * 100)}%` }}
                     ></div>
                   </div>
@@ -627,62 +729,32 @@ export default function DomainCrawler() {
             </div>
           )}
 
-          {/* AI Analysis Results - Enhanced with explanations */}
-          {session.status === 'completed' && session.stats?.aiAnalysis && (
+          {/* AI Analysis Results - Only show if AI was enabled */}
+          {config.enableAI && session.status === 'completed' && session.stats?.aiAnalysis && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-6">
               <h4 className="font-medium text-gray-900 mb-4 flex items-center">
-                <span className="text-2xl mr-2">🤖</span>
-                AI Content Analysis Results
+                <Brain className="w-5 h-5 mr-2 text-purple-600" />
+                AI Analysis Results
               </h4>
               
-              {/* AI Explanation Panel */}
-              <div className="bg-white rounded-lg p-4 mb-4 border border-purple-200">
-                <h5 className="font-medium text-purple-900 mb-3">🧠 What AI Analyzed</h5>
-                <div className="text-sm text-purple-800 space-y-2">
-                  <p>• <strong>Content Classification:</strong> AI identified {session.stats.aiAnalysis.analyzedPages} pages and categorized them by type</p>
-                  <p>• <strong>Quality Assessment:</strong> Each page was scored based on content depth, relevance, and structure</p>
-                  <p>• <strong>Pattern Recognition:</strong> AI found {session.stats.aiAnalysis.patternsFound} recurring patterns across your domain</p>
-                  <p>• <strong>Data Extraction:</strong> Automatically extracted structured information like prices, contacts, dates, etc.</p>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Primary Content:</span>
+                  <span className="text-gray-600">Content Type:</span>
                   <div className="font-medium capitalize text-lg">{session.stats.aiAnalysis.primaryContentType}</div>
-                  <div className="text-xs text-gray-500">Most common page type</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-purple-200">
                   <span className="text-gray-600">Quality Score:</span>
                   <div className="font-medium text-lg">{Math.round(session.stats.aiAnalysis.qualityScore)}/100</div>
-                  <div className="text-xs text-gray-500">Overall content quality</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Patterns Found:</span>
+                  <span className="text-gray-600">Patterns:</span>
                   <div className="font-medium text-lg">{session.stats.aiAnalysis.patternsFound}</div>
-                  <div className="text-xs text-gray-500">Recurring structures</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">AI Confidence:</span>
+                  <span className="text-gray-600">Confidence:</span>
                   <div className="font-medium text-lg">{Math.round(session.stats.aiAnalysis.averageConfidence * 100)}%</div>
-                  <div className="text-xs text-gray-500">Analysis accuracy</div>
                 </div>
               </div>
-
-              {/* Content Types Breakdown */}
-              {session.stats.aiAnalysis.contentTypes && (
-                <div className="bg-white rounded-lg p-4 mb-4 border border-purple-200">
-                  <h5 className="font-medium text-purple-900 mb-3">📊 Content Types Distribution</h5>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {Object.entries(session.stats.aiAnalysis.contentTypes).map(([type, count]) => (
-                      <div key={type} className="text-center p-2 bg-purple-50 rounded">
-                        <div className="text-lg font-bold text-purple-700">{count}</div>
-                        <div className="text-xs text-purple-600 capitalize">{type} pages</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* AI Recommendations */}
               {session.stats.aiAnalysis.recommendations && session.stats.aiAnalysis.recommendations.length > 0 && (
@@ -701,139 +773,137 @@ export default function DomainCrawler() {
             </div>
           )}
 
-          {/* Session Actions */}
+          {/* Download Options - Simplified */}
           {session.status === 'completed' && (
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900">Export & Analysis Options</h4>
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-gray-900">Download Your Data</h4>
                 <button
                   onClick={loadDetailedResults}
                   disabled={loadingResults}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
                 >
                   {loadingResults ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                  <span>{loadingResults ? 'Loading...' : 'View Page Details'}</span>
+                  <span>{loadingResults ? 'Loading...' : 'Preview Data'}</span>
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <ExportButton sessionId={session.sessionId} format="json" />
-                <ExportButton sessionId={session.sessionId} format="csv" />
-                <ExportButton sessionId={session.sessionId} format="excel" />
-                <ExportButton sessionId={session.sessionId} format="multi" />
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <ExportButton sessionId={session.sessionId} format="json" includeAI={config.enableAI} />
+                <ExportButton sessionId={session.sessionId} format="csv" includeAI={config.enableAI} />
+                <ExportButton sessionId={session.sessionId} format="excel" includeAI={config.enableAI} />
+                <ExportButton sessionId={session.sessionId} format="markdown" includeAI={config.enableAI} />
+                <ExportButton sessionId={session.sessionId} format="multi" includeAI={config.enableAI} />
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Detailed Results View */}
+      {/* Detailed Results View - Simplified */}
       {showDetailedResults && detailedResults.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">📄 Individual Page Analysis</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Extracted Data Preview</h3>
             <button
               onClick={() => setShowDetailedResults(false)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 text-xl"
             >
               ✕
             </button>
           </div>
 
-          <div className="space-y-6">
-            {detailedResults.map((page, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+          <div className="space-y-4">
+            {detailedResults.slice(0, 10).map((page, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                 {/* Page Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900 mb-1">{page.metadata.title || page.title}</h4>
                     <p className="text-sm text-blue-600 mb-2 break-all">{page.url}</p>
                     {page.metadata.description && (
-                      <p className="text-sm text-gray-600">{page.metadata.description}</p>
+                      <p className="text-sm text-gray-600">{page.metadata.description.slice(0, 150)}...</p>
                     )}
                   </div>
-                  <div className="ml-4 text-right">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                      page.metadata.aiContentType === 'product' ? 'bg-green-100 text-green-800' :
-                      page.metadata.aiContentType === 'article' ? 'bg-blue-100 text-blue-800' :
-                      page.metadata.aiContentType === 'contact' ? 'bg-purple-100 text-purple-800' :
-                      page.metadata.aiContentType === 'listing' ? 'bg-orange-100 text-orange-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {page.metadata.aiContentType || 'unknown'}
-                    </span>
-                  </div>
+                  {config.enableAI && page.metadata.aiContentType && (
+                    <div className="ml-4">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                        page.metadata.aiContentType === 'product' ? 'bg-green-100 text-green-800' :
+                        page.metadata.aiContentType === 'article' ? 'bg-blue-100 text-blue-800' :
+                        page.metadata.aiContentType === 'contact' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {page.metadata.aiContentType}
+                      </span>
+                    </div>
+                  )}
                 </div>
-
-                {/* AI Analysis Stats */}
-                {page.metadata.aiAnalysis && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">{Math.round((page.metadata.confidence || 0) * 100)}%</div>
-                      <div className="text-xs text-gray-600">AI Confidence</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-600">{Math.round((page.metadata.relevanceScore || 0) * 100)}%</div>
-                      <div className="text-xs text-gray-600">Relevance</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-600">{page.metadata.aiAnalysis.patterns || 0}</div>
-                      <div className="text-xs text-gray-600">Patterns</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-orange-600">{page.metadata.aiAnalysis.extractedFields || 0}</div>
-                      <div className="text-xs text-gray-600">Data Fields</div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Structured Data Preview */}
                 {page.metadata.structuredData && Object.keys(page.metadata.structuredData).length > 0 && (
-                  <div className="mb-4">
-                    <h5 className="font-medium text-gray-900 mb-2">🔍 Extracted Data</h5>
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <div className="grid md:grid-cols-2 gap-3 text-sm">
-                        {Object.entries(page.metadata.structuredData)
-                          .filter(([key, value]) => value && value !== '')
-                          .slice(0, 6)
-                          .map(([key, value]) => (
-                            <div key={key}>
-                              <span className="font-medium text-gray-700 capitalize">{key}:</span>
-                              <span className="ml-2 text-gray-600">
-                                {Array.isArray(value) ? value.slice(0, 2).join(', ') + (value.length > 2 ? '...' : '') : String(value).slice(0, 100)}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
+                  <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                    <h5 className="font-medium text-gray-900 mb-2">📊 Extracted Data</h5>
+                    <div className="grid md:grid-cols-2 gap-3 text-sm">
+                      {Object.entries(page.metadata.structuredData)
+                        .filter(([key, value]) => value && value !== '')
+                        .slice(0, 4)
+                        .map(([key, value]) => (
+                          <div key={key}>
+                            <span className="font-medium text-gray-700 capitalize">{key}:</span>
+                            <span className="ml-2 text-gray-600">
+                              {Array.isArray(value) ? value.slice(0, 2).join(', ') : String(value).slice(0, 80)}
+                            </span>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}
 
-                {/* AI Reasoning */}
-                {page.metadata.aiAnalysis?.reasoning && (
-                  <div className="mb-4">
-                    <h5 className="font-medium text-gray-900 mb-2">🤖 AI Analysis</h5>
-                    <p className="text-sm text-gray-700 bg-purple-50 p-3 rounded-lg italic">
-                      "{page.metadata.aiAnalysis.reasoning}"
-                    </p>
-                  </div>
-                )}
-
-                {/* Content Preview */}
-                {page.contentChunks && page.contentChunks.length > 0 && (
-                  <div>
-                    <h5 className="font-medium text-gray-900 mb-2">📝 Content Preview</h5>
-                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                      {page.contentChunks.slice(0, 3).map((chunk, i) => (
-                        <div key={i} className="mb-2 last:mb-0">
-                          <span className="font-medium capitalize">{chunk.type}:</span>
-                          <span className="ml-2">{chunk.content.slice(0, 150)}...</span>
+                {/* Images Preview */}
+                {page.images && page.images.length > 0 && (
+                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-gray-900">🖼️ Images ({page.images.length})</h5>
+                      <button
+                        onClick={() => downloadPageImages(page)}
+                        className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Download All
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {page.images.slice(0, 8).map((image, imgIndex) => (
+                        <div key={imgIndex} className="relative group">
+                          <img
+                            src={image.src}
+                            alt={image.alt || 'Image'}
+                            className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
+                            onClick={() => window.open(image.src, '_blank')}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b opacity-0 group-hover:opacity-100 transition-opacity">
+                            {image.type}
+                          </div>
                         </div>
                       ))}
                     </div>
+                    {page.images.length > 8 && (
+                      <div className="text-xs text-gray-500 mt-2">
+                        ... and {page.images.length - 8} more images
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             ))}
+            
+            {detailedResults.length > 10 && (
+              <div className="text-center py-4 text-gray-500">
+                Showing first 10 results. Download files for complete data.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -841,8 +911,8 @@ export default function DomainCrawler() {
   );
 }
 
-// Export Button Component
-function ExportButton({ sessionId, format }: { sessionId: string; format: string }) {
+// Export Button Component - Updated to handle AI inclusion
+function ExportButton({ sessionId, format, includeAI = false }: { sessionId: string; format: string; includeAI?: boolean }) {
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
@@ -850,21 +920,46 @@ function ExportButton({ sessionId, format }: { sessionId: string; format: string
     try {
       let url = `http://localhost:5000/api/crawler/session/${sessionId}/export?`;
       
+      const aiParam = includeAI ? '&includeAIAnalysis=true' : '';
+      
       if (format === 'multi') {
-        url += 'multiFormat=true&includeStructuredData=true&includeAIAnalysis=true';
+        url += `multiFormat=true&includeStructuredData=true${aiParam}`;
       } else {
-        url += `format=${format}&includeStructuredData=true&includeAIAnalysis=true`;
+        url += `format=${format}&includeStructuredData=true${aiParam}`;
       }
 
+      console.log('Export URL:', url); // Debug log
+
       const response = await fetch(url);
+      console.log('Export response status:', response.status); // Debug log
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Export response data:', data); // Debug log
+        
         if (data.success && data.data.downloadUrl) {
-          window.open(`http://localhost:5000${data.data.downloadUrl}`, '_blank');
+          const downloadUrl = `http://localhost:5000${data.data.downloadUrl}`;
+          console.log('Download URL:', downloadUrl); // Debug log
+          
+          // Try direct download
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = data.data.fileName || 'export';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          console.error('Export failed:', data);
+          throw new Error(data.message || 'Export failed');
         }
+      } else {
+        const errorText = await response.text();
+        console.error('Export request failed:', response.status, errorText);
+        throw new Error(`Export failed: ${response.status} ${errorText}`);
       }
     } catch (err) {
       console.error('Export failed:', err);
+      alert(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setExporting(false);
     }
@@ -878,6 +973,8 @@ function ExportButton({ sessionId, format }: { sessionId: string; format: string
         return <BarChart3 className="w-4 h-4" />;
       case 'excel':
         return <Database className="w-4 h-4" />;
+      case 'markdown':
+        return <FileText className="w-4 h-4" />;
       case 'multi':
         return <Download className="w-4 h-4" />;
       default:
@@ -893,6 +990,8 @@ function ExportButton({ sessionId, format }: { sessionId: string; format: string
         return 'CSV';
       case 'excel':
         return 'Excel';
+      case 'markdown':
+        return 'Markdown';
       case 'multi':
         return 'All Formats';
       default:
@@ -904,10 +1003,10 @@ function ExportButton({ sessionId, format }: { sessionId: string; format: string
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="flex items-center space-x-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+      className="flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
     >
       {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : getIcon()}
-      <span className="text-sm">{exporting ? 'Exporting...' : getLabel()}</span>
+      <span className="text-sm font-medium">{exporting ? 'Exporting...' : getLabel()}</span>
     </button>
   );
 } 

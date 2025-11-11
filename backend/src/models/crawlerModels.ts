@@ -200,6 +200,14 @@ export interface IRawContent extends Document {
     internal: string[];
     external: string[];
   };
+  images: {
+    src: string;
+    alt?: string;
+    title?: string;
+    width?: number;
+    height?: number;
+    type: 'logo' | 'product' | 'content' | 'avatar' | 'icon' | 'unknown';
+  }[];
   contentChunks: {
     type: 'article' | 'product' | 'listing' | 'table' | 'navigation' | 'footer' | 'sidebar' | 'unknown';
     selector: string;
@@ -255,6 +263,18 @@ const rawContentSchema = new Schema<IRawContent>({
     internal: [{ type: String }],
     external: [{ type: String }]
   },
+  images: [{
+    src: { type: String, required: true },
+    alt: { type: String },
+    title: { type: String },
+    width: { type: Number },
+    height: { type: Number },
+    type: { 
+      type: String, 
+      enum: ['logo', 'product', 'content', 'avatar', 'icon', 'unknown'],
+      default: 'unknown'
+    }
+  }],
   contentChunks: [{
     type: { 
       type: String, 

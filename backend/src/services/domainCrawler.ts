@@ -22,6 +22,7 @@ export interface CrawlConfig {
   excludePatterns: string[];
   userAgent?: string;
   timeout?: number;
+  enableAI?: boolean; // Optional AI analysis flag
   authentication?: AuthConfig;
   extraction?: {
     enableStructuredData: boolean;
@@ -153,13 +154,17 @@ export class DomainCrawlerService {
       // Wait for all workers to complete
       await Promise.all(workers);
 
-      // Run AI pattern analysis
-      console.log(`🤖 Starting AI pattern analysis for session ${sessionId}`);
-      try {
-        await this.runPatternAnalysis(sessionId);
-      } catch (analysisError) {
-        console.warn(`Pattern analysis failed for session ${sessionId}:`, analysisError);
-        // Don't fail the entire crawl if pattern analysis fails
+      // Run AI pattern analysis only if enabled
+      if (config.enableAI) {
+        console.log(`🤖 Starting AI pattern analysis for session ${sessionId}`);
+        try {
+          await this.runPatternAnalysis(sessionId);
+        } catch (analysisError) {
+          console.warn(`Pattern analysis failed for session ${sessionId}:`, analysisError);
+          // Don't fail the entire crawl if pattern analysis fails
+        }
+      } else {
+        console.log(`⚡ AI analysis disabled, skipping pattern analysis for session ${sessionId}`);
       }
 
       // Cleanup
@@ -283,6 +288,7 @@ export class DomainCrawlerService {
             language: extractedContent.language
           },
           extractedLinks: extractedContent.extractedLinks,
+          images: extractedContent.images,
           contentChunks: extractedContent.contentChunks,
           processingStatus: 'raw'
         });
@@ -293,7 +299,7 @@ export class DomainCrawlerService {
         if (config.extraction?.enableStructuredData) {
           try {
             console.log(`📊 Extracting structured data from ${urlItem.url}`);
-            const structuredData = await this.structuredExtractor.extractStructuredData(rawContent);
+            const structuredData = await this.structuredExtractor.extractStructuredData(rawContent, undefined, config.enableAI || false);
             
             // Update raw content with structured data
             rawContent.metadata.extractedData = structuredData;

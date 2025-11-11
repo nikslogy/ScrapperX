@@ -47,36 +47,73 @@ export class CSVExporter extends BaseExporter {
   }
 
   private async exportContentCSV(filePath: string): Promise<void> {
+    // Collect all unique field names from structured data
+    const allStructuredFields = new Set<string>();
+    this.exportData.content.forEach(item => {
+      if (item.metadata.structuredData && Object.keys(item.metadata.structuredData).length > 0) {
+        Object.keys(item.metadata.structuredData).forEach(field => allStructuredFields.add(field));
+      }
+    });
+
+    // Build dynamic headers
     const headers = [
       { id: 'url', title: 'URL' },
       { id: 'title', title: 'Title' },
       { id: 'description', title: 'Description' },
       { id: 'processingStatus', title: 'Status' },
-      { id: 'aiContentType', title: 'AI Content Type' },
-      { id: 'confidence', title: 'AI Confidence' },
-      { id: 'relevanceScore', title: 'Relevance Score' },
       { id: 'contentLength', title: 'Content Length' },
       { id: 'linkCount', title: 'Links Found' },
+      { id: 'imageCount', title: 'Images Found' },
       { id: 'createdAt', title: 'Crawled At' }
     ];
+
+    // Add structured data field headers
+    Array.from(allStructuredFields).forEach(field => {
+      headers.push({ id: field, title: this.formatFieldName(field) });
+    });
+
+    // Add AI fields only if AI analysis is enabled
+    if (this.options.includeAIAnalysis) {
+      headers.push(
+        { id: 'aiContentType', title: 'AI Content Type' },
+        { id: 'confidence', title: 'AI Confidence' },
+        { id: 'relevanceScore', title: 'Relevance Score' }
+      );
+    }
 
     const writer = csvWriter.createObjectCsvWriter({
       path: filePath,
       header: headers
     });
 
-    const records = this.exportData.content.map(item => ({
-      url: item.url,
-      title: item.title || '',
-      description: item.description || '',
-      processingStatus: item.processingStatus,
-      aiContentType: item.metadata.aiContentType || '',
-      confidence: item.metadata.confidence || '',
-      relevanceScore: item.metadata.relevanceScore || '',
-      contentLength: this.flattenContentChunks(item.contentChunks).length,
-      linkCount: this.getLinksCount(item.extractedLinks),
-      createdAt: item.createdAt.toISOString()
-    }));
+    const records = this.exportData.content.map(item => {
+      const record: any = {
+        url: item.url,
+        title: item.title || '',
+        description: item.description || '',
+        processingStatus: item.processingStatus,
+        contentLength: this.flattenContentChunks(item.contentChunks).length,
+        linkCount: this.getLinksCount(item.extractedLinks),
+        imageCount: item.images?.length || 0,
+        createdAt: item.createdAt.toISOString()
+      };
+
+      // Add structured data fields
+      if (item.metadata.structuredData && Object.keys(item.metadata.structuredData).length > 0) {
+        Object.entries(item.metadata.structuredData).forEach(([key, value]) => {
+          record[key] = this.flattenValue(value);
+        });
+      }
+
+      // Add AI fields only if enabled
+      if (this.options.includeAIAnalysis) {
+        record.aiContentType = item.metadata.aiContentType || '';
+        record.confidence = item.metadata.confidence ? Math.round(item.metadata.confidence * 100) + '%' : '';
+        record.relevanceScore = item.metadata.relevanceScore ? Math.round(item.metadata.relevanceScore * 100) + '%' : '';
+      }
+
+      return record;
+    });
 
     await writer.writeRecords(records);
   }
@@ -129,12 +166,22 @@ export class CSVExporter extends BaseExporter {
     await writer.writeRecords(records);
   }
 
+  private formatFieldName(fieldName: string): string {
+    return fieldName
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .replace(/_/g, ' ')
+      .trim();
+  }
+
   private flattenValue(value: any): string {
     if (value === null || value === undefined) return '';
-    if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-    if (Array.isArray(value)) return value.join('; ');
-    if (typeof value === 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
     return String(value);
   }
 } 

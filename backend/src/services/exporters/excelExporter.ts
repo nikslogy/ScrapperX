@@ -95,34 +95,52 @@ export class ExcelExporter extends BaseExporter {
   }
 
   private addContentSheet(workbook: XLSX.WorkBook): void {
-    const contentData = this.exportData.content.map(item => ({
-      'URL': item.url,
-      'Title': item.title || '',
-      'Description': item.description || '',
-      'Status': item.processingStatus,
-      'AI Content Type': item.metadata.aiContentType || '',
-      'AI Confidence': item.metadata.confidence || '',
-      'Relevance Score': item.metadata.relevanceScore || '',
-      'Content Length': this.flattenContentChunks(item.contentChunks).length,
-      'Links Found': this.getLinksCount(item.extractedLinks),
-      'Crawled At': item.createdAt.toISOString()
-    }));
+    const contentData = this.exportData.content.map(item => {
+      const baseData: any = {
+        'URL': item.url,
+        'Title': item.title || '',
+        'Description': item.description || '',
+        'Status': item.processingStatus,
+        'Crawled At': item.createdAt.toISOString()
+      };
+
+      // Add structured data fields if available
+      if (item.metadata.structuredData && Object.keys(item.metadata.structuredData).length > 0) {
+        Object.entries(item.metadata.structuredData).forEach(([key, value]) => {
+          if (value && value !== '') {
+            const formattedKey = this.formatFieldName(key);
+            baseData[formattedKey] = this.flattenValue(value);
+          }
+        });
+      }
+
+      // Add AI analysis fields only if AI is enabled
+      if (this.options.includeAIAnalysis) {
+        baseData['AI Content Type'] = item.metadata.aiContentType || '';
+        baseData['AI Confidence'] = item.metadata.confidence ? Math.round(item.metadata.confidence * 100) + '%' : '';
+        baseData['Relevance Score'] = item.metadata.relevanceScore ? Math.round(item.metadata.relevanceScore * 100) + '%' : '';
+      }
+
+      // Add content metrics
+      baseData['Content Length'] = this.flattenContentChunks(item.contentChunks).length;
+      baseData['Links Found'] = this.getLinksCount(item.extractedLinks);
+      baseData['Images Found'] = item.images?.length || 0;
+      if (item.images && item.images.length > 0) {
+        baseData['Image URLs'] = item.images.slice(0, 3).map(img => img.src).join(', ') + 
+                                 (item.images.length > 3 ? '...' : '');
+      }
+
+      return baseData;
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(contentData);
     
-    // Set column widths
-    worksheet['!cols'] = [
-      { wch: 50 }, // URL
-      { wch: 30 }, // Title
-      { wch: 40 }, // Description
-      { wch: 15 }, // Status
-      { wch: 20 }, // AI Content Type
-      { wch: 15 }, // AI Confidence
-      { wch: 15 }, // Relevance Score
-      { wch: 15 }, // Content Length
-      { wch: 12 }, // Links Found
-      { wch: 20 }  // Crawled At
-    ];
+    // Auto-fit columns based on content
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    worksheet['!cols'] = [];
+    for (let i = 0; i <= range.e.c; i++) {
+      worksheet['!cols'].push({ wch: i < 3 ? 50 : 25 }); // Make URL, Title, Description wider
+    }
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Content');
   }
@@ -254,12 +272,22 @@ export class ExcelExporter extends BaseExporter {
     }, {});
   }
 
+  private formatFieldName(fieldName: string): string {
+    return fieldName
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .replace(/_/g, ' ')
+      .trim();
+  }
+
   private flattenValue(value: any): string {
     if (value === null || value === undefined) return '';
-    if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-    if (Array.isArray(value)) return value.join('; ');
-    if (typeof value === 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
     return String(value);
   }
 

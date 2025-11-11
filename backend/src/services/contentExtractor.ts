@@ -17,6 +17,14 @@ export interface ExtractedContent {
     internal: string[];
     external: string[];
   };
+  images: {
+    src: string;
+    alt?: string;
+    title?: string;
+    width?: number;
+    height?: number;
+    type: 'logo' | 'product' | 'content' | 'avatar' | 'icon' | 'unknown';
+  }[];
   contentChunks: {
     type: 'article' | 'product' | 'listing' | 'table' | 'navigation' | 'footer' | 'sidebar' | 'unknown';
     selector: string;
@@ -60,6 +68,9 @@ export class ContentExtractorService {
     // Extract links
     const extractedLinks = this.extractLinks($, url, baseDomain);
     
+    // Extract images
+    const images = this.extractImages($, url);
+    
     // Extract content chunks
     const contentChunks = this.extractContentChunks($);
     
@@ -74,6 +85,7 @@ export class ContentExtractorService {
       htmlContent,
       contentHash,
       extractedLinks,
+      images,
       contentChunks
     };
   }
@@ -217,6 +229,93 @@ export class ContentExtractorService {
     });
 
     return { internal, external };
+  }
+
+  /**
+   * Extract images from the page
+   */
+  private extractImages($: cheerio.CheerioAPI, currentUrl: string) {
+    const images: ExtractedContent['images'] = [];
+    const seenUrls = new Set<string>();
+
+    $('img[src]').each((_, element) => {
+      const src = $(element).attr('src');
+      if (!src) return;
+
+      try {
+        const absoluteUrl = new URL(src, currentUrl).toString();
+        
+        // Skip if already seen
+        if (seenUrls.has(absoluteUrl)) return;
+        seenUrls.add(absoluteUrl);
+
+        // Skip data URLs and very small images (likely icons/tracking pixels)
+        if (src.startsWith('data:') || src.includes('1x1') || src.includes('pixel')) return;
+
+        const alt = $(element).attr('alt') || '';
+        const title = $(element).attr('title') || '';
+        const width = parseInt($(element).attr('width') || '0', 10) || undefined;
+        const height = parseInt($(element).attr('height') || '0', 10) || undefined;
+
+        // Classify image type based on context and attributes
+        const type = this.classifyImageType($, element, alt, src);
+
+        images.push({
+          src: absoluteUrl,
+          alt,
+          title,
+          width,
+          height,
+          type
+        });
+      } catch (error) {
+        // Invalid URL, skip
+      }
+    });
+
+    return images;
+  }
+
+  /**
+   * Classify image type based on context
+   */
+  private classifyImageType($: cheerio.CheerioAPI, element: any, alt: string, src: string): ExtractedContent['images'][0]['type'] {
+    const $img = $(element);
+    const classes = $img.attr('class') || '';
+    const id = $img.attr('id') || '';
+    const parentClasses = $img.parent().attr('class') || '';
+    
+    // Check for logo indicators
+    if (classes.includes('logo') || id.includes('logo') || alt.toLowerCase().includes('logo') || 
+        src.toLowerCase().includes('logo') || parentClasses.includes('logo')) {
+      return 'logo';
+    }
+
+    // Check for product images
+    if (classes.includes('product') || parentClasses.includes('product') || 
+        alt.toLowerCase().includes('product') || src.toLowerCase().includes('product')) {
+      return 'product';
+    }
+
+    // Check for avatars/profile images
+    if (classes.includes('avatar') || classes.includes('profile') || 
+        alt.toLowerCase().includes('avatar') || alt.toLowerCase().includes('profile')) {
+      return 'avatar';
+    }
+
+    // Check for icons (small images)
+    if (classes.includes('icon') || src.toLowerCase().includes('icon') || 
+        $img.attr('width') === '16' || $img.attr('width') === '32' || $img.attr('height') === '16' || $img.attr('height') === '32') {
+      return 'icon';
+    }
+
+    // Check if it's in main content area
+    const $contentArea = $img.closest('article, .content, .main, main, #content, #main');
+    if ($contentArea.length > 0) {
+      return 'content';
+    }
+
+    return 'unknown';
   }
 
   /**
