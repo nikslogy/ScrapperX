@@ -2,24 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  Globe, 
+  Globe,
   Play, 
-  Pause, 
-  Square, 
-  Download, 
   Settings, 
-  Database,
   FileText,
-  BarChart3,
   Clock,
   CheckCircle,
   AlertTriangle,
   Loader2,
   ChevronDown,
-  ChevronUp,
-  Brain,
-  Zap
+  ChevronUp
 } from 'lucide-react';
+import { exportSession, startDomainCrawl } from '@/lib/api';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 interface CrawlConfig {
   maxPages: number;
@@ -27,7 +23,6 @@ interface CrawlConfig {
   delay: number;
   concurrent: number;
   respectRobots: boolean;
-  enableAI?: boolean; // New AI toggle
   authentication?: {
     type: 'none' | 'basic' | 'form' | 'bearer' | 'cookie';
     credentials?: {
@@ -42,6 +37,16 @@ interface CrawlConfig {
     dataTypes: string[];
     qualityThreshold: number;
   };
+  // Scraping mode options (same as quick scraper)
+  forceMethod?: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api';
+  enableApiScraping?: boolean;
+  enableDynamicScraping?: boolean;
+  enableStealthScraping?: boolean;
+  enableAdaptiveScraping?: boolean;
+  captchaSolver?: 'manual' | '2captcha' | 'anticaptcha' | 'skip';
+  captchaApiKey?: string;
+  stealthLevel?: 'basic' | 'advanced' | 'maximum';
+  learningMode?: boolean;
 }
 
 interface CrawlSession {
@@ -56,15 +61,6 @@ interface CrawlSession {
     extractedItems: number;
     startTime: string;
     endTime?: string;
-    aiAnalysis?: {
-      primaryContentType: string;
-      qualityScore: number;
-      patternsFound: number;
-      averageConfidence: number;
-      analyzedPages: number;
-      contentTypes: { [key: string]: number };
-      recommendations: string[];
-    };
   };
 }
 
@@ -72,19 +68,12 @@ interface PageResult {
   url: string;
   title: string;
   description: string;
+  content?: string; // Full page content
   processingStatus: string;
   metadata: {
     title: string;
     description: string;
-    aiContentType?: string;
-    confidence?: number;
-    relevanceScore?: number;
     structuredData?: any;
-    aiAnalysis?: {
-      patterns: number;
-      extractedFields: number;
-      reasoning: string;
-    };
   };
   contentChunks?: any[];
   extractedLinks?: any;
@@ -102,12 +91,11 @@ interface PageResult {
 export default function DomainCrawler() {
   const [url, setUrl] = useState('');
   const [config, setConfig] = useState<CrawlConfig>({
-    maxPages: 50,
+    maxPages: 5,
     maxDepth: 3,
     delay: 1000,
     concurrent: 3,
     respectRobots: true,
-    enableAI: false, // AI disabled by default
     authentication: {
       type: 'none'
     },
@@ -115,7 +103,15 @@ export default function DomainCrawler() {
       enableStructuredData: true,
       dataTypes: ['product', 'article', 'contact'],
       qualityThreshold: 0.7
-    }
+    },
+    // Scraping mode defaults (same as quick scraper)
+    enableStealthScraping: true,
+    enableAdaptiveScraping: true,
+    enableApiScraping: true,
+    enableDynamicScraping: true,
+    captchaSolver: 'skip',
+    stealthLevel: 'advanced',
+    learningMode: true
   });
   
   const [session, setSession] = useState<CrawlSession | null>(null);
@@ -123,11 +119,13 @@ export default function DomainCrawler() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [progress, setProgress] = useState<any>(null);
-  const [showDetailedResults, setShowDetailedResults] = useState(false);
   const [detailedResults, setDetailedResults] = useState<PageResult[]>([]);
   const [loadingResults, setLoadingResults] = useState(false);
+  const [expandedImages, setExpandedImages] = useState<{ [key: number]: boolean }>({});
+  const [activePageIndex, setActivePageIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<{ [key: number]: 'overview' | 'content' | 'links' | 'images' | 'metadata' }>({});
+  const [isCrawling, setIsCrawling] = useState(false);
 
   // Polling effect for real-time updates
   useEffect(() => {
@@ -135,12 +133,20 @@ export default function DomainCrawler() {
     
     const pollProgress = async () => {
       if (!session || (session.status === 'completed' || session.status === 'failed')) {
+        setIsCrawling(false);
         return;
       }
 
       try {
         // Get current session status
-        const statusResponse = await fetch(`http://localhost:5000/api/crawler/session/${session.sessionId}/status`);
+        const statusResponse = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/status`);
+        
+        if (statusResponse.status === 429) {
+          // Rate limited, just skip this poll
+          console.warn('Rate limited, skipping poll');
+          return;
+        }
+        
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
           if (statusData.success) {
@@ -151,8 +157,16 @@ export default function DomainCrawler() {
               stats: updatedSession.stats
             }));
 
+            // Update crawling state
+            if (updatedSession.status === 'completed' || updatedSession.status === 'failed') {
+              setIsCrawling(false);
+              if (updatedSession.status === 'failed') {
+                setError('Crawl failed. Please check the session details for errors.');
+              }
+            }
+
             // Get progress data
-            const progressResponse = await fetch(`http://localhost:5000/api/crawler/session/${session.sessionId}/progress`);
+            const progressResponse = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/progress`);
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
               if (progressData.success) {
@@ -160,6 +174,9 @@ export default function DomainCrawler() {
               }
             }
           }
+        } else {
+          const errorData = await statusResponse.json().catch(() => ({ message: 'Failed to fetch status' }));
+          console.error('Status check failed:', errorData);
         }
       } catch (error) {
         console.warn('Failed to poll progress:', error);
@@ -168,7 +185,8 @@ export default function DomainCrawler() {
 
     // Start polling if session exists and is active
     if (session && (session.status === 'pending' || session.status === 'running')) {
-      pollInterval = setInterval(pollProgress, 2000); // Poll every 2 seconds
+      setIsCrawling(true);
+      pollInterval = setInterval(pollProgress, 3000); // Poll every 3 seconds (reduced from 2)
       
       // Initial poll
       pollProgress();
@@ -182,34 +200,48 @@ export default function DomainCrawler() {
     };
   }, [session?.sessionId, session?.status]);
 
+  // Auto-load results when session completes
+  useEffect(() => {
+    if (session?.status === 'completed' && detailedResults.length === 0 && !loadingResults) {
+      loadDetailedResults();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.status, session?.sessionId]);
+
   const startCrawl = async () => {
+    // Prevent starting a new crawl if one is already running
+    if (isCrawling) {
+      setError('A crawl is already in progress. Please wait or stop the current crawl.');
+      return;
+    }
+
     if (!url) {
       setError('Please enter a URL');
       return;
     }
 
+    // Validate URL
+    try {
+      new URL(url);
+    } catch {
+      setError('Please enter a valid URL (including http:// or https://)');
+      return;
+    }
+
     setLoading(true);
     setError(null);
-    setShowDetailedResults(false);
     setDetailedResults([]);
+    setIsCrawling(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/crawler/start-domain-crawl', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url, config }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to start crawl');
+      const response = await startDomainCrawl(url, config);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to start crawl');
       }
 
-      const data = await response.json();
-      
       const newSession: CrawlSession = {
-        sessionId: data.data.sessionId,
+        sessionId: response.data.sessionId,
         domain: new URL(url).hostname,
         startUrl: url,
         status: 'pending',
@@ -224,9 +256,31 @@ export default function DomainCrawler() {
       
       setSession(newSession);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to start crawl. Please try again.');
+      setIsCrawling(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const stopCrawl = async () => {
+    if (!session) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/stop`, {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        setSession(prev => prev ? { ...prev, status: 'failed' } : null);
+        setIsCrawling(false);
+        setError('Crawl stopped by user');
+      } else {
+        throw new Error('Failed to stop crawl');
+      }
+    } catch (err) {
+      console.error('Failed to stop crawl:', err);
+      setError('Failed to stop crawl. It may complete on its own.');
     }
   };
 
@@ -235,20 +289,41 @@ export default function DomainCrawler() {
     
     setLoadingResults(true);
     try {
-      const includeAI = config.enableAI ? '&includeAIAnalysis=true' : '';
-      const response = await fetch(`http://localhost:5000/api/crawler/session/${session.sessionId}/export?format=json&includeStructuredData=true${includeAI}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data.downloadUrl) {
-          // Download and parse the export data
-          const exportResponse = await fetch(`http://localhost:5000${data.data.downloadUrl}`);
-          const exportData = await exportResponse.json();
-          setDetailedResults(exportData.content || []);
-          setShowDetailedResults(true);
-        }
+      // Use the direct content API endpoint instead of export
+      const response = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/content?limit=1000`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch content');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data.content) {
+        // Transform the data to match PageResult interface
+        const transformedResults: PageResult[] = data.data.content.map((item: any) => ({
+          url: item.url,
+          title: item.metadata?.title || '',
+          description: item.metadata?.description || '',
+          content: item.textContent || '',
+          processingStatus: item.processingStatus || 'raw',
+          metadata: {
+            title: item.metadata?.title || '',
+            description: item.metadata?.description || '',
+            structuredData: item.metadata?.structuredData || {}
+          },
+          contentChunks: item.contentChunks || [],
+          extractedLinks: item.extractedLinks || { internal: [], external: [] },
+          images: item.images || [],
+          createdAt: item.createdAt || new Date().toISOString()
+        }));
+        
+        setDetailedResults(transformedResults);
+      } else {
+        throw new Error('No content data received');
       }
     } catch (err) {
       console.error('Failed to load detailed results:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load results');
     } finally {
       setLoadingResults(false);
     }
@@ -311,22 +386,22 @@ export default function DomainCrawler() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'running':
-        return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
+        return <Loader2 className="w-4 h-4 text-slate-600 animate-spin" />;
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'failed':
-        return <AlertTriangle className="w-4 h-4 text-red-500" />;
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
       case 'paused':
-        return <Pause className="w-4 h-4 text-yellow-500" />;
+        return <Clock className="w-4 h-4 text-yellow-600" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className="w-4 h-4 text-slate-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'running':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-slate-100 text-slate-800';
       case 'completed':
         return 'bg-green-100 text-green-800';
       case 'failed':
@@ -334,217 +409,165 @@ export default function DomainCrawler() {
       case 'paused':
         return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-slate-100 text-slate-800';
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header - Simplified */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <Globe className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Domain Crawler</h2>
-            <p className="text-gray-600">Extract structured data from entire websites</p>
-          </div>
-        </div>
-
-        {/* Simple Interface - URL + Basic Settings */}
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Main Input Card */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <div className="space-y-4">
+          {/* URL Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Website URL
-            </label>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-              disabled={loading || (session?.status === 'running')}
+              placeholder="Enter website URL (e.g., https://example.com)..."
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all text-slate-900 placeholder-slate-400 disabled:bg-slate-100 disabled:cursor-not-allowed"
+              disabled={loading || isCrawling}
             />
           </div>
 
-          {/* Basic Settings Row */}
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+          {/* Basic Settings */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pages to Crawl</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Pages</label>
               <select
                 value={String(config.maxPages)}
                 onChange={(e) => setConfig({...config, maxPages: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                disabled={isCrawling}
+                className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white disabled:bg-slate-100 disabled:cursor-not-allowed"
               >
-                <option value={5}>5 pages</option>
-                <option value={10}>10 pages</option>
-                <option value={25}>25 pages</option>
-                <option value={50}>50 pages</option>
-                <option value={100}>100 pages</option>
-                <option value={250}>250 pages</option>
-                <option value={500}>500 pages</option>
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Crawl Speed</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Speed</label>
               <select
                 value={String(config.delay)}
                 onChange={(e) => setConfig({...config, delay: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                disabled={isCrawling}
+                className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white disabled:bg-slate-100 disabled:cursor-not-allowed"
               >
-                <option value={500}>Fast (0.5s delay)</option>
-                <option value={1000}>Normal (1s delay)</option>
-                <option value={2000}>Slow (2s delay)</option>
-                <option value={3000}>Very Slow (3s delay)</option>
+                <option value={500}>Fast</option>
+                <option value={1000}>Normal</option>
+                <option value={2000}>Slow</option>
               </select>
             </div>
           </div>
 
-          {/* Start Button - Prominent */}
-          <div className="pt-2">
-            <button
-              onClick={startCrawl}
-              disabled={!url || loading}
-              className="w-full md:w-auto flex items-center justify-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg font-medium"
-            >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-              <span>{loading ? 'Starting Crawl...' : 'Start Crawling'}</span>
-            </button>
+          {/* Start/Stop Buttons */}
+          <div className="flex gap-3">
+            {!isCrawling ? (
+              <button
+                onClick={startCrawl}
+                disabled={!url || loading}
+                className="flex-1 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Starting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span>Start Crawling</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={stopCrawl}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <rect x="6" y="6" width="8" height="8" />
+                </svg>
+                <span>Stop Crawling</span>
+              </button>
+            )}
           </div>
 
+          {/* Crawling Status Animation */}
+          {isCrawling && session && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                  <div className="absolute inset-0 animate-ping">
+                    <Globe className="w-6 h-6 text-blue-400 opacity-20" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900">Crawling in progress...</p>
+                  <p className="text-xs text-blue-700 mt-0.5">
+                    {progress?.currentUrl ? `Currently scraping: ${progress.currentUrl}` : 'Initializing crawler...'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Advanced Options Toggle */}
-          <div className="border-t pt-4">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
-            >
-              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              <Settings className="w-4 h-4" />
-              <span>{showAdvanced ? 'Hide' : 'Show'} Advanced Options</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            <span>Advanced Options</span>
+          </button>
 
           {/* Advanced Options */}
           {showAdvanced && (
-            <div className="border border-gray-200 rounded-lg p-6 space-y-6 bg-gray-50">
-              {/* Crawl Settings */}
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3">Crawl Settings</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Depth</label>
-                    <input
-                      type="number"
-                      value={String(config.maxDepth)}
-                      onChange={(e) => setConfig({...config, maxDepth: parseInt(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      min="1"
-                      max="10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Concurrent Pages</label>
-                    <input
-                      type="number"
-                      value={String(config.concurrent)}
-                      onChange={(e) => setConfig({...config, concurrent: parseInt(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      min="1"
-                      max="10"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-3 pt-6">
-                    <input
-                      type="checkbox"
-                      id="respect-robots"
-                      checked={config.respectRobots}
-                      onChange={(e) => setConfig({...config, respectRobots: e.target.checked})}
-                      className="rounded border-gray-300"
-                    />
-                    <label htmlFor="respect-robots" className="text-sm text-gray-700">
-                      Respect robots.txt
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Features Section */}
-              <div className="border-t pt-4">
-                <div className="flex items-center space-x-3 mb-3">
-                  <Brain className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-medium text-gray-900">AI-Powered Analysis</h4>
-                  <button
-                    onClick={() => setShowAIFeatures(!showAIFeatures)}
-                    className="text-sm text-purple-600 hover:text-purple-700"
-                  >
-                    {showAIFeatures ? 'Hide' : 'Show'} AI Options
-                  </button>
-                </div>
-                
-                <div className="flex items-center space-x-3 mb-3">
+            <div className="bg-slate-50 rounded-lg p-4 space-y-4 border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">Max Depth</label>
                   <input
-                    type="checkbox"
-                    id="enable-ai"
-                    checked={config.enableAI}
-                    onChange={(e) => setConfig({...config, enableAI: e.target.checked})}
-                    className="rounded border-gray-300"
+                    type="number"
+                    value={String(config.maxDepth)}
+                    onChange={(e) => setConfig({...config, maxDepth: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
+                    min="1"
+                    max="10"
                   />
-                  <label htmlFor="enable-ai" className="text-sm text-gray-700">
-                    Enable AI content analysis and pattern recognition
-                  </label>
-                  <span className="text-xs text-gray-500">(Slower but smarter extraction)</span>
                 </div>
-
-                {showAIFeatures && config.enableAI && (
-                  <div className="bg-white rounded-lg p-4 space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">AI Data Types</label>
-                      <div className="flex flex-wrap gap-2">
-                        {['product', 'article', 'contact', 'event', 'job', 'generic'].map(type => (
-                          <label key={type} className="flex items-center space-x-1">
-                            <input
-                              type="checkbox"
-                              checked={config.extraction.dataTypes.includes(type)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setConfig({
-                                    ...config,
-                                    extraction: {
-                                      ...config.extraction,
-                                      dataTypes: [...config.extraction.dataTypes, type]
-                                    }
-                                  });
-                                } else {
-                                  setConfig({
-                                    ...config,
-                                    extraction: {
-                                      ...config.extraction,
-                                      dataTypes: config.extraction.dataTypes.filter(t => t !== type)
-                                    }
-                                  });
-                                }
-                              }}
-                              className="rounded border-gray-300"
-                            />
-                            <span className="text-sm text-gray-700 capitalize">{type}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-xs text-purple-600 bg-purple-50 p-2 rounded">
-                      💡 AI will automatically categorize content, extract structured data, and provide quality insights
-                    </div>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">Concurrent</label>
+                  <input
+                    type="number"
+                    value={String(config.concurrent)}
+                    onChange={(e) => setConfig({...config, concurrent: parseInt(e.target.value)})}
+                    className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
+                    min="1"
+                    max="10"
+                  />
+                </div>
               </div>
+
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={config.respectRobots}
+                  onChange={(e) => setConfig({...config, respectRobots: e.target.checked})}
+                  className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <span>Respect robots.txt</span>
+              </label>
 
               {/* Authentication Settings */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-3">Authentication</h4>
+              <div className="pt-2 border-t border-slate-200">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">Authentication</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Auth Type</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">Auth Type</label>
                     <select
                       value={config.authentication?.type || 'none'}
                       onChange={(e) => setConfig({
@@ -554,11 +577,11 @@ export default function DomainCrawler() {
                           credentials: config.authentication?.credentials
                         }
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
                     >
-                      <option value="none">No Authentication</option>
-                      <option value="basic">HTTP Basic Auth</option>
-                      <option value="form">Form-based Login</option>
+                      <option value="none">None</option>
+                      <option value="basic">Basic Auth</option>
+                      <option value="form">Form Login</option>
                       <option value="bearer">Bearer Token</option>
                     </select>
                   </div>
@@ -566,12 +589,12 @@ export default function DomainCrawler() {
                   {(config.authentication?.type === 'basic' || config.authentication?.type === 'form') && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <label className="block text-xs font-medium text-slate-700 mb-1.5">Username</label>
                         <input
                           type="text"
                           placeholder="Username"
                           value={config.authentication?.credentials?.username || ''}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
                           onChange={(e) => setConfig({
                             ...config,
                             authentication: {
@@ -582,12 +605,12 @@ export default function DomainCrawler() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label className="block text-xs font-medium text-slate-700 mb-1.5">Password</label>
                         <input
                           type="password"
                           placeholder="Password"
                           value={config.authentication?.credentials?.password || ''}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
                           onChange={(e) => setConfig({
                             ...config,
                             authentication: {
@@ -599,12 +622,12 @@ export default function DomainCrawler() {
                       </div>
                       {config.authentication?.type === 'form' && (
                         <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Login URL</label>
+                          <label className="block text-xs font-medium text-slate-700 mb-1.5">Login URL</label>
                           <input
                             type="url"
                             placeholder="https://example.com/login"
                             value={config.authentication?.credentials?.loginUrl || ''}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
                             onChange={(e) => setConfig({
                               ...config,
                               authentication: {
@@ -620,12 +643,12 @@ export default function DomainCrawler() {
 
                   {config.authentication?.type === 'bearer' && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bearer Token</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-1.5">Bearer Token</label>
                       <input
                         type="text"
                         placeholder="Your bearer token"
                         value={config.authentication?.credentials?.token || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
                         onChange={(e) => setConfig({
                           ...config,
                           authentication: {
@@ -638,272 +661,399 @@ export default function DomainCrawler() {
                   )}
                 </div>
               </div>
+
+              {/* Scraping Mode Settings */}
+              <div className="pt-2 border-t border-slate-200">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">Scraping Mode</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">Force Method</label>
+                    <select
+                      value={config.forceMethod || ''}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        forceMethod: (e.target.value || undefined) as any
+                      })}
+                      className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
+                    >
+                      <option value="">Auto (Adaptive)</option>
+                      <option value="static">Static</option>
+                      <option value="dynamic">Dynamic</option>
+                      <option value="stealth">Stealth</option>
+                      <option value="adaptive">Adaptive</option>
+                      <option value="api">API</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">Stealth Level</label>
+                    <select
+                      value={config.stealthLevel || 'advanced'}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        stealthLevel: e.target.value as 'basic' | 'advanced' | 'maximum'
+                      })}
+                      className="w-full px-3 py-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white"
+                    >
+                      <option value="basic">Basic</option>
+                      <option value="advanced">Advanced</option>
+                      <option value="maximum">Maximum</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={config.enableStealthScraping ?? true}
+                      onChange={(e) => setConfig({...config, enableStealthScraping: e.target.checked})}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                    />
+                    <span>Enable Stealth Scraping</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={config.enableAdaptiveScraping ?? true}
+                      onChange={(e) => setConfig({...config, enableAdaptiveScraping: e.target.checked})}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                    />
+                    <span>Enable Adaptive Scraping</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={config.enableDynamicScraping ?? true}
+                      onChange={(e) => setConfig({...config, enableDynamicScraping: e.target.checked})}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                    />
+                    <span>Enable Dynamic Scraping</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={config.enableApiScraping ?? true}
+                      onChange={(e) => setConfig({...config, enableApiScraping: e.target.checked})}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                    />
+                    <span>Enable API Scraping</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={config.learningMode ?? true}
+                      onChange={(e) => setConfig({...config, learningMode: e.target.checked})}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                    />
+                    <span>Learning Mode</span>
+                  </label>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Error Display */}
           {error && (
-            <div className="flex items-center space-x-2 text-red-600 bg-red-50 px-4 py-3 rounded-lg">
-              <AlertTriangle className="w-5 h-5" />
-              <span>{error}</span>
+            <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-red-900 mb-1">Error</h4>
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+                <button
+                  onClick={() => setError(null)}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Current Session Progress - Simplified */}
+      {/* Progress Card */}
       {session && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Crawling Progress</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-900">Progress</h3>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
+              {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+            </span>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600">Status</span>
-                {getStatusIcon(session.status)}
-              </div>
-              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
-                {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
-              </span>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Pages</div>
-              <div className="text-2xl font-bold text-gray-900">
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div>
+              <div className="text-xs text-slate-600 mb-1">Pages</div>
+              <div className="text-xl font-bold text-slate-900">
                 {progress?.processedUrls || session.stats.pagesProcessed}
-                <span className="text-sm text-gray-500 ml-1">
-                  / {progress?.totalUrls || session.stats.totalPages || '?'}
-                </span>
+                <span className="text-sm text-slate-500 ml-1">/ {progress?.totalUrls || session.stats.totalPages || '?'}</span>
               </div>
             </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Data Extracted</div>
-              <div className="text-2xl font-bold text-gray-900">
+            <div>
+              <div className="text-xs text-slate-600 mb-1">Extracted</div>
+              <div className="text-xl font-bold text-slate-900">
                 {progress?.extractedItems || session.stats.extractedItems}
               </div>
             </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Domain</div>
-              <div className="text-sm font-medium text-gray-900 truncate">
+            <div>
+              <div className="text-xs text-slate-600 mb-1">Domain</div>
+              <div className="text-sm font-medium text-slate-900 truncate">
                 {session.domain}
               </div>
             </div>
           </div>
 
-          {/* Live Progress */}
-          {(session.status === 'running' || session.status === 'pending') && (
-            <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <h4 className="font-medium text-gray-900 mb-3">Live Progress</h4>
-              
-              {progress?.currentUrl && (
-                <div className="mb-3">
-                  <span className="text-sm text-gray-600">Currently Processing:</span>
-                  <div className="text-sm font-mono text-blue-600 bg-blue-100 px-2 py-1 rounded mt-1 break-all">
-                    {progress.currentUrl}
-                  </div>
-                </div>
-              )}
-
-              {progress?.totalUrls > 0 && (
-                <div className="mb-3">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Progress</span>
-                    <span>{Math.round((progress.processedUrls / progress.totalUrls) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.round((progress.processedUrls / progress.totalUrls) * 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-
-              {progress?.failedUrls > 0 && (
-                <div className="text-sm text-red-600">
-                  ⚠️ {progress.failedUrls} URLs failed
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* AI Analysis Results - Only show if AI was enabled */}
-          {config.enableAI && session.status === 'completed' && session.stats?.aiAnalysis && (
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-6">
-              <h4 className="font-medium text-gray-900 mb-4 flex items-center">
-                <Brain className="w-5 h-5 mr-2 text-purple-600" />
-                AI Analysis Results
-              </h4>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Content Type:</span>
-                  <div className="font-medium capitalize text-lg">{session.stats.aiAnalysis.primaryContentType}</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Quality Score:</span>
-                  <div className="font-medium text-lg">{Math.round(session.stats.aiAnalysis.qualityScore)}/100</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Patterns:</span>
-                  <div className="font-medium text-lg">{session.stats.aiAnalysis.patternsFound}</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <span className="text-gray-600">Confidence:</span>
-                  <div className="font-medium text-lg">{Math.round(session.stats.aiAnalysis.averageConfidence * 100)}%</div>
-                </div>
+          {/* Progress Bar */}
+          {(session.status === 'running' || session.status === 'pending') && progress?.totalUrls > 0 && (
+            <div className="mb-4">
+              <div className="flex justify-between text-xs text-slate-600 mb-2">
+                <span>Processing...</span>
+                <span>{Math.round((progress.processedUrls / progress.totalUrls) * 100)}%</span>
               </div>
-
-              {/* AI Recommendations */}
-              {session.stats.aiAnalysis.recommendations && session.stats.aiAnalysis.recommendations.length > 0 && (
-                <div className="bg-white rounded-lg p-4 border border-purple-200">
-                  <h5 className="font-medium text-purple-900 mb-3">💡 AI Recommendations</h5>
-                  <ul className="text-sm text-purple-800 space-y-1">
-                    {session.stats.aiAnalysis.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-purple-500 mr-2">•</span>
-                        {rec}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="w-full bg-slate-200 rounded-full h-2">
+                <div 
+                  className="bg-slate-900 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.round((progress.processedUrls / progress.totalUrls) * 100)}%` }}
+                ></div>
+              </div>
             </div>
           )}
 
-          {/* Download Options - Simplified */}
+          {/* Download Button */}
           {session.status === 'completed' && (
-            <div className="border-t pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-medium text-gray-900">Download Your Data</h4>
-                <button
-                  onClick={loadDetailedResults}
-                  disabled={loadingResults}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-                >
-                  {loadingResults ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                  <span>{loadingResults ? 'Loading...' : 'Preview Data'}</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <ExportButton sessionId={session.sessionId} format="json" includeAI={config.enableAI} />
-                <ExportButton sessionId={session.sessionId} format="csv" includeAI={config.enableAI} />
-                <ExportButton sessionId={session.sessionId} format="excel" includeAI={config.enableAI} />
-                <ExportButton sessionId={session.sessionId} format="markdown" includeAI={config.enableAI} />
-                <ExportButton sessionId={session.sessionId} format="multi" includeAI={config.enableAI} />
-              </div>
+            <div className="pt-4 border-t border-slate-200">
+              <ExportButton sessionId={session.sessionId} format="markdown" />
             </div>
           )}
         </div>
       )}
 
-      {/* Detailed Results View - Simplified */}
-      {showDetailedResults && detailedResults.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      {/* Loading Results */}
+      {session?.status === 'completed' && loadingResults && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-600 mr-3" />
+            <span className="text-slate-600">Loading results...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Results View */}
+      {session?.status === 'completed' && !loadingResults && detailedResults.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Extracted Data Preview</h3>
-            <button
-              onClick={() => setShowDetailedResults(false)}
-              className="text-gray-500 hover:text-gray-700 text-xl"
-            >
-              ✕
-            </button>
+            <h3 className="text-lg font-semibold text-slate-900">Results</h3>
+            <span className="text-sm text-slate-500">{detailedResults.length} pages</span>
           </div>
 
           <div className="space-y-4">
-            {detailedResults.slice(0, 10).map((page, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                {/* Page Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 mb-1">{page.metadata.title || page.title}</h4>
-                    <p className="text-sm text-blue-600 mb-2 break-all">{page.url}</p>
-                    {page.metadata.description && (
-                      <p className="text-sm text-gray-600">{page.metadata.description.slice(0, 150)}...</p>
-                    )}
+            {detailedResults.map((page, index) => {
+              const currentTab = activeTab[index] || 'overview';
+              const pageLinks = Array.isArray(page.extractedLinks) 
+                ? page.extractedLinks 
+                : [...(page.extractedLinks?.internal || []), ...(page.extractedLinks?.external || [])];
+              
+              const tabs = [
+                { id: 'overview', label: 'Overview', icon: '📊' },
+                { id: 'content', label: 'Content', icon: '📄' },
+                { id: 'links', label: `Links (${pageLinks.length})`, icon: '🔗' },
+                { id: 'images', label: `Images (${page.images?.length || 0})`, icon: '🖼️' },
+                { id: 'metadata', label: 'Metadata', icon: '📋' },
+              ] as const;
+              
+              return (
+                <div key={index} className="border border-slate-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                  <div className="mb-4">
+                    <h4 className="font-medium text-slate-900 mb-1">{page.metadata.title || page.title}</h4>
+                    <p className="text-xs text-slate-500 break-all">{page.url}</p>
                   </div>
-                  {config.enableAI && page.metadata.aiContentType && (
-                    <div className="ml-4">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        page.metadata.aiContentType === 'product' ? 'bg-green-100 text-green-800' :
-                        page.metadata.aiContentType === 'article' ? 'bg-blue-100 text-blue-800' :
-                        page.metadata.aiContentType === 'contact' ? 'bg-purple-100 text-purple-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {page.metadata.aiContentType}
-                      </span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Structured Data Preview */}
-                {page.metadata.structuredData && Object.keys(page.metadata.structuredData).length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                    <h5 className="font-medium text-gray-900 mb-2">📊 Extracted Data</h5>
-                    <div className="grid md:grid-cols-2 gap-3 text-sm">
-                      {Object.entries(page.metadata.structuredData)
-                        .filter(([key, value]) => value && value !== '')
-                        .slice(0, 4)
-                        .map(([key, value]) => (
-                          <div key={key}>
-                            <span className="font-medium text-gray-700 capitalize">{key}:</span>
-                            <span className="ml-2 text-gray-600">
-                              {Array.isArray(value) ? value.slice(0, 2).join(', ') : String(value).slice(0, 80)}
-                            </span>
+                  {/* Tab Navigation */}
+                  <div className="border-b border-slate-200 mb-4">
+                    <nav className="flex space-x-4" aria-label="Tabs">
+                      {tabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(prev => ({ ...prev, [index]: tab.id }))}
+                          className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                            currentTab === tab.id
+                              ? 'border-slate-900 text-slate-900'
+                              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                          }`}
+                        >
+                          <span className="mr-1">{tab.icon}</span>
+                          {tab.label}
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
+
+                  {/* Tab Content */}
+                  <div className="min-h-[300px]">
+                    {currentTab === 'overview' && (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="text-lg font-bold text-slate-900">{page.content?.length || 0}</div>
+                            <div className="text-xs text-slate-600 mt-1">Characters</div>
                           </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Images Preview */}
-                {page.images && page.images.length > 0 && (
-                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-medium text-gray-900">🖼️ Images ({page.images.length})</h5>
-                      <button
-                        onClick={() => downloadPageImages(page)}
-                        className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Download All
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {page.images.slice(0, 8).map((image, imgIndex) => (
-                        <div key={imgIndex} className="relative group">
-                          <img
-                            src={image.src}
-                            alt={image.alt || 'Image'}
-                            className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
-                            onClick={() => window.open(image.src, '_blank')}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                            }}
-                          />
-                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b opacity-0 group-hover:opacity-100 transition-opacity">
-                            {image.type}
+                          <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="text-lg font-bold text-slate-900">{pageLinks.length}</div>
+                            <div className="text-xs text-slate-600 mt-1">Links</div>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="text-lg font-bold text-slate-900">{page.images?.length || 0}</div>
+                            <div className="text-xs text-slate-600 mt-1">Images</div>
+                          </div>
+                          <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="text-lg font-bold text-slate-900">
+                              {page.metadata.structuredData ? Object.keys(page.metadata.structuredData).length : 0}
+                            </div>
+                            <div className="text-xs text-slate-600 mt-1">Data Fields</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    {page.images.length > 8 && (
-                      <div className="text-xs text-gray-500 mt-2">
-                        ... and {page.images.length - 8} more images
+                        
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <h5 className="font-medium text-slate-900 mb-2">Page Info</h5>
+                          <div className="space-y-1 text-sm">
+                            {page.metadata.description && (
+                              <div><span className="text-slate-600">Description:</span> <span className="text-slate-900">{page.metadata.description}</span></div>
+                            )}
+                            <div><span className="text-slate-600">URL:</span> <a href={page.url} target="_blank" rel="noopener noreferrer" className="text-slate-900 hover:underline">{page.url}</a></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {currentTab === 'content' && (
+                      <div>
+                        {page.content ? (
+                          <div className="bg-slate-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                              {page.content}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-slate-500 text-center py-8">No content available</p>
+                        )}
+                      </div>
+                    )}
+
+                    {currentTab === 'links' && (
+                      <div>
+                        {pageLinks.length > 0 ? (
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {pageLinks.map((link, linkIndex) => (
+                              <div key={linkIndex} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-slate-900 truncate">
+                                    {link}
+                                  </p>
+                                </div>
+                                <a
+                                  href={link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-slate-600 hover:text-slate-900 ml-2"
+                                >
+                                  ↗️
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-slate-500 text-center py-8">No links found</p>
+                        )}
+                      </div>
+                    )}
+
+                    {currentTab === 'images' && (
+                      <div>
+                        {page.images && page.images.length > 0 ? (
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-sm font-medium text-slate-700">{page.images.length} images</span>
+                              <button
+                                onClick={() => downloadPageImages(page)}
+                                className="text-xs px-3 py-1 bg-slate-900 text-white rounded hover:bg-slate-800"
+                              >
+                                Download All
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
+                              {page.images.map((image, imgIndex) => (
+                                <div key={imgIndex} className="bg-slate-50 rounded-lg overflow-hidden">
+                                  <div className="aspect-video bg-slate-100 flex items-center justify-center overflow-hidden">
+                                    <img
+                                      src={image.src}
+                                      alt={image.alt || 'Image'}
+                                      className="w-full h-full object-contain cursor-pointer hover:opacity-80"
+                                      onClick={() => window.open(image.src, '_blank')}
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                      }}
+                                    />
+                                  </div>
+                                  {image.alt && (
+                                    <p className="text-xs text-slate-600 p-2 truncate" title={image.alt}>
+                                      {image.alt}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-slate-500 text-center py-8">No images found</p>
+                        )}
+                      </div>
+                    )}
+
+                    {currentTab === 'metadata' && (
+                      <div className="space-y-4">
+                        {page.metadata.structuredData && Object.keys(page.metadata.structuredData).length > 0 && (
+                          <div className="bg-slate-50 rounded-lg p-4">
+                            <h5 className="font-medium text-slate-900 mb-3">Extracted Data</h5>
+                            <div className="grid md:grid-cols-2 gap-2 text-sm">
+                              {Object.entries(page.metadata.structuredData)
+                                .filter(([key, value]) => value && value !== '')
+                                .map(([key, value]) => (
+                                  <div key={key}>
+                                    <span className="font-medium text-slate-700 capitalize">{key}:</span>
+                                    <span className="ml-2 text-slate-600 break-words">
+                                      {Array.isArray(value) ? value.join(', ') : String(value)}
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                        <div className="bg-slate-50 rounded-lg p-4">
+                          <h5 className="font-medium text-slate-900 mb-3">Page Metadata</h5>
+                          <div className="space-y-2 text-sm">
+                            <div><span className="text-slate-600">Title:</span> <span className="text-slate-900">{page.metadata.title || page.title}</span></div>
+                            {page.metadata.description && (
+                              <div><span className="text-slate-600">Description:</span> <span className="text-slate-900">{page.metadata.description}</span></div>
+                            )}
+                            <div><span className="text-slate-600">URL:</span> <span className="text-slate-900 break-all">{page.url}</span></div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            ))}
-            
-            {detailedResults.length > 10 && (
-              <div className="text-center py-4 text-gray-500">
-                Showing first 10 results. Download files for complete data.
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -911,99 +1061,53 @@ export default function DomainCrawler() {
   );
 }
 
-// Export Button Component - Updated to handle AI inclusion
-function ExportButton({ sessionId, format, includeAI = false }: { sessionId: string; format: string; includeAI?: boolean }) {
+// Export Button Component - Only Markdown
+function ExportButton({ sessionId, format }: { sessionId: string; format: string }) {
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      let url = `http://localhost:5000/api/crawler/session/${sessionId}/export?`;
+      const response = await exportSession(sessionId, format, {
+        includeStructuredData: true
+      });
       
-      const aiParam = includeAI ? '&includeAIAnalysis=true' : '';
-      
-      if (format === 'multi') {
-        url += `multiFormat=true&includeStructuredData=true${aiParam}`;
-      } else {
-        url += `format=${format}&includeStructuredData=true${aiParam}`;
-      }
-
-      console.log('Export URL:', url); // Debug log
-
-      const response = await fetch(url);
-      console.log('Export response status:', response.status); // Debug log
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Export response data:', data); // Debug log
+      if (response.success && response.data.downloadUrl) {
+        const downloadUrl = `${API_BASE_URL}${response.data.downloadUrl}`;
         
-        if (data.success && data.data.downloadUrl) {
-          const downloadUrl = `http://localhost:5000${data.data.downloadUrl}`;
-          console.log('Download URL:', downloadUrl); // Debug log
-          
-          // Try direct download
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.download = data.data.fileName || 'export';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          console.error('Export failed:', data);
-          throw new Error(data.message || 'Export failed');
-        }
+        // Try direct download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = response.data.fileName || 'export';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       } else {
-        const errorText = await response.text();
-        console.error('Export request failed:', response.status, errorText);
-        throw new Error(`Export failed: ${response.status} ${errorText}`);
+        throw new Error(response.message || 'Export failed');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Export failed:', err);
-      alert(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
+      const errorMessage = err?.message || err?.toString() || 'Unknown error';
+      const statusCode = err?.status ? ` (Status: ${err.status})` : '';
+      alert(`Export failed${statusCode}: ${errorMessage}\n\nPlease ensure:\n1. Backend server is running on port 5000\n2. CORS is properly configured\n3. The session exists and is completed\n4. Check browser console for more details`);
     } finally {
       setExporting(false);
     }
   };
 
   const getIcon = () => {
-    switch (format) {
-      case 'json':
-        return <FileText className="w-4 h-4" />;
-      case 'csv':
-        return <BarChart3 className="w-4 h-4" />;
-      case 'excel':
-        return <Database className="w-4 h-4" />;
-      case 'markdown':
-        return <FileText className="w-4 h-4" />;
-      case 'multi':
-        return <Download className="w-4 h-4" />;
-      default:
-        return <Download className="w-4 h-4" />;
-    }
+    return <FileText className="w-4 h-4" />;
   };
 
   const getLabel = () => {
-    switch (format) {
-      case 'json':
-        return 'JSON';
-      case 'csv':
-        return 'CSV';
-      case 'excel':
-        return 'Excel';
-      case 'markdown':
-        return 'Markdown';
-      case 'multi':
-        return 'All Formats';
-      default:
-        return format.toUpperCase();
-    }
+    return 'Markdown';
   };
 
   return (
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+      className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-all"
     >
       {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : getIcon()}
       <span className="text-sm font-medium">{exporting ? 'Exporting...' : getLabel()}</span>

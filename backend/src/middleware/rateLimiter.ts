@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 // Create rate limiter instance
 const rateLimiter = new RateLimiterMemory({
-  points: process.env.NODE_ENV === 'production' ? 10 : 50, // Number of requests
+  points: process.env.NODE_ENV === 'production' ? 100 : 200, // Increased for polling
   duration: 60, // Per 60 seconds (1 minute)
   blockDuration: 60, // Block for 60 seconds if limit exceeded
 });

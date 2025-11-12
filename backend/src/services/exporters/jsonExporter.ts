@@ -13,38 +13,25 @@ export class JSONExporter extends BaseExporter {
       const fileName = this.generateFileName('json');
       const filePath = path.join(exportsDir, fileName);
 
-      // Prepare export data
+      // Clean, structured export data
       const exportPayload = {
-        metadata: {
-          exportedAt: new Date().toISOString(),
-          exporter: 'ScrapperX Enhanced JSON Exporter v1.0',
-          format: 'json',
-          options: this.options
-        },
-        session: this.exportData.session,
-        summary: {
-          totalPages: this.exportData.content.length,
-          structuredDataItems: this.exportData.structuredData?.length || 0,
-          hasAIAnalysis: !!this.exportData.aiAnalysis,
-          hasPatternAnalysis: !!this.exportData.patternAnalysis
-        },
-        content: this.exportData.content,
-        ...(this.options.includeStructuredData && this.exportData.structuredData && {
-          structuredData: {
-            summary: {
-              totalItems: this.exportData.structuredData.length,
-              schemas: [...new Set(this.exportData.structuredData.map(item => item.schema))],
-              averageQuality: this.exportData.structuredData.reduce((sum, item) => sum + item.qualityScore, 0) / this.exportData.structuredData.length
-            },
-            items: this.filterByQuality(this.exportData.structuredData)
-          }
-        }),
-        ...(this.options.includeAIAnalysis && this.exportData.aiAnalysis && {
-          aiAnalysis: this.exportData.aiAnalysis
-        }),
-        ...(this.options.includePatternAnalysis && this.exportData.patternAnalysis && {
-          patternAnalysis: this.exportData.patternAnalysis
-        })
+        domain: this.exportData.session.domain,
+        startUrl: this.exportData.session.startUrl,
+        crawledAt: this.exportData.session.stats.startTime,
+        pages: this.exportData.content.map(page => ({
+          url: page.url,
+          title: page.title,
+          description: page.description,
+          content: page.content || this.flattenContentChunks(page.contentChunks || []),
+          links: Array.isArray(page.extractedLinks) 
+            ? page.extractedLinks 
+            : [...(page.extractedLinks?.internal || []), ...(page.extractedLinks?.external || [])],
+          images: page.images?.map(img => ({
+            src: img.src,
+            alt: img.alt
+          })) || [],
+          structuredData: page.metadata.structuredData || {}
+        }))
       };
 
       // Write file with pretty formatting

@@ -22,7 +22,7 @@ export interface ExtractionResult {
   fields: { [key: string]: any };
   nestedStructures: any[];
   qualityScore: number;
-  extractionMethod: 'ai' | 'pattern' | 'selector' | 'heuristic';
+  extractionMethod: 'pattern' | 'selector' | 'heuristic';
   extractedAt: Date;
 }
 
@@ -121,21 +121,17 @@ export class StructuredExtractor {
    */
   async extractStructuredData(
     content: IRawContent,
-    customSchema?: ExtractionSchema,
-    enableAI: boolean = true
+    customSchema?: ExtractionSchema
   ): Promise<ExtractionResult> {
     const $ = cheerio.load(content.htmlContent);
     
     // Determine schema to use
     let schema: ExtractionSchema;
-    let method: 'ai' | 'pattern' | 'selector' | 'heuristic' = 'heuristic';
+    let method: 'pattern' | 'selector' | 'heuristic' = 'heuristic';
 
     if (customSchema) {
       schema = customSchema;
       method = 'selector';
-    } else if (content.metadata.aiContentType && this.defaultSchemas.has(content.metadata.aiContentType)) {
-      schema = this.defaultSchemas.get(content.metadata.aiContentType)!;
-      method = enableAI ? 'ai' : 'pattern';
     } else {
       // Auto-detect schema based on content
       schema = this.detectSchema($, content);

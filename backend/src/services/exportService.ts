@@ -8,8 +8,6 @@ import {
   StructuredDataItem 
 } from './exporters/baseExporter';
 import { JSONExporter } from './exporters/jsonExporter';
-import { CSVExporter } from './exporters/csvExporter';
-import { ExcelExporter } from './exporters/excelExporter';
 import { MarkdownExporter } from './exporters/markdownExporter';
 import fs from 'fs/promises';
 import path from 'path';
@@ -36,17 +34,11 @@ export class ExportService {
         case 'json':
           exporter = new JSONExporter(sessionId, exportData, options);
           break;
-        case 'csv':
-          exporter = new CSVExporter(sessionId, exportData, options);
-          break;
-        case 'excel':
-          exporter = new ExcelExporter(sessionId, exportData, options);
-          break;
         case 'markdown':
           exporter = new MarkdownExporter(sessionId, exportData, options);
           break;
         default:
-          throw new Error(`Unsupported export format: ${options.format}`);
+          throw new Error(`Unsupported export format: ${options.format}. Supported formats: json, markdown`);
       }
 
       // Export data
@@ -76,7 +68,7 @@ export class ExportService {
    */
   async exportMultipleFormats(
     sessionId: string, 
-    formats: Array<'json' | 'csv' | 'excel' | 'markdown'>,
+    formats: Array<'json' | 'markdown'>,
     baseOptions: Omit<ExportOptions, 'format'>
   ): Promise<ExportResult> {
     try {
@@ -92,17 +84,11 @@ export class ExportService {
           case 'json':
             exporter = new JSONExporter(sessionId, exportData, options);
             break;
-          case 'csv':
-            exporter = new CSVExporter(sessionId, exportData, options);
-            break;
-          case 'excel':
-            exporter = new ExcelExporter(sessionId, exportData, options);
-            break;
           case 'markdown':
             exporter = new MarkdownExporter(sessionId, exportData, options);
             break;
           default:
-            throw new Error(`Unsupported export format: ${format}`);
+            throw new Error(`Unsupported export format: ${format}. Supported formats: json, markdown`);
         }
 
         const result = await exporter.export();
@@ -208,15 +194,12 @@ export class ExportService {
       url: item.url,
       title: item.metadata.title || '',
       description: item.metadata.description || '',
+      content: item.markdownContent || item.textContent || '', // Use clean markdown first, fallback to text
       processingStatus: item.processingStatus,
       metadata: {
         title: item.metadata.title || '',
         description: item.metadata.description || '',
-        aiContentType: item.metadata.aiContentType,
-        confidence: item.metadata.confidence,
-        relevanceScore: item.metadata.relevanceScore,
-        structuredData: item.metadata.structuredData,
-        aiAnalysis: item.metadata.aiAnalysis
+        structuredData: item.metadata.structuredData
       },
       contentChunks: item.contentChunks,
       extractedLinks: item.extractedLinks,
@@ -249,17 +232,6 @@ export class ExportService {
         });
     }
 
-    // Get AI analysis if requested
-    let aiAnalysis;
-    if (options.includeAIAnalysis) {
-      aiAnalysis = await this.crawlerService.getAIAnalysis(sessionId);
-    }
-
-    // Get pattern analysis if requested
-    let patternAnalysis;
-    if (options.includePatternAnalysis) {
-      patternAnalysis = await this.crawlerService.exportPatternAnalysis(sessionId);
-    }
 
     return {
       session: {
@@ -273,9 +245,7 @@ export class ExportService {
         updatedAt: session.updatedAt
       },
       content: contentItems,
-      structuredData,
-      aiAnalysis,
-      patternAnalysis
+      structuredData
     };
   }
 

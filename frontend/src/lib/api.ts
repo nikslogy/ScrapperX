@@ -10,15 +10,29 @@ class ApiError extends Error {
 }
 
 const handleApiResponse = async <T>(response: Response): Promise<ApiResponse<T>> => {
-  const data = await response.json();
-  
+  // Check if response is ok before parsing
   if (!response.ok) {
-    throw new ApiError(
-      data.message || data.error || `HTTP ${response.status}`,
-      response.status
-    );
+    let errorMessage = `HTTP ${response.status}`;
+    let errorData: any = null;
+    
+    try {
+      errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      // If response is not JSON, try to get text
+      try {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      } catch {
+        // Keep default error message
+      }
+    }
+    
+    throw new ApiError(errorMessage, response.status);
   }
   
+  // Parse JSON only if response is ok
+  const data = await response.json();
   return data;
 };
 
@@ -168,7 +182,7 @@ export const exportSession = async (
     multiFormat?: boolean;
     qualityFilter?: number;
   }
-): Promise<ApiResponse<{ downloadUrl: string; filename: string; size: number }>> => {
+): Promise<ApiResponse<{ downloadUrl: string; fileName: string; size: number }>> => {
   try {
     const params = new URLSearchParams();
     params.append('format', format);
@@ -178,13 +192,25 @@ export const exportSession = async (
     if (options?.multiFormat) params.append('multiFormat', 'true');
     if (options?.qualityFilter) params.append('qualityFilter', options.qualityFilter.toString());
 
-    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/export?${params.toString()}`);
+    const url = `${API_BASE_URL}/api/crawler/session/${sessionId}/export?${params.toString()}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
     return await handleApiResponse(response);
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError('Failed to export session data.');
+    // Provide more detailed error message
+    const errorMessage = error instanceof Error 
+      ? `Failed to export session data: ${error.message}` 
+      : 'Failed to export session data. Please check if the backend server is running.';
+    throw new ApiError(errorMessage);
   }
 };
 

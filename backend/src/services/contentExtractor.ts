@@ -12,6 +12,7 @@ export interface ExtractedContent {
   language?: string;
   textContent: string;
   htmlContent: string;
+  markdownContent?: string; // Clean Firecrawl-style markdown
   contentHash: string;
   extractedLinks: {
     internal: string[];
@@ -39,8 +40,63 @@ export class ContentExtractorService {
   constructor() {
     this.turndownService = new TurndownService({
       headingStyle: 'atx',
-      codeBlockStyle: 'fenced'
+      codeBlockStyle: 'fenced',
+      bulletListMarker: '-',
+      emDelimiter: '*',
+      strongDelimiter: '**',
+      linkStyle: 'inlined',
+      linkReferenceStyle: 'full',
+      preformattedCode: true
     });
+    
+    // Keep table structure intact
+    this.turndownService.keep(['table', 'thead', 'tbody', 'tr', 'th', 'td']);
+    
+    // Add custom rule to handle tables properly
+    this.turndownService.addRule('tables', {
+      filter: ['table'],
+      replacement: (content, node) => {
+        return '\n\n' + this.convertHtmlTableToMarkdown(node as HTMLElement) + '\n\n';
+      }
+    });
+  }
+  
+  /**
+   * Convert HTML table to clean Markdown table
+   */
+  private convertHtmlTableToMarkdown(tableElement: any): string {
+    const $ = cheerio.load(tableElement.outerHTML || '');
+    const rows: string[][] = [];
+    
+    // Extract table rows
+    $('tr').each((_, tr) => {
+      const row: string[] = [];
+      $(tr).find('th, td').each((_, cell) => {
+        row.push($(cell).text().trim().replace(/\n/g, ' '));
+      });
+      if (row.length > 0) {
+        rows.push(row);
+      }
+    });
+    
+    if (rows.length === 0) return '';
+    
+    // Build markdown table
+    const colCount = Math.max(...rows.map(r => r.length));
+    let markdown = '';
+    
+    // Header row
+    if (rows.length > 0) {
+      markdown += '| ' + rows[0].map(cell => cell || ' ').join(' | ') + ' |\n';
+      markdown += '| ' + Array(colCount).fill('---').join(' | ') + ' |\n';
+      
+      // Data rows
+      for (let i = 1; i < rows.length; i++) {
+        markdown += '| ' + rows[i].map(cell => cell || ' ').join(' | ') + ' |\n';
+      }
+    }
+    
+    return markdown;
   }
 
   /**
@@ -74,6 +130,9 @@ export class ContentExtractorService {
     // Extract content chunks
     const contentChunks = this.extractContentChunks($);
     
+    // Extract clean markdown content (Firecrawl-style)
+    const markdownContent = this.extractTextContent($);
+    
     return {
       title,
       description,
@@ -83,6 +142,7 @@ export class ContentExtractorService {
       language,
       textContent,
       htmlContent,
+      markdownContent, // Clean markdown content
       contentHash,
       extractedLinks,
       images,
@@ -153,42 +213,330 @@ export class ContentExtractorService {
    * Extract language
    */
   private extractLanguage($: cheerio.CheerioAPI): string | undefined {
-    return $('html').attr('lang') || $('meta[http-equiv="content-language"]').attr('content');
+    const lang = $('html').attr('lang') || $('meta[http-equiv="content-language"]').attr('content');
+    // Normalize language code to MongoDB-compatible format (e.g., 'en-US' -> 'en')
+    if (lang) {
+      return lang.split('-')[0].toLowerCase(); // Extract base language code
+    }
+    return lang;
   }
 
   /**
-   * Extract clean text content
+   * Extract clean markdown content (Firecrawl-style)
+   * Intelligently isolates main article content and converts to structured markdown
    */
   private extractTextContent($: cheerio.CheerioAPI): string {
-    // Remove unwanted elements
-    $('nav, header, footer, aside, .sidebar, .navigation, .menu, .ads, .advertisement').remove();
+    // Create a working copy by loading the HTML again to avoid mutating the original
+    const html = $.html();
+    const $working = cheerio.load(html);
     
-    // Get main content areas
-    const mainSelectors = [
-      'main',
-      '[role="main"]',
-      '.main-content',
-      '.content',
-      'article',
-      '.article'
-    ];
+    // Step 1: Remove scripts, styles, and obvious non-content first
+    $working('script, style, noscript, iframe, embed, object, svg').remove();
+    
+    // Step 2: Find the main content container intelligently (BEFORE aggressive removal)
+    const mainContentElement = this.findMainContentContainer($working);
+    
+    if (!mainContentElement || mainContentElement.length === 0) {
+      // Try density-based detection on less-cleaned DOM
+      const densityResult = this.extractByDensity($working);
+      return densityResult;
+    }
+    
+    // Step 3: Now that we have main content, clean it up (remove nested noise)
+    this.cleanContentElement($working, mainContentElement);
+    
+    // Step 4: Convert to markdown
+    const htmlContent = mainContentElement.html() || '';
+    
+    if (htmlContent.length === 0) {
+      return '';
+    }
+    
+    const markdown = this.turndownService.turndown(htmlContent);
+    
+    // Step 5: Clean up markdown formatting
+    const cleanedMarkdown = this.cleanMarkdown(markdown);
+    return cleanedMarkdown;
+  }
 
-    let mainContent = '';
-    for (const selector of mainSelectors) {
+  /**
+   * Remove all boilerplate elements (navigation, sidebars, footers, UI clutter)
+   */
+  private removeBoilerplate($: cheerio.CheerioAPI): void {
+    // Remove script, style, and other non-content elements first
+    $('script, style, noscript, iframe, embed, object, svg').remove();
+    
+    // Navigation elements (more comprehensive)
+    const navSelectors = [
+      'nav',
+      'header',
+      'header nav',
+      '.navbar',
+      '.navigation',
+      '.nav',
+      '.menu',
+      '.main-menu',
+      '.primary-menu',
+      '.secondary-menu',
+      '.breadcrumb',
+      '.breadcrumbs',
+      '[role="navigation"]',
+      '[role="banner"]',
+      '[aria-label*="navigation" i]',
+      '[aria-label*="menu" i]',
+      '[aria-label*="breadcrumb" i]',
+      '[class*="nav" i]:not([class*="canvas" i])',
+      '[id*="nav" i]',
+      '[class*="header" i]',
+      '[id*="header" i]'
+    ];
+    
+    // Sidebar elements
+    const sidebarSelectors = [
+      'aside',
+      '.sidebar',
+      '.side-panel',
+      '.widget-area',
+      '.widget',
+      '.sidebar-content',
+      '[role="complementary"]',
+      '[class*="sidebar" i]',
+      '[id*="sidebar" i]',
+      '[class*="widget" i]'
+    ];
+    
+    // Footer elements (more comprehensive)
+    const footerSelectors = [
+      'footer',
+      '.footer',
+      '.page-footer',
+      '.site-footer',
+      '.footer-content',
+      '[role="contentinfo"]',
+      '[class*="footer" i]',
+      '[id*="footer" i]',
+      '[class*="copyright" i]'
+    ];
+    
+    // UI Clutter (buttons, forms, etc.)
+    const clutterSelectors = [
+      'button',
+      'a[href*="login"]',
+      'a[href*="signup"]',
+      'a[href*="register"]',
+      '[class*="button" i]',
+      '[class*="btn" i]',
+      '[class*="suggest-edit" i]',
+      '[class*="edit" i][class*="button" i]',
+      '[class*="share" i]',
+      '[class*="social" i]',
+      '[class*="back-to-top" i]',
+      '[class*="scroll-top" i]',
+      'form',
+      '.search-form',
+      '.search-box',
+      '[role="search"]',
+      '.cookie-banner',
+      '.cookie-consent',
+      '.cookie-notice',
+      '.popup',
+      '.modal',
+      '[class*="advertisement" i]',
+      '[class*="ad-" i]',
+      '[class*="ad_" i]',
+      '[id*="ad-" i]',
+      '[id*="ad_" i]',
+      '.ads',
+      '.ad',
+      '[class*="sponsor" i]',
+      '[class*="promo" i]',
+      '[class*="banner" i]:not(.page-banner):not(.hero-banner)'
+    ];
+    
+    // Remove all boilerplate
+    const allSelectors = [
+      ...navSelectors,
+      ...sidebarSelectors,
+      ...footerSelectors,
+      ...clutterSelectors
+    ];
+    
+    allSelectors.forEach(selector => {
+      try {
+        $(selector).remove();
+      } catch (e) {
+        // Ignore invalid selectors
+      }
+    });
+    
+    // Remove elements with common noise class patterns
+    $('[class*="skip" i], [class*="hidden" i], [aria-hidden="true"]').remove();
+    
+    // Remove common metadata/utility elements
+    $('[class*="metadata" i], [class*="meta-info" i], [class*="tags" i], [class*="categories" i]').remove();
+    
+    // Remove social media sharing buttons
+    $('[class*="social-share" i], [class*="share-buttons" i]').remove();
+    
+    // Remove comments sections
+    $('[class*="comment" i], [id*="comment" i], [class*="disqus" i]').remove();
+    
+    // Remove related/recommended content
+    $('[class*="related" i], [class*="recommended" i], [class*="you-may-like" i]').remove();
+  }
+
+  /**
+   * Find main content container using intelligent selector priority
+   */
+  private findMainContentContainer($: cheerio.CheerioAPI): cheerio.Cheerio<any> | null {
+    // Priority 1: Semantic HTML5 elements
+    const semanticSelectors = [
+      'main',
+      'article',
+      '[role="main"]',
+      '[role="article"]'
+    ];
+    
+    for (const selector of semanticSelectors) {
       const element = $(selector).first();
-      if (element.length) {
-        mainContent = element.text().trim();
-        break;
+      if (element.length && this.isSubstantialContent(element.text())) {
+        return element;
       }
     }
-
-    // Fallback to body if no main content found
-    if (!mainContent) {
-      mainContent = $('body').text().trim();
+    
+    // Priority 2: Common content class/id patterns (expanded)
+    const contentClassSelectors = [
+      '#content',
+      '#main',
+      '#main-content',
+      '#article',
+      '#post',
+      '#post-content',
+      '.post-content',
+      '.entry-content',
+      '.article-content',
+      '.article-body',
+      '.content-body',
+      '.main-content',
+      '.primary-content',
+      '.content',
+      '.post',
+      '.post-body',
+      '.entry',
+      '.entry-body',
+      '[class*="post-content" i]',
+      '[class*="article-content" i]',
+      '[class*="content-body" i]',
+      '[class*="main-content" i]',
+      '[class*="primary-content" i]',
+      '[class*="page-content" i]',
+      '[itemprop="articleBody"]',
+      '[itemprop="mainEntity"]'
+    ];
+    
+    for (const selector of contentClassSelectors) {
+      const element = $(selector).first();
+      if (element.length && this.isSubstantialContent(element.text())) {
+        return element;
+      }
     }
+    
+    return null;
+  }
 
-    // Clean up whitespace
-    return mainContent.replace(/\s+/g, ' ').trim();
+  /**
+   * Clean content element by removing any remaining noise
+   */
+  private cleanContentElement($: cheerio.CheerioAPI, element: cheerio.Cheerio<any>): void {
+    // Remove ONLY obvious nested navigation and sidebars (be conservative!)
+    element.find('nav, aside, .sidebar, .widget-area').remove();
+    
+    // Remove ONLY explicit ad elements
+    element.find('.ad, .advertisement, #ad, #advertisement, [id*="google_ads"]').remove();
+    
+    // Remove script and style tags that might have been added dynamically
+    element.find('script, style, noscript').remove();
+    
+    // Remove ONLY explicitly named comment sections (not wildcard)
+    element.find('#comments, .comments-area, .comment-section').remove();
+  }
+
+  /**
+   * Extract content using density-based detection (fallback method)
+   * Finds the element with most paragraphs and least link density
+   */
+  private extractByDensity($: cheerio.CheerioAPI): string {
+    let bestElement: cheerio.Cheerio<any> | null = null;
+    let bestScore = -1;
+    
+    // Check all div, section, and article elements
+    $('div, section, article').each((_, element) => {
+      const $el = $(element);
+      const text = $el.text().trim();
+      
+      // Skip if too short
+      if (text.length < 200) return;
+      
+      // Calculate content density score
+      const paragraphCount = $el.find('p').length;
+      const linkCount = $el.find('a').length;
+      const textLength = text.length;
+      
+      // Skip if too many links (likely navigation)
+      const linkDensity = linkCount / Math.max(textLength / 100, 1);
+      if (linkDensity > 0.5) return; // More than 50% links is likely navigation
+      
+      // Score = paragraph count * text length / link count (higher is better)
+      const score = paragraphCount * textLength / Math.max(linkCount, 1);
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestElement = $el as cheerio.Cheerio<any>;
+      }
+    });
+    
+    if (bestElement !== null) {
+      const element = bestElement as cheerio.Cheerio<any>;
+      this.cleanContentElement($, element);
+      const htmlContent = element.html() || '';
+      const markdown = this.turndownService.turndown(htmlContent);
+      return this.cleanMarkdown(markdown);
+    }
+    
+    // Last resort: extract from body but clean it heavily
+    const $body = $('body');
+    this.cleanContentElement($, $body);
+    const htmlContent = $body.html() || '';
+    const markdown = this.turndownService.turndown(htmlContent);
+    return this.cleanMarkdown(markdown);
+  }
+
+  /**
+   * Clean and format markdown output
+   */
+  private cleanMarkdown(markdown: string): string {
+    // Remove excessive blank lines (more than 2 consecutive)
+    let cleaned = markdown.replace(/\n{3,}/g, '\n\n');
+    
+    // Remove leading/trailing whitespace from each line
+    cleaned = cleaned.split('\n').map(line => line.trimEnd()).join('\n');
+    
+    // Remove lines that are just whitespace or single characters
+    cleaned = cleaned.split('\n').filter(line => {
+      const trimmed = line.trim();
+      return trimmed.length > 1 || trimmed === '';
+    }).join('\n');
+    
+    // Clean up list formatting
+    cleaned = cleaned.replace(/\n- \n/g, '\n');
+    cleaned = cleaned.replace(/\n\d+\. \n/g, '\n');
+    
+    // Remove markdown artifacts
+    cleaned = cleaned.replace(/\[\[.*?\]\]/g, ''); // Remove wiki-style links
+    cleaned = cleaned.replace(/<!--.*?-->/gs, ''); // Remove HTML comments
+    
+    // Final trim
+    return cleaned.trim();
   }
 
   /**

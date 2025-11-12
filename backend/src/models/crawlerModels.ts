@@ -34,6 +34,16 @@ export interface ICrawlSession extends Document {
       dataTypes?: string[];
       qualityThreshold?: number;
     };
+    // Scraping mode options (same as quick scraper)
+    forceMethod?: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api';
+    enableApiScraping?: boolean;
+    enableDynamicScraping?: boolean;
+    enableStealthScraping?: boolean;
+    enableAdaptiveScraping?: boolean;
+    captchaSolver?: 'manual' | '2captcha' | 'anticaptcha' | 'skip';
+    captchaApiKey?: string;
+    stealthLevel?: 'basic' | 'advanced' | 'maximum';
+    learningMode?: boolean;
   };
   stats: {
     totalUrls: number;
@@ -43,29 +53,20 @@ export interface ICrawlSession extends Document {
     startTime: Date;
     endTime?: Date;
     estimatedCompletion?: Date;
-    aiAnalysis?: {
-      patternsFound: number;
-      averageConfidence: number;
-      primaryContentType: string;
-      qualityScore: number;
-      analyzedPages: number;
-      contentTypes: { [key: string]: number };
-      recommendations: string[];
-      completedAt: Date;
-    };
   };
   createdAt: Date;
   updatedAt: Date;
 }
 
 const crawlSessionSchema = new Schema<ICrawlSession>({
-  sessionId: { type: String, required: true, unique: true },
-  domain: { type: String, required: true },
+  sessionId: { type: String, required: true, unique: true, index: true },
+  domain: { type: String, required: true, index: true },
   startUrl: { type: String, required: true },
   status: { 
     type: String, 
     enum: ['pending', 'running', 'paused', 'completed', 'failed'],
-    default: 'pending'
+    default: 'pending',
+    index: true
   },
   config: {
     maxPages: { type: Number, default: 100 },
@@ -98,7 +99,28 @@ const crawlSessionSchema = new Schema<ICrawlSession>({
       customSelectors: { type: Schema.Types.Mixed },
       dataTypes: [{ type: String }],
       qualityThreshold: { type: Number, default: 0.7 }
-    }
+    },
+    // Scraping mode options (same as quick scraper)
+    forceMethod: { 
+      type: String, 
+      enum: ['static', 'dynamic', 'stealth', 'adaptive', 'api']
+    },
+    enableApiScraping: { type: Boolean, default: true },
+    enableDynamicScraping: { type: Boolean, default: true },
+    enableStealthScraping: { type: Boolean, default: true },
+    enableAdaptiveScraping: { type: Boolean, default: true },
+    captchaSolver: { 
+      type: String, 
+      enum: ['manual', '2captcha', 'anticaptcha', 'skip'],
+      default: 'skip'
+    },
+    captchaApiKey: { type: String },
+    stealthLevel: { 
+      type: String, 
+      enum: ['basic', 'advanced', 'maximum'],
+      default: 'advanced'
+    },
+    learningMode: { type: Boolean, default: true }
   },
   stats: {
     totalUrls: { type: Number, default: 0 },
@@ -108,20 +130,17 @@ const crawlSessionSchema = new Schema<ICrawlSession>({
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date },
     estimatedCompletion: { type: Date },
-    aiAnalysis: {
-      patternsFound: { type: Number },
-      averageConfidence: { type: Number },
-      primaryContentType: { type: String },
-      qualityScore: { type: Number },
-      analyzedPages: { type: Number },
-      contentTypes: { type: Schema.Types.Mixed },
-      recommendations: [{ type: String }],
-      completedAt: { type: Date }
-    }
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'crawlsessions'
 });
+
+// Performance indexes for sessions
+crawlSessionSchema.index({ status: 1, createdAt: -1 }); // For listing active/completed sessions
+crawlSessionSchema.index({ domain: 1, createdAt: -1 }); // For domain-based queries
+crawlSessionSchema.index({ 'stats.startTime': -1 }); // For time-based queries
+crawlSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 }); // Auto-delete after 30 days
 
 // URL Queue Model
 export interface IUrlQueue extends Document {
@@ -154,11 +173,15 @@ const urlQueueSchema = new Schema<IUrlQueue>({
   discoveredAt: { type: Date, default: Date.now },
   processedAt: { type: Date }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'urlqueue'
 });
 
-// Compound index for efficient querying
-urlQueueSchema.index({ sessionId: 1, status: 1, priority: -1 });
+// Performance indexes for URL queue
+urlQueueSchema.index({ sessionId: 1, status: 1, priority: -1 }); // Main query index
+urlQueueSchema.index({ url: 1 }); // For duplicate detection
+urlQueueSchema.index({ status: 1, discoveredAt: 1 }); // For cleanup queries
+urlQueueSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 }); // Auto-delete after 7 days
 
 // Raw Content Model
 export interface IRawContent extends Document {
@@ -167,6 +190,7 @@ export interface IRawContent extends Document {
   contentHash: string;
   htmlContent: string;
   textContent: string;
+  markdownContent?: string; // Clean markdown content (Firecrawl-style)
   metadata: {
     title?: string;
     description?: string;
@@ -175,16 +199,7 @@ export interface IRawContent extends Document {
     charset: string;
     language?: string;
     lastModified?: Date;
-    // AI Analysis fields
-    aiContentType?: 'product' | 'article' | 'listing' | 'navigation' | 'contact' | 'pricing' | 'testimonial' | 'unknown';
-    confidence?: number;
-    relevanceScore?: number;
     structuredData?: any;
-    aiAnalysis?: {
-      patterns: number;
-      extractedFields: number;
-      reasoning: string;
-    };
     // Phase 3: Structured extraction fields
     extractedData?: {
       schema: string;
@@ -192,7 +207,7 @@ export interface IRawContent extends Document {
       fields: { [key: string]: any };
       nestedStructures: any[];
       qualityScore: number;
-      extractionMethod: 'ai' | 'pattern' | 'selector' | 'heuristic';
+      extractionMethod: 'pattern' | 'selector' | 'heuristic';
       extractedAt: Date;
     };
   };
@@ -220,10 +235,11 @@ export interface IRawContent extends Document {
 
 const rawContentSchema = new Schema<IRawContent>({
   sessionId: { type: String, required: true, index: true },
-  url: { type: String, required: true },
+  url: { type: String, required: true, index: true },
   contentHash: { type: String, required: true, index: true },
   htmlContent: { type: String, required: true },
   textContent: { type: String, required: true },
+  markdownContent: { type: String }, // Clean markdown content (Firecrawl-style)
   metadata: {
     title: { type: String },
     description: { type: String },
@@ -232,19 +248,6 @@ const rawContentSchema = new Schema<IRawContent>({
     charset: { type: String, required: true },
     language: { type: String },
     lastModified: { type: Date },
-    // AI Analysis fields
-    aiContentType: { 
-      type: String, 
-      enum: ['product', 'article', 'listing', 'navigation', 'contact', 'pricing', 'testimonial', 'unknown']
-    },
-    confidence: { type: Number, min: 0, max: 1 },
-    relevanceScore: { type: Number, min: 0, max: 1 },
-    structuredData: { type: Schema.Types.Mixed },
-    aiAnalysis: {
-      patterns: { type: Number },
-      extractedFields: { type: Number },
-      reasoning: { type: String }
-    },
     // Phase 3: Structured extraction fields
     extractedData: {
       schema: { type: String },
@@ -252,9 +255,9 @@ const rawContentSchema = new Schema<IRawContent>({
       fields: { type: Schema.Types.Mixed },
       nestedStructures: [{ type: Schema.Types.Mixed }],
       qualityScore: { type: Number, min: 0, max: 1 },
-      extractionMethod: { 
-        type: String, 
-        enum: ['ai', 'pattern', 'selector', 'heuristic']
+      extractionMethod: {
+        type: String,
+        enum: ['pattern', 'selector', 'heuristic']
       },
       extractedAt: { type: Date }
     }
@@ -292,8 +295,16 @@ const rawContentSchema = new Schema<IRawContent>({
     index: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'rawcontent'
 });
+
+// Performance indexes for raw content
+rawContentSchema.index({ sessionId: 1, createdAt: 1 }); // For session-based queries
+rawContentSchema.index({ url: 1, contentHash: 1 }); // For duplicate detection
+rawContentSchema.index({ 'metadata.title': 'text', 'metadata.description': 'text', textContent: 'text' }, { name: 'content_text_search' }); // Text search
+rawContentSchema.index({ processingStatus: 1, createdAt: 1 }); // For processing queries
+rawContentSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 }); // Auto-delete after 30 days
 
 // Crawl Patterns Model (for AI learning)
 export interface ICrawlPattern extends Document {
@@ -331,11 +342,14 @@ const crawlPatternSchema = new Schema<ICrawlPattern>({
     extractedData: { type: Schema.Types.Mixed }
   }]
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'crawlpatterns'
 });
 
-// Compound index for pattern matching
-crawlPatternSchema.index({ domain: 1, patternType: 1, confidence: -1 });
+// Performance indexes for patterns
+crawlPatternSchema.index({ domain: 1, patternType: 1, confidence: -1 }); // Main query index
+crawlPatternSchema.index({ lastUsed: -1 }); // For cleanup of unused patterns
+crawlPatternSchema.index({ successRate: -1, usageCount: -1 }); // For pattern quality queries
 
 // Export models
 export const CrawlSession = mongoose.model<ICrawlSession>('CrawlSession', crawlSessionSchema);

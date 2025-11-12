@@ -3,6 +3,7 @@ export interface ScrapedContent {
   title: string;
   description: string;
   content: string;
+  markdownContent?: string; // Clean Firecrawl-style markdown
   links: Array<{
     text: string;
     href: string;

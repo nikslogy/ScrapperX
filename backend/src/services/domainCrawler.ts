@@ -7,7 +7,6 @@ import robotsParser from 'robots-parser';
 import { CrawlSession, ICrawlSession, RawContent } from '../models/crawlerModels';
 import { URLQueueService } from './urlQueue';
 import { ContentExtractorService } from './contentExtractor';
-import { PatternRecognizer } from './patternRecognizer';
 import { AuthenticationHandler, AuthConfig } from './authenticationHandler';
 import { StructuredExtractor } from './structuredExtractor';
 // import { checkRobotsTxt } from '../utils/robotsChecker';
@@ -22,7 +21,6 @@ export interface CrawlConfig {
   excludePatterns: string[];
   userAgent?: string;
   timeout?: number;
-  enableAI?: boolean; // Optional AI analysis flag
   authentication?: AuthConfig;
   extraction?: {
     enableStructuredData: boolean;
@@ -30,6 +28,16 @@ export interface CrawlConfig {
     dataTypes?: string[];
     qualityThreshold?: number;
   };
+  // Scraping mode options (same as quick scraper)
+  forceMethod?: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api';
+  enableApiScraping?: boolean;
+  enableDynamicScraping?: boolean;
+  enableStealthScraping?: boolean;
+  enableAdaptiveScraping?: boolean;
+  captchaSolver?: 'manual' | '2captcha' | 'anticaptcha' | 'skip';
+  captchaApiKey?: string;
+  stealthLevel?: 'basic' | 'advanced' | 'maximum';
+  learningMode?: boolean;
 }
 
 export interface CrawlProgress {
@@ -47,7 +55,6 @@ export interface CrawlProgress {
 export class DomainCrawlerService {
   private urlQueue: URLQueueService;
   private contentExtractor: ContentExtractorService;
-  private patternRecognizer: PatternRecognizer;
   private authHandler: AuthenticationHandler;
   private structuredExtractor: StructuredExtractor;
   private activeCrawlers: Map<string, { browser: Browser; pages: Page[] }> = new Map();
@@ -56,7 +63,6 @@ export class DomainCrawlerService {
   constructor() {
     this.urlQueue = new URLQueueService();
     this.contentExtractor = new ContentExtractorService();
-    this.patternRecognizer = new PatternRecognizer();
     this.authHandler = new AuthenticationHandler();
     this.structuredExtractor = new StructuredExtractor();
   }
@@ -148,24 +154,17 @@ export class DomainCrawlerService {
       // Add initial URL to queue
       await this.urlQueue.addUrl(sessionId, startUrl, 0, undefined, 10);
 
+      // Initialize totalUrls count
+      await CrawlSession.findOneAndUpdate(
+        { sessionId },
+        { $set: { 'stats.totalUrls': 1 } }
+      );
+
       // Start crawling workers
       const workers = pages.map(page => this.crawlWorker(sessionId, page, domain, config, robotsRules));
       
       // Wait for all workers to complete
       await Promise.all(workers);
-
-      // Run AI pattern analysis only if enabled
-      if (config.enableAI) {
-        console.log(`🤖 Starting AI pattern analysis for session ${sessionId}`);
-        try {
-          await this.runPatternAnalysis(sessionId);
-        } catch (analysisError) {
-          console.warn(`Pattern analysis failed for session ${sessionId}:`, analysisError);
-          // Don't fail the entire crawl if pattern analysis fails
-        }
-      } else {
-        console.log(`⚡ AI analysis disabled, skipping pattern analysis for session ${sessionId}`);
-      }
 
       // Cleanup
       await this.cleanup(sessionId);
@@ -259,9 +258,16 @@ export class DomainCrawlerService {
           }
         }
 
-        // Crawl the page
-        const html = await this.crawlPage(page, urlItem.url);
-        
+        // Crawl the page with error handling
+        let html: string;
+        try {
+          html = await this.crawlPage(page, urlItem.url, config);
+        } catch (crawlError) {
+          console.error(`❌ Error crawling ${urlItem.url}: ${(crawlError as Error).message}`);
+          await this.urlQueue.markFailed(String(urlItem._id), `Crawling failed: ${(crawlError as Error).message}`);
+          continue;
+        }
+
         // Extract content
         const extractedContent = await this.contentExtractor.extractContent(html, urlItem.url, domain);
 
@@ -279,6 +285,7 @@ export class DomainCrawlerService {
           contentHash: extractedContent.contentHash,
           htmlContent: extractedContent.htmlContent,
           textContent: extractedContent.textContent || ' ', // Ensure non-empty textContent
+          markdownContent: extractedContent.markdownContent, // Clean Firecrawl-style markdown
           metadata: {
             title: extractedContent.title,
             description: extractedContent.description,
@@ -299,7 +306,7 @@ export class DomainCrawlerService {
         if (config.extraction?.enableStructuredData) {
           try {
             console.log(`📊 Extracting structured data from ${urlItem.url}`);
-            const structuredData = await this.structuredExtractor.extractStructuredData(rawContent, undefined, config.enableAI || false);
+            const structuredData = await this.structuredExtractor.extractStructuredData(rawContent, undefined);
             
             // Update raw content with structured data
             rawContent.metadata.extractedData = structuredData;
@@ -324,16 +331,32 @@ export class DomainCrawlerService {
 
         if (newUrls.length > 0) {
           await this.urlQueue.addUrls(sessionId, newUrls);
+          // Update total URLs count
+          await CrawlSession.findOneAndUpdate(
+            { sessionId },
+            { $inc: { 'stats.totalUrls': newUrls.length } }
+          );
         }
 
         // Mark URL as completed
         await this.urlQueue.markCompleted(String(urlItem._id));
 
-        // Update progress
+        // Update progress in memory
         this.updateProgress(sessionId, {
           processedUrls: (this.crawlProgress.get(sessionId)?.processedUrls || 0) + 1,
           extractedItems: (this.crawlProgress.get(sessionId)?.extractedItems || 0) + extractedContent.contentChunks.length
         });
+
+        // Update session stats in database
+        await CrawlSession.findOneAndUpdate(
+          { sessionId },
+          {
+            $inc: {
+              'stats.processedUrls': 1,
+              'stats.extractedItems': extractedContent.contentChunks.length
+            }
+          }
+        );
 
         // Respect delay
         if (config.delay > 0) {
@@ -345,11 +368,17 @@ export class DomainCrawlerService {
         const errorMessage = error instanceof Error ? error.message : String(error);
         await this.urlQueue.markFailed(String(urlItem._id), errorMessage);
         
-        // Update progress
+        // Update progress in memory
         this.updateProgress(sessionId, {
           failedUrls: (this.crawlProgress.get(sessionId)?.failedUrls || 0) + 1,
           errors: [...(this.crawlProgress.get(sessionId)?.errors || []), `${urlItem.url}: ${errorMessage}`]
         });
+
+        // Update session stats in database
+        await CrawlSession.findOneAndUpdate(
+          { sessionId },
+          { $inc: { 'stats.failedUrls': 1 } }
+        );
       }
 
       // Check if we've reached the page limit
@@ -361,17 +390,76 @@ export class DomainCrawlerService {
   }
 
   /**
-   * Crawl a single page
+   * Crawl a single page with error handling and retries
+   * Uses different scraping strategies based on config
    */
-  private async crawlPage(page: Page, url: string): Promise<string> {
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-    
-    // Wait for any dynamic content to load
-    await page.waitForTimeout(2000);
-    
-    // Get HTML content
-    const html = await page.content();
-    return html;
+  private async crawlPage(page: Page, url: string, config: CrawlConfig, maxRetries: number = 3): Promise<string> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🌐 Attempting to load ${url} (attempt ${attempt}/${maxRetries})`);
+
+        // Choose strategy based on config
+        let html: string;
+        
+        if (config.forceMethod === 'static' || !config.enableDynamicScraping) {
+          // Use static scraping (fast, but may miss dynamic content)
+          const response = await fetch(url, {
+            headers: {
+              'User-Agent': config.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+          html = await response.text();
+        } else if (config.enableStealthScraping && (config.forceMethod === 'stealth' || config.stealthLevel === 'maximum')) {
+          // Use stealth mode with Playwright
+          await page.goto(url, {
+            waitUntil: 'networkidle',
+            timeout: config.timeout || 30000
+          });
+          await page.waitForTimeout(2000); // Wait for dynamic content
+          html = await page.content();
+        } else {
+          // Default: Use Playwright with standard settings
+          await page.goto(url, {
+            waitUntil: 'networkidle',
+            timeout: config.timeout || 30000
+          });
+          await page.waitForTimeout(1000); // Wait a bit for dynamic content
+          html = await page.content();
+        }
+
+        // Basic validation - ensure we have substantial content
+        if (html.length < 1000) {
+          throw new Error(`Page content too small (${html.length} chars), likely blocked or error page`);
+        }
+
+        // Check for blocking indicators
+        const title = html.match(/<title>(.*?)<\/title>/i)?.[1] || '';
+        if (title.toLowerCase().includes('access denied') ||
+            title.toLowerCase().includes('blocked') ||
+            title.toLowerCase().includes('captcha')) {
+          throw new Error(`Page appears to be blocked: ${title}`);
+        }
+
+        console.log(`✅ Successfully loaded ${url} (${html.length} chars)`);
+        return html;
+
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`⚠️ Attempt ${attempt} failed for ${url}: ${lastError.message}`);
+
+        if (attempt < maxRetries) {
+          // Wait before retrying with exponential backoff
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          console.log(`⏳ Waiting ${delay}ms before retry...`);
+          await this.delay(delay);
+        }
+      }
+    }
+
+    // All attempts failed
+    throw new Error(`Failed to load ${url} after ${maxRetries} attempts. Last error: ${lastError?.message}`);
   }
 
   /**
@@ -595,87 +683,5 @@ export class DomainCrawlerService {
     this.crawlProgress.delete(sessionId);
   }
 
-  /**
-   * Run AI pattern analysis on crawled content
-   */
-  private async runPatternAnalysis(sessionId: string): Promise<void> {
-    try {
-      // Get all raw content for this session
-      const contents = await RawContent.find({ sessionId }).exec();
-      
-      if (contents.length === 0) {
-        console.log(`No content found for pattern analysis in session ${sessionId}`);
-        return;
-      }
 
-      console.log(`Analyzing ${contents.length} content items for patterns...`);
-      
-      // Run pattern recognition with error handling
-      let stats: any;
-      let insights: any;
-      
-      try {
-        stats = await this.patternRecognizer.recognizePatterns(contents, sessionId);
-        insights = this.patternRecognizer.generateDomainInsights(stats);
-      } catch (patternError) {
-        console.warn(`Pattern recognition failed: ${patternError}`);
-        // Create fallback stats
-        stats = {
-          patternsFound: 0,
-          averageConfidence: 0.5,
-          analyzedPages: contents.length,
-          contentTypes: { unknown: contents.length }
-        };
-        insights = {
-          primaryContentType: 'unknown',
-          qualityScore: 50,
-          recommendations: ['Pattern analysis failed - using fallback data']
-        };
-      }
-      
-      // Update session with analysis results
-      await CrawlSession.findOneAndUpdate(
-        { sessionId },
-        {
-          $set: {
-            'stats.aiAnalysis': {
-              patternsFound: stats.patternsFound || 0,
-              averageConfidence: stats.averageConfidence || 0.5,
-              primaryContentType: insights.primaryContentType || 'unknown',
-              qualityScore: insights.qualityScore || 50,
-              analyzedPages: stats.analyzedPages || contents.length,
-              contentTypes: stats.contentTypes || { unknown: contents.length },
-              recommendations: insights.recommendations || [],
-              completedAt: new Date()
-            }
-          }
-        }
-      );
-
-      console.log(`✅ Pattern analysis completed for session ${sessionId}`);
-      console.log(`   - Primary content type: ${insights.primaryContentType || 'unknown'}`);
-      console.log(`   - Quality score: ${(insights.qualityScore || 50).toFixed(1)}/100`);
-      console.log(`   - Patterns found: ${stats.patternsFound || 0}`);
-      console.log(`   - Average confidence: ${((stats.averageConfidence || 0.5) * 100).toFixed(1)}%`);
-
-    } catch (error) {
-      console.error(`Pattern analysis error for session ${sessionId}:`, error);
-      // Don't throw error - allow crawl to complete even if pattern analysis fails
-    }
-  }
-
-  /**
-   * Get AI analysis results for a session
-   */
-  async getAIAnalysis(sessionId: string): Promise<any> {
-    const session = await CrawlSession.findOne({ sessionId }).exec();
-    return session?.stats.aiAnalysis || null;
-  }
-
-  /**
-   * Get pattern analysis export
-   */
-  async exportPatternAnalysis(sessionId: string): Promise<any> {
-    return this.patternRecognizer.exportPatternAnalysis();
-  }
 } 

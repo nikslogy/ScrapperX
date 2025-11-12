@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
+import axios from 'axios';
 import { StaticScraper } from '../utils/staticScraper';
 import { RobotsChecker } from '../utils/robotsChecker';
 import { IntelligentScraper } from '../utils/intelligentScraper';
+import { ContentExtractorService } from '../services/contentExtractor';
 
 // Validation schemas
 const urlSchema = Joi.object({
@@ -274,6 +276,29 @@ export const scrapeIntelligentController = async (
     // Perform intelligent scraping
     const scrapedData = await intelligentScraper.scrape(url, options);
 
+        // Extract clean markdown content (Firecrawl-style)
+        let markdownContent: string | undefined;
+        try {
+          const htmlResponse = await axios.get(url, {
+            headers: {
+              'User-Agent': options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            },
+            timeout: 15000
+          });
+          
+          const contentExtractor = new ContentExtractorService();
+          const extractedContent = await contentExtractor.extractContent(htmlResponse.data, url, new URL(url).hostname);
+          markdownContent = extractedContent.markdownContent;
+          
+          if (!markdownContent || markdownContent.length === 0) {
+            markdownContent = undefined;
+          }
+        } catch (markdownError) {
+          console.error('Failed to extract markdown content:', markdownError);
+          markdownContent = undefined;
+        }
+
     // Prepare response with comprehensive data
     const response = {
       success: true,
@@ -283,6 +308,7 @@ export const scrapeIntelligentController = async (
         title: scrapedData.title,
         description: scrapedData.description,
         content: scrapedData.content,
+        markdownContent, // Clean Firecrawl-style markdown
         links: scrapedData.links,
         images: scrapedData.images,
         headings: scrapedData.headings,

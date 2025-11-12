@@ -23,9 +23,6 @@ router.get('/session/:sessionId/export', crawlerController.exportSessionData);
 router.get('/exports/history', crawlerController.getExportHistory);
 router.delete('/exports/cleanup', crawlerController.cleanupExports);
 
-// AI Analysis routes
-router.get('/session/:sessionId/ai-analysis', crawlerController.getAIAnalysis);
-router.get('/session/:sessionId/pattern-analysis', crawlerController.exportPatternAnalysis);
 
 // Phase 3: Structured Data Extraction routes
 router.get('/session/:sessionId/structured-data', crawlerController.getStructuredData);

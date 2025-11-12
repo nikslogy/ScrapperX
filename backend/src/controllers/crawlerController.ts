@@ -32,7 +32,6 @@ export class CrawlerController {
           excludePatterns: Joi.array().items(Joi.string()).default([]),
           userAgent: Joi.string().optional(),
           timeout: Joi.number().integer().min(5000).max(120000).default(30000),
-          enableAI: Joi.boolean().default(false),
           authentication: Joi.object({
             type: Joi.string().valid('none', 'basic', 'form', 'bearer', 'cookie').default('none'),
             credentials: Joi.object({
@@ -52,7 +51,17 @@ export class CrawlerController {
             customSelectors: Joi.object().optional(),
             dataTypes: Joi.array().items(Joi.string()).optional(),
             qualityThreshold: Joi.number().min(0).max(1).default(0.7)
-          }).optional()
+          }).optional(),
+          // Scraping mode options (same as quick scraper)
+          forceMethod: Joi.string().valid('static', 'dynamic', 'stealth', 'adaptive', 'api').optional(),
+          enableApiScraping: Joi.boolean().optional().default(true),
+          enableDynamicScraping: Joi.boolean().optional().default(true),
+          enableStealthScraping: Joi.boolean().optional().default(true),
+          enableAdaptiveScraping: Joi.boolean().optional().default(true),
+          captchaSolver: Joi.string().valid('manual', '2captcha', 'anticaptcha', 'skip').optional().default('skip'),
+          captchaApiKey: Joi.string().optional().allow(''),
+          stealthLevel: Joi.string().valid('basic', 'advanced', 'maximum').optional().default('advanced'),
+          learningMode: Joi.boolean().optional().default(true)
         }).default({})
       });
 
@@ -392,11 +401,9 @@ export class CrawlerController {
   exportSessionData = async (req: Request, res: Response): Promise<void> => {
     try {
       const { sessionId } = req.params;
-      const { 
+      const {
         format = 'json',
         includeStructuredData = 'true',
-        includeAIAnalysis = 'true', 
-        includePatternAnalysis = 'false',
         minQualityScore = '0.5',
         compress = 'false',
         multiFormat = 'false'
@@ -404,19 +411,17 @@ export class CrawlerController {
 
       // Validate export options
       const options: ExportOptions = {
-        format: format as 'json' | 'csv' | 'excel' | 'markdown' | 'xml',
+        format: format as 'json' | 'markdown',
         includeStructuredData: includeStructuredData === 'true',
-        includeAIAnalysis: includeAIAnalysis === 'true',
-        includePatternAnalysis: includePatternAnalysis === 'true',
         minQualityScore: parseFloat(minQualityScore as string),
         compress: compress === 'true'
       };
 
       // Validate format
-      if (!['json', 'csv', 'excel', 'markdown'].includes(options.format)) {
+      if (!['json', 'markdown'].includes(options.format)) {
         res.status(400).json({
           success: false,
-          message: 'Unsupported export format. Supported formats: json, csv, excel, markdown'
+          message: 'Unsupported export format. Supported formats: json, markdown'
         });
         return;
       }
@@ -425,7 +430,7 @@ export class CrawlerController {
 
              if (multiFormat === 'true') {
                  // Export in multiple formats
-        const formats: Array<'json' | 'csv' | 'excel' | 'markdown'> = ['json', 'csv', 'excel', 'markdown'];
+        const formats: Array<'json' | 'markdown'> = ['json', 'markdown'];
         result = await this.exportService.exportMultipleFormats(sessionId, formats, options);
       } else {
         // Export in single format
@@ -463,65 +468,7 @@ export class CrawlerController {
     }
   };
 
-  /**
-   * Get AI analysis results for a session
-   */
-  getAIAnalysis = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { sessionId } = req.params;
-      
-      const analysis = await this.crawlerService.getAIAnalysis(sessionId);
-      
-      if (!analysis) {
-        res.status(404).json({
-          success: false,
-          message: 'AI analysis not found or not completed'
-        });
-        return;
-      }
 
-      res.json({
-        success: true,
-        data: analysis
-      });
-
-    } catch (error) {
-      console.error('Error getting AI analysis:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to get AI analysis',
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  };
-
-  /**
-   * Export pattern analysis
-   */
-  exportPatternAnalysis = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { sessionId } = req.params;
-      
-      const patternData = await this.crawlerService.exportPatternAnalysis(sessionId);
-      
-      res.json({
-        success: true,
-        data: {
-          sessionId,
-          timestamp: new Date().toISOString(),
-          patternAnalysis: patternData
-        }
-      });
-
-    } catch (error) {
-      console.error('Error exporting pattern analysis:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to export pattern analysis',
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  };
 
   /**
    * Get structured data extraction results

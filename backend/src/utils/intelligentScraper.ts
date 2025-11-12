@@ -4,6 +4,7 @@ import { ApiScraper, ApiScrapedData } from './apiScraper';
 import { RobotsChecker, RobotsInfo } from './robotsChecker';
 import { AdaptiveScraper, AdaptiveScrapingResult } from './adaptiveScraper';
 import { StealthScraper } from './stealthScraper';
+import { ContentExtractorService } from '../services/contentExtractor';
 
 export interface ScrapingStrategy {
   method: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api' | 'hybrid';
@@ -13,6 +14,7 @@ export interface ScrapingStrategy {
 }
 
 export interface IntelligentScrapedData extends ScrapedContent {
+  markdownContent?: string; // Clean Firecrawl-style markdown
   strategy: ScrapingStrategy;
   robotsInfo: RobotsInfo;
   performanceMetrics: {
@@ -53,11 +55,13 @@ export class IntelligentScraper {
   private staticScraper: StaticScraper;
   private dynamicScraper: DynamicScraper;
   private adaptiveScraper: AdaptiveScraper;
+  private contentExtractor: ContentExtractorService;
 
   constructor() {
     this.staticScraper = new StaticScraper();
     this.dynamicScraper = new DynamicScraper();
     this.adaptiveScraper = AdaptiveScraper.getInstance(); // Use singleton
+    this.contentExtractor = new ContentExtractorService();
   }
 
   async scrape(url: string, options: IntelligentScrapeOptions = {}): Promise<IntelligentScrapedData> {

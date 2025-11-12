@@ -1,6 +1,6 @@
-# ScrapperX - Advanced AI-Powered Website Scraper
+# ScrapperX - Advanced Website Scraper
 
-ScrapperX is an intelligent web scraping platform that uses advanced techniques to extract content from websites, even those protected by anti-bot systems. It features adaptive learning, stealth mode, CAPTCHA solving, and comprehensive analytics.
+ScrapperX is a web scraping platform that uses advanced techniques to extract content from websites, even those protected by anti-bot systems. It features stealth mode, CAPTCHA solving, and domain crawling capabilities.
 
 ## 🚀 Key Features
 
@@ -12,17 +12,16 @@ ScrapperX is an intelligent web scraping platform that uses advanced techniques 
 
 ### Advanced Anti-Bot Protection
 - **🥷 Stealth Mode**: Advanced browser fingerprinting protection
-- **🧠 Adaptive Learning**: AI learns optimal strategies for each website
 - **🔐 CAPTCHA Solving**: Integration with 2captcha and AntiCaptcha services
 - **⚡ Smart Retries**: Intelligent fallback strategies and rate limiting
 - **🎭 Human Behavior Simulation**: Realistic mouse movements and scrolling
 - **🔄 Session Management**: Cookie persistence and user agent rotation
 
-### Intelligence & Analytics
-- **📊 Success Rate Tracking**: Monitor performance across different websites
-- **🎯 Website Profiling**: Automatic difficulty assessment and strategy optimization
-- **📈 Performance Metrics**: Detailed timing and success analytics
-- **🔍 Adaptive Strategy Selection**: Dynamic method selection based on website characteristics
+### Domain Crawling
+- **🌐 Full Website Crawling**: Crawl entire domains with configurable depth
+- **📊 Structured Data Extraction**: Extract structured data from crawled pages
+- **💾 Markdown Export**: Export crawled data in markdown format
+- **🔐 Authentication Support**: Handle login forms, basic auth, and bearer tokens
 
 ## 🛠️ Technology Stack
 
@@ -75,9 +74,6 @@ MONGODB_URI=mongodb://localhost:27017/scrapperx
 
 # JWT Secret
 JWT_SECRET=your-super-secret-jwt-key-here
-
-# OpenAI API (for AI features)
-OPENAI_API_KEY=your-openai-api-key
 
 # CAPTCHA Solving Services (Optional)
 TWOCAPTCHA_API_KEY=your-2captcha-api-key
@@ -133,7 +129,6 @@ npm run dev
 - **Static HTML**: Fast extraction for simple websites
 - **Dynamic (JavaScript)**: Full browser rendering for SPAs
 - **Stealth Mode**: Advanced anti-bot protection bypass
-- **Adaptive Learning**: AI-powered strategy optimization
 
 #### Stealth Options
 - **Basic**: Standard anti-detection measures
@@ -146,16 +141,6 @@ npm run dev
 - **2captcha**: Automatic solving via 2captcha service
 - **AntiCaptcha**: Automatic solving via AntiCaptcha service
 
-### Analytics Dashboard
-
-Access the analytics dashboard to:
-- Monitor success rates across different websites
-- View website difficulty profiles
-- Track performance metrics
-- Manage adaptive learning profiles
-- Export/import configuration data
-
-## 🔧 API Reference
 
 ### Core Endpoints
 
@@ -191,65 +176,51 @@ Content-Type: application/json
 }
 ```
 
-### Analytics Endpoints
+### Domain Crawling
 
-#### Get Success Rates
+#### Start Domain Crawl
 ```http
-GET /api/scraper/adaptive/success-rates
-```
-
-#### Get Website Profile
-```http
-GET /api/scraper/adaptive/stats?domain=example.com
-```
-
-#### Clear Website Profile
-```http
-DELETE /api/scraper/adaptive/profile/example.com
-```
-
-#### Export Profiles
-```http
-GET /api/scraper/adaptive/export
-```
-
-#### Import Profiles
-```http
-POST /api/scraper/adaptive/import
+POST /api/crawler/start-domain-crawl
 Content-Type: application/json
 
 {
-  "profiles": "json-string-of-profiles"
+  "url": "https://example.com",
+  "config": {
+    "maxPages": 50,
+    "maxDepth": 3,
+    "delay": 1000,
+    "concurrent": 3,
+    "respectRobots": true,
+    "authentication": {
+      "type": "none"
+    },
+    "extraction": {
+      "enableStructuredData": true,
+      "dataTypes": ["product", "article", "contact"],
+      "qualityThreshold": 0.7
+    }
+  }
 }
+```
+
+#### Get Session Status
+```http
+GET /api/crawler/session/:sessionId/status
+```
+
+#### Export Session Data
+```http
+GET /api/crawler/session/:sessionId/export?format=markdown&includeStructuredData=true
 ```
 
 ## 🧠 How It Works
 
-### Intelligent Strategy Selection
+### Strategy Selection
 
 1. **Website Analysis**: Analyzes the target website for characteristics
-2. **Historical Data**: Checks previous scraping attempts and success rates
-3. **Strategy Selection**: Chooses optimal method based on analysis
-4. **Execution**: Performs scraping with selected strategy
-5. **Learning**: Updates success rates and website profile
-
-### Adaptive Learning Process
-
-```mermaid
-graph TD
-    A[New Website] --> B[Initial Analysis]
-    B --> C[Strategy Selection]
-    C --> D[Scraping Attempt]
-    D --> E{Success?}
-    E -->|Yes| F[Update Success Rate]
-    E -->|No| G[Try Fallback Strategy]
-    G --> H{More Strategies?}
-    H -->|Yes| D
-    H -->|No| I[Update Failure Data]
-    F --> J[Learn & Optimize]
-    I --> J
-    J --> K[Store Profile]
-```
+2. **Strategy Selection**: Chooses optimal method based on analysis
+3. **Execution**: Performs scraping with selected strategy
+4. **Fallback**: Tries alternative methods if initial attempt fails
 
 ### Stealth Mode Features
 
@@ -264,11 +235,11 @@ graph TD
 
 ### Best Practices
 
-1. **Use Adaptive Mode**: Let the AI learn optimal strategies
-2. **Enable Learning Mode**: Improve performance over time
-3. **Configure Timeouts**: Set appropriate timeouts for your use case
-4. **Monitor Analytics**: Track success rates and optimize
-5. **Respect Rate Limits**: Use appropriate delays between requests
+1. **Use Appropriate Methods**: Choose the right scraping method for each website
+2. **Configure Timeouts**: Set appropriate timeouts for your use case
+3. **Respect Rate Limits**: Use appropriate delays between requests
+4. **Check robots.txt**: Always verify scraping permissions
+5. **Handle Authentication**: Configure authentication for protected sites
 
 ### Troubleshooting
 
@@ -344,7 +315,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Version History
 
-- **v2.0.0** - Advanced AI-powered scraping with stealth mode and adaptive learning
+- **v2.0.0** - Advanced scraping with stealth mode and domain crawling
 - **v1.0.0** - Initial release with basic scraping capabilities
 
 ---

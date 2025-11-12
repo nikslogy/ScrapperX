@@ -19,6 +19,7 @@ export interface ContentItem {
   url: string;
   title: string;
   description: string;
+  content?: string; // Full page content (textContent)
   processingStatus: string;
   metadata: {
     title: string;
@@ -54,10 +55,8 @@ export interface StructuredDataItem {
 }
 
 export interface ExportOptions {
-  format: 'json' | 'csv' | 'excel' | 'markdown' | 'xml';
+  format: 'json' | 'markdown';
   includeStructuredData?: boolean;
-  includeAIAnalysis?: boolean;
-  includePatternAnalysis?: boolean;
   minQualityScore?: number;
   compress?: boolean;
   flattenData?: boolean;
