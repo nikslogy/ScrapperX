@@ -3,6 +3,7 @@ export interface ScrapedContent {
   title: string;
   description: string;
   content: string;
+  markdownContent?: string; // Clean Firecrawl-style markdown
   links: Array<{
     text: string;
     href: string;
@@ -37,9 +38,51 @@ export interface RobotsCompliance {
   robotsUrl: string;
 }
 
+export interface ScrapingStrategy {
+  method: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api' | 'hybrid';
+  confidence: number;
+  reasons: string[];
+  estimatedTime: number;
+}
+
+export interface PerformanceMetrics {
+  totalTime: number;
+  staticTime?: number;
+  dynamicTime?: number;
+  apiTime?: number;
+  methodsAttempted: string[];
+}
+
+export interface ApiDataSummary {
+  endpointsFound: number;
+  dataPointsExtracted: number;
+  structuredContent: {
+    articles?: unknown[];
+    products?: unknown[];
+    listings?: unknown[];
+    comments?: unknown[];
+    metadata?: unknown;
+  };
+}
+
+export interface AdditionalContent {
+  dynamicContent?: string;
+  apiContent?: unknown[];
+  structuredData?: unknown;
+}
+
 export interface ScrapedData extends ScrapedContent {
-  robotsCompliance: RobotsCompliance;
+  robotsCompliance: RobotsCompliance & {
+    policy?: string;
+    enforced?: boolean;
+  };
   summary?: string;
+  strategy?: ScrapingStrategy;
+  qualityScore?: number;
+  completenessScore?: number;
+  performanceMetrics?: PerformanceMetrics;
+  apiData?: ApiDataSummary;
+  additionalContent?: AdditionalContent;
 }
 
 export interface RobotsInfo {
@@ -88,6 +131,66 @@ export type ScrapingState =
 export interface ScrapeOptions {
   userAgent?: string;
   timeout?: number;
-  followRedirects?: boolean;
-  maxRedirects?: number;
+  maxRetries?: number;
+  forceMethod?: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api';
+  enableApiScraping?: boolean;
+  enableDynamicScraping?: boolean;
+  enableStealthScraping?: boolean;
+  enableAdaptiveScraping?: boolean;
+  respectRobots?: boolean;
+  qualityThreshold?: number;
+  captchaSolver?: 'manual' | '2captcha' | 'anticaptcha' | 'skip';
+  captchaApiKey?: string;
+  stealthLevel?: 'basic' | 'advanced' | 'maximum';
+  learningMode?: boolean;
+}
+
+export interface WebsiteProfile {
+  domain: string;
+  characteristics: {
+    hasAntiBot: boolean;
+    requiresJS: boolean;
+    hasRateLimit: boolean;
+    hasCaptcha: boolean;
+    difficulty: 'easy' | 'medium' | 'hard' | 'extreme';
+  };
+  successRates: {
+    static: number;
+    dynamic: number;
+    stealth: number;
+  };
+  optimalStrategy: {
+    type: string;
+    confidence: number;
+    options: Record<string, unknown>;
+  };
+  lastUpdated: string;
+  totalAttempts: number;
+  recentFailures: string[];
+}
+
+export interface SuccessRateData {
+  domain: string;
+  rates: {
+    static: number;
+    dynamic: number;
+    stealth: number;
+  };
+  difficulty: string;
+}
+
+export interface SuccessRatesSummary {
+  totalDomains: number;
+  successRates: SuccessRateData[];
+  summary: {
+    averageStaticSuccess: number;
+    averageDynamicSuccess: number;
+    averageStealthSuccess: number;
+    difficultyDistribution: {
+      easy: number;
+      medium: number;
+      hard: number;
+      extreme: number;
+    };
+  };
 } 

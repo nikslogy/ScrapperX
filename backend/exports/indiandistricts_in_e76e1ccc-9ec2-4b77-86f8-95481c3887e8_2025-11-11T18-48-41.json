@@ -1,0 +1,1402 @@
+{
+  "metadata": {
+    "exportedAt": "2025-11-11T18:48:41.468Z",
+    "exporter": "ScrapperX Enhanced JSON Exporter v1.0",
+    "format": "json",
+    "options": {
+      "format": "json",
+      "includeStructuredData": true,
+      "includeAIAnalysis": true,
+      "includePatternAnalysis": false,
+      "minQualityScore": 0.5,
+      "compress": false
+    }
+  },
+  "session": {
+    "sessionId": "e76e1ccc-9ec2-4b77-86f8-95481c3887e8",
+    "domain": "indiandistricts.in",
+    "startUrl": "https://indiandistricts.in/maharashtra/pune/",
+    "status": "completed",
+    "config": {
+      "authentication": {
+        "credentials": {
+          "usernameField": "username",
+          "passwordField": "password",
+          "submitSelector": "input[type=\"submit\"], button[type=\"submit\"]"
+        },
+        "type": "none"
+      },
+      "extraction": {
+        "enableStructuredData": true,
+        "dataTypes": [
+          "product",
+          "article",
+          "contact"
+        ],
+        "qualityThreshold": 0.7
+      },
+      "maxPages": 5,
+      "maxDepth": 3,
+      "respectRobots": true,
+      "delay": 1000,
+      "concurrent": 3,
+      "includePatterns": [],
+      "excludePatterns": []
+    },
+    "stats": {
+      "aiAnalysis": {
+        "recommendations": []
+      },
+      "totalUrls": 0,
+      "processedUrls": 0,
+      "failedUrls": 0,
+      "extractedItems": 0,
+      "startTime": "2025-11-11T18:48:13.083Z",
+      "endTime": "2025-11-11T18:48:41.138Z"
+    },
+    "createdAt": "2025-11-11T18:48:13.122Z",
+    "updatedAt": "2025-11-11T18:48:41.139Z"
+  },
+  "summary": {
+    "totalPages": 5,
+    "structuredDataItems": 5,
+    "hasAIAnalysis": true,
+    "hasPatternAnalysis": false
+  },
+  "content": [
+    {
+      "url": "https://indiandistricts.in/maharashtra/pune/",
+      "title": "Maharashtra | Pune District",
+      "description": "Cultures and statistics of Pune district. Explore and tell us more!",
+      "content": "Home Maharashtra Pune Pune Ahilyanagar Akola Amravati Beed Bhandara Buldhana Chandrapur Chh. Sambhaji Nagar Dharashiv Dhule Gadchiroli Gondia Hingoli Jalgaon Jalna Kolhapur Latur Mumbai Mumbai Suburban Nagpur Nanded Nandurbar Nashik Palghar Parbhani Pune Raigad Ratnagiri Sangli Satara Sindhudurg Solapur Thane Wardha Washim Yavatmal Introduction Introduction Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication Suggest Edits Suggest Edits Pune Area 15,643 sq. km Sex Ratio 915 (2011) Population ~1.05 crore (2019) Gross District Domestic Product (GDDP) ~ ₹2.47 lakh crore (2019) GDDP Per Capita ~ ₹2.37 lakh (2019) Pune district, the heart of western Maharashtra, is a region where history, culture, and modernity intertwine. Pune city, its headquarters, lies on the banks of the Mula and Mutha rivers, between the Sahyadri hills and the Deccan plateau. The earliest mentions of Pune date to the 8th century as “Punna” or “Punyavishaya”, a region of sacred confluence and agricultural settlement during the Rashtrakuta era (this name appears in a Rashtrakuta copper plate from 937 AD). Over time, Pune evolved under the Satavahanas, Yadavas, and then experienced periods of prosperity and devastation as a prize in conflicts among the Nizamshahi, Adilshahi, and Mughal dynasties in the early 17th century.​ Pune has been central to Maharashtra’s history for over 400 years. It was ruled by the Deccan Sultanates before becoming a stronghold of the Maratha Empire. Recovery began when Shahaji Bhosale, father of Shivaji, was granted the jagir of Pune, and his wife Jijabai and son Shivaji resided in Lal Mahal (completed 1640) at the town’s core. The rebuilding of Pune by Dadoji Konddeo after the catastrophic famine and destruction of the 1630s set the stage for the city’s golden era. Under the leadership of Balaji Vishwanath (appointed Peshwa by Chhatrapati Shahu in 1713), and his successor Bajirao I (who made Pune his seat of administration in 1720 and built the famed Shaniwar Wada), Pune became the capital of the Maratha Empire and a major power in India throughout the 18th century. British conquest in 1818 shifted Pune’s destiny again, transforming it into the “monsoon capital” of the Bombay Presidency. The British established a prominent cantonment, missionary schools, and public institutions. Pune saw the rise of educational and social reformers, Jyotirao and Savitribai Phule (the first girls’ school in India, 1848), Gopal Krishna Gokhale, and Lokmanya Tilak. By the late 19th century, railways, roads, and dams (the Khadakwasla in 1880) made Pune a thriving industrial and military hub, and the city attracted vibrant communities of Parsis, Jews, Bohras, as well as Hindu and Muslim intellectuals. After India’s independence in 1947, Pune was integrated into Bombay State, later becoming part of Maharashtra in 1960. Today, Pune district consists of 15 talukas: Pune City, Pimpri-Chinchwad, Haveli, Mulshi, Velhe, Bhor, Purandar, Baramati, Daund, Indapur, Maval, Khed, Shirur, Ambegaon, and Junnar. Culturally, Pune district is hailed as Maharashtra’s “cultural capital.” Pune city, sometimes called the “Oxford of the East,” is legendary for its universities, historic colleges, and as a crucible of Marathi theatre, classical music, arts, and social reform. Key sites include Shaniwar Wada, the 18th-century seat of the Peshwas; Aga Khan Palace, associated with Mahatma Gandhi’s imprisonment during the freedom struggle; and the Pataleshwar Cave Mandir, dating back to the 8th century. Spiritual giants like Sant Dnyaneshwar and Sant Tukaram, as well as social pioneers like Jyotirao Phule and Savitribai Phule, worked in and around the district. Festivals such as Ganesh Chaturthi, revived by Tilak as a public celebration to foster unity, are central to Pune’s life. The district is also home to important pilgrimage centers: the Ashtavinayak Ganesh temples, Alandi and Dehu (associated with Varkari saints), Jejuri’s Khandoba temple, and numerous Jain, Sikh, and Sufi shrines. Fine cuisine, literature, museums, and a cosmopolitan student population keep Pune’s traditions vibrant and relevant. Legendary forts, Sinhagad, Rajgad, Purandar, and Shivneri, dot the district’s landscape, reminiscent of its Maratha legacy and empire-building history. The district also features Lonavala and Khandala, popular hill stations dating back to the British Raj. Geographically, Pune lies on the western edge of the Deccan Plateau, in the leeward shadow of the Sahyadri mountain range. Pune district blends lush Sahyadri forests, high valleys, and dry plateau farming. Rivers like the Bhima, Indrayani, Pavana, and Nira cross the district, and hill stations like Lonavala, Khandala, and Panchgani overlook sweeping gorges and waterfalls. Wildlife sanctuaries (Bhimashankar, which has one of the profound Shiva Jyotirlingas) and hundreds of ancient temples contribute to a rich, biodiverse ecosystem. Pune’s rapid urban expansion has turned its former villages into bustling suburbs, blending rural and urban life. Pune is an economic powerhouse. Its history in sugar cooperatives and cotton markets gave way to engineering, automobile manufacturing and electronics thanks to the growth of MIDC estates. In last two decades, Pune surged ahead as an IT and knowledge economy hub, with tech parks (Hinjawadi, Magarpatta), BPOs, and international firms. The city is India’s vaccine capital (Serum Institute), home to defense research, scientific innovation, and a robust real estate market. Major defense and scientific organizations, such as the National Chemical Laboratory, ARM Engineering College, the NDA, and DRDO labs, make Pune a center for innovation and research. Education, healthcare, retail, real estate, and a growing tourism sector (thanks to heritage and eco-getaways) round out Pune’s bustling economy. Agriculture persists in the hinterlands with grapes, guavas, pomegranates, rice, and other crops, supporting rural livelihoods alongside the district’s urban affluence. Explore Pune Cultures Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Statistics Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication",
+      "processingStatus": "extracted",
+      "metadata": {
+        "title": "Maharashtra | Pune District",
+        "description": "Cultures and statistics of Pune district. Explore and tell us more!",
+        "aiAnalysis": {}
+      },
+      "contentChunks": [
+        {
+          "type": "unknown",
+          "selector": "main",
+          "content": "Home\n            \n            Maharashtra\n            \n            Pune\n        \n    \n\n\n\n\n  \n     \n        \n          \n            \n              Pune\n              \n            \n            \n              \n                \n                \n                  Ahilyanagar\n                \n                \n                \n                  Akola\n                \n                \n                \n                  Amravati\n                \n                \n                \n                  Beed\n                \n                \n                \n                  Bhandara\n                \n                \n                \n                  Buldhana\n                \n                \n                \n                  Chandrapur\n                \n                \n                \n                  Chh. Sambhaji Nagar\n                \n                \n                \n                  Dharashiv\n                \n                \n                \n                  Dhule\n                \n                \n                \n                  Gadchiroli\n                \n                \n                \n                  Gondia\n                \n                \n                \n                  Hingoli\n                \n                \n                \n                  Jalgaon\n                \n                \n                \n                  Jalna\n                \n                \n                \n                  Kolhapur\n                \n                \n                \n                  Latur\n                \n                \n                \n                  Mumbai\n                \n                \n                \n                  Mumbai Suburban\n                \n                \n                \n                  Nagpur\n                \n                \n                \n                  Nanded\n                \n                \n                \n                  Nandurbar\n                \n                \n                \n                  Nashik\n                \n                \n                \n                  Palghar\n                \n                \n                \n                  Parbhani\n                \n                \n                \n                  Pune\n                \n                \n                \n                  Raigad\n                \n                \n                \n                  Ratnagiri\n                \n                \n                \n                  Sangli\n                \n                \n                \n                  Satara\n                \n                \n                \n                  Sindhudurg\n                \n                \n                \n                  Solapur\n                \n                \n                \n                  Thane\n                \n                \n                \n                  Wardha\n                \n                \n                \n                  Washim\n                \n                \n                \n                  Yavatmal\n                \n                \n              \n            \n          \n          \n            \n              Introduction\n              \n            \n            \n              \n                \n                  Introduction\n                \n                \n                \n                \n                  Architecture\n                \n                \n                \n                  Artforms\n                \n                \n                \n                  Cultural Sites\n                \n                \n                \n                  Festivals & Fairs\n                \n                \n                \n                  Food\n                \n                \n                \n                  History\n                \n                \n                \n                  Language\n                \n                \n                \n                  Markets\n                \n                \n                \n                  Sports & Games\n                \n                \n                \n                  Stories\n                \n                \n                \n                \n                \n                \n                \n                  Agriculture\n                \n                \n                \n                  Demography\n                \n                \n                \n                  Education\n                \n                \n                \n                  Elections\n                \n                \n                \n                  Environment\n                \n                \n                \n                  Health\n                \n                \n                \n                  Industry\n                \n                \n                \n                  Labor\n                \n                \n                \n                  Livestock & Fisheries\n                \n                \n                \n                  Police & Judiciary\n                \n                \n                \n                  Revenue & Expenditure\n                \n                \n                \n                  Transport & Communication\n                \n                \n              \n            \n          \n        \n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n        \n          \n        \n        \n      \n    \n  \n\n\n\n\n    \n        \n            \n                Pune\n                \n            \n        \n    \n\n\n\n\n     \n        \n            \n\n            \n            \n                \n                    \n                        \n                            \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                            \n\n                            \n                        \n                    \n                \n                \n                  \n                    \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Area\n                                        15,643 sq. km \n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Sex Ratio\n                                        915 (2011)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Population\n                                        ~1.05 crore (2019)\n                                    \n                                \n                            \n                        \n                        \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Gross District Domestic Product (GDDP)\n                                        ~ ₹2.47 lakh crore (2019)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        GDDP Per Capita\n                                        ~ ₹2.37 lakh (2019)\n                                    \n                                \n                            \n                        \n                    \n                \n            \n\n            \n\n                \n                    Pune district, the heart of western Maharashtra, is a region where history, culture, and modernity intertwine. Pune city, its headquarters, lies on the banks of the Mula and Mutha rivers, between the Sahyadri hills and the Deccan plateau. The earliest mentions of Pune date to the 8th century as “Punna” or “Punyavishaya”, a region of sacred confluence and agricultural settlement during the Rashtrakuta era (this name appears in a Rashtrakuta copper plate from 937 AD). Over time, Pune evolved under the Satavahanas, Yadavas, and then experienced periods of prosperity and devastation as a prize in conflicts among the Nizamshahi, Adilshahi, and Mughal dynasties in the early 17th century.​\n \nPune has been central to Maharashtra’s history for over 400 years. It was ruled by the Deccan Sultanates before becoming a stronghold of the Maratha Empire. Recovery began when Shahaji Bhosale, father of Shivaji, was granted the jagir of Pune, and his wife Jijabai and son Shivaji resided in Lal Mahal (completed 1640) at the town’s core. The rebuilding of Pune by Dadoji Konddeo after the catastrophic famine and destruction of the 1630s set the stage for the city’s golden era. Under the leadership of Balaji Vishwanath (appointed Peshwa by Chhatrapati Shahu in 1713), and his successor Bajirao I (who made Pune his seat of administration in 1720 and built the famed Shaniwar Wada), Pune became the capital of the Maratha Empire and a major power in India throughout the 18th century. British conquest in 1818 shifted Pune’s destiny again, transforming it into the “monsoon capital” of the Bombay Presidency. The British established a prominent cantonment, missionary schools, and public institutions. Pune saw the rise of educational and social reformers, Jyotirao and Savitribai Phule (the first girls’ school in India, 1848), Gopal Krishna Gokhale, and Lokmanya Tilak. By the late 19th century, railways, roads, and dams (the Khadakwasla in 1880) made Pune a thriving industrial and military hub, and the city attracted vibrant communities of Parsis, Jews, Bohras, as well as Hindu and Muslim intellectuals. After India’s independence in 1947, Pune was integrated into Bombay State, later becoming part of Maharashtra in 1960. Today, Pune district consists of 15 talukas: Pune City, Pimpri-Chinchwad, Haveli, Mulshi, Velhe, Bhor, Purandar, Baramati, Daund, Indapur, Maval, Khed, Shirur, Ambegaon, and Junnar.\n \nCulturally, Pune district is hailed as Maharashtra’s “cultural capital.” Pune city, sometimes called the “Oxford of the East,” is legendary for its universities, historic colleges, and as a crucible of Marathi theatre, classical music, arts, and social reform. Key sites include Shaniwar Wada, the 18th-century seat of the Peshwas; Aga Khan Palace, associated with Mahatma Gandhi’s imprisonment during the freedom struggle; and the Pataleshwar Cave Mandir, dating back to the 8th century. Spiritual giants like Sant Dnyaneshwar and Sant Tukaram, as well as social pioneers like Jyotirao Phule and Savitribai Phule, worked in and around the district. Festivals such as Ganesh Chaturthi, revived by Tilak as a public celebration to foster unity, are central to Pune’s life. The district is also home to important pilgrimage centers: the Ashtavinayak Ganesh temples, Alandi and Dehu (associated with Varkari saints), Jejuri’s Khandoba temple, and numerous Jain, Sikh, and Sufi shrines. Fine cuisine, literature, museums, and a cosmopolitan student population keep Pune’s traditions vibrant and relevant. Legendary forts, Sinhagad, Rajgad, Purandar, and Shivneri, dot the district’s landscape, reminiscent of its Maratha legacy and empire-building history. The district also features Lonavala and Khandala, popular hill stations dating back to the British Raj. \n \nGeographically, Pune lies on the western edge of the Deccan Plateau, in the leeward shadow of the Sahyadri mountain range. Pune district blends lush Sahyadri forests, high valleys, and dry plateau farming. Rivers like the Bhima, Indrayani, Pavana, and Nira cross the district, and hill stations like Lonavala, Khandala, and Panchgani overlook sweeping gorges and waterfalls. Wildlife sanctuaries (Bhimashankar, which has one of the profound Shiva Jyotirlingas) and hundreds of ancient temples contribute to a rich, biodiverse ecosystem. Pune’s rapid urban expansion has turned its former villages into bustling suburbs, blending rural and urban life. \n \nPune is an economic powerhouse. Its history in sugar cooperatives and cotton markets gave way to engineering, automobile manufacturing and electronics thanks to the growth of MIDC estates. In last two decades, Pune surged ahead as an IT and knowledge economy hub, with tech parks (Hinjawadi, Magarpatta), BPOs, and international firms. The city is India’s vaccine capital (Serum Institute), home to defense research, scientific innovation, and a robust real estate market. Major defense and scientific organizations, such as the National Chemical Laboratory, ARM Engineering College, the NDA, and DRDO labs, make Pune a center for innovation and research. Education, healthcare, retail, real estate, and a growing tourism sector (thanks to heritage and eco-getaways) round out Pune’s bustling economy. Agriculture persists in the hinterlands with grapes, guavas, pomegranates, rice, and other crops, supporting rural livelihoods alongside the district’s urban affluence.\n \n                \n                \n            \n            \n           \n             \n                \n                    \n                        \n                        \n                            \n                            \n                        \n                        \n                    \n                \n           \n\n\n            \n        \n    \n\n\n\n\n\n  \n    \n        \n            Explore Pune\n\n            \n                \n                \n                    Cultures\n                    \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Architecture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Artforms\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Cultural Sites\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Festivals & Fairs\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Food\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        History\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Language\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Markets\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Sports & Games\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Stories\n                                        \n                                    \n                                \n                            \n                        \n                    \n                \n                \n                \n                \n                    Statistics\n                    \n                        \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Agriculture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Demography\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Education\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Elections\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Environment\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Health\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Industry\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Labor\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Livestock & Fisheries\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Police & Judiciary\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Revenue & Expenditure\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Transport & Communication",
+          "confidence": 0.5,
+          "_id": "691384f5f0f6870eda61d690"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/",
+          "https://indiandistricts.in/maharashtra/",
+          "https://indiandistricts.in/maharashtra/ahilyanagar/",
+          "https://indiandistricts.in/maharashtra/akola/",
+          "https://indiandistricts.in/maharashtra/amravati/",
+          "https://indiandistricts.in/maharashtra/beed/",
+          "https://indiandistricts.in/maharashtra/bhandara/",
+          "https://indiandistricts.in/maharashtra/buldhana/",
+          "https://indiandistricts.in/maharashtra/chandrapur/",
+          "https://indiandistricts.in/maharashtra/chhatrapati-sambhaji-nagar/",
+          "https://indiandistricts.in/maharashtra/dharashiv/",
+          "https://indiandistricts.in/maharashtra/dhule/",
+          "https://indiandistricts.in/maharashtra/gadchiroli/",
+          "https://indiandistricts.in/maharashtra/gondia/",
+          "https://indiandistricts.in/maharashtra/hingoli/",
+          "https://indiandistricts.in/maharashtra/jalgaon/",
+          "https://indiandistricts.in/maharashtra/jalna/",
+          "https://indiandistricts.in/maharashtra/kolhapur/",
+          "https://indiandistricts.in/maharashtra/latur/",
+          "https://indiandistricts.in/maharashtra/mumbai/",
+          "https://indiandistricts.in/maharashtra/mumbai-suburban/",
+          "https://indiandistricts.in/maharashtra/nagpur/",
+          "https://indiandistricts.in/maharashtra/nanded/",
+          "https://indiandistricts.in/maharashtra/nandurbar/",
+          "https://indiandistricts.in/maharashtra/nashik/",
+          "https://indiandistricts.in/maharashtra/palghar/",
+          "https://indiandistricts.in/maharashtra/parbhani/",
+          "https://indiandistricts.in/maharashtra/pune/",
+          "https://indiandistricts.in/maharashtra/raigad/",
+          "https://indiandistricts.in/maharashtra/ratnagiri/",
+          "https://indiandistricts.in/maharashtra/sangli/",
+          "https://indiandistricts.in/maharashtra/satara/",
+          "https://indiandistricts.in/maharashtra/sindhudurg/",
+          "https://indiandistricts.in/maharashtra/solapur/",
+          "https://indiandistricts.in/maharashtra/thane/",
+          "https://indiandistricts.in/maharashtra/wardha/",
+          "https://indiandistricts.in/maharashtra/washim/",
+          "https://indiandistricts.in/maharashtra/yavatmal/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/architecture/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/artforms/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/cultural-sites/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/festivals-fairs/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/food/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/political-history/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/language/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/markets/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/sports-games/",
+          "https://indiandistricts.in/cultures/maharashtra/pune/stories/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/agriculture/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/demography/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/education/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/local-politics/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/environment/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/health/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/industry/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/labour/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/livestock-fisheries/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/police-judiciary/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/revenue-expenditure/",
+          "https://indiandistricts.in/statistics/maharashtra/pune/transport-communication/",
+          "https://indiandistricts.in/editor/district/1/suggest-intro/"
+        ],
+        "external": []
+      },
+      "images": [
+        {
+          "src": "https://indiandistricts.in/media/CACHE/images/district_images/originals/Talukas_ngHKqqV/8533dbce9d864018fc02d1e735fa82cf.webp",
+          "alt": "Pune",
+          "title": "",
+          "type": "content",
+          "_id": "691384f5f0f6870eda61d678"
+        },
+        {
+          "src": "https://indiandistricts.in/media/gif_images/originals/City_Growth_DEnYEzd.gif",
+          "alt": "",
+          "title": "",
+          "type": "content",
+          "_id": "691384f5f0f6870eda61d679"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/architecture.png",
+          "alt": "Architecture",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67a"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/artforms.png",
+          "alt": "Artforms",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67b"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/cultural_sites.png",
+          "alt": "Cultural Sites",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67c"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/fair_festivals.png",
+          "alt": "Festivals & Fairs",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67d"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/food.png",
+          "alt": "Food",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67e"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/history.png",
+          "alt": "History",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d67f"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/languages.png",
+          "alt": "Language",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d680"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/market.png",
+          "alt": "Markets",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d681"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/sports_games.png",
+          "alt": "Sports & Games",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d682"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/stories.png",
+          "alt": "Stories",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d683"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/agriculture.png",
+          "alt": "Agriculture",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d684"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/demography.png",
+          "alt": "Demography",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d685"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/education.png",
+          "alt": "Education",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d686"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/elections.png",
+          "alt": "Elections",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d687"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/environment.png",
+          "alt": "Environment",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d688"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/health.png",
+          "alt": "Health",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d689"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/industry.png",
+          "alt": "Industry",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68a"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/labor.png",
+          "alt": "Labor",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68b"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/livestock_fisheries.png",
+          "alt": "Livestock & Fisheries",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68c"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/police_judiciary.png",
+          "alt": "Police & Judiciary",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68d"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/revenue.png",
+          "alt": "Revenue & Expenditure",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68e"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/transcomm.png",
+          "alt": "Transport & Communication",
+          "title": "",
+          "type": "icon",
+          "_id": "691384f5f0f6870eda61d68f"
+        }
+      ],
+      "createdAt": "2025-11-11T18:48:21.082Z"
+    },
+    {
+      "url": "https://indiandistricts.in/",
+      "title": "The Districts Project",
+      "description": "A comprehensive resource on district-level cultures and statistics of India. Explore and tell us more!",
+      "content": "The Districts Project Beta Welcome to the most comprehensive encylopedia of Indian districts. Explore India one district at a time... ...and while you're at it, let us know what we missed! We begin with Maharashtra districts (click on the state to navigate) Ahilyanagar Maharashtra Akola Maharashtra Amravati Maharashtra Beed Maharashtra Bhandara Maharashtra Buldhana Maharashtra Chandrapur Maharashtra Chh. Sambhaji Nagar Maharashtra Dharashiv Maharashtra Dhule Maharashtra Gadchiroli Maharashtra Gondia Maharashtra Hingoli Maharashtra Jalgaon Maharashtra Jalna Maharashtra Kolhapur Maharashtra Latur Maharashtra Mumbai Maharashtra Mumbai Suburban Maharashtra Nagpur Maharashtra Nanded Maharashtra Nandurbar Maharashtra Nashik Maharashtra Palghar Maharashtra Parbhani Maharashtra Pune Maharashtra Raigad Maharashtra Ratnagiri Maharashtra Sangli Maharashtra Satara Maharashtra Sindhudurg Maharashtra Solapur Maharashtra Thane Maharashtra Wardha Maharashtra Washim Maharashtra Yavatmal Maharashtra No districts found /home/mahadev/frontmap.gpkg layer2, states",
+      "processingStatus": "extracted",
+      "metadata": {
+        "title": "The Districts Project",
+        "description": "A comprehensive resource on district-level cultures and statistics of India. Explore and tell us more!",
+        "aiAnalysis": {}
+      },
+      "contentChunks": [
+        {
+          "type": "unknown",
+          "selector": "main",
+          "content": "The Districts Project\n                Beta\n            \n            \n                Welcome to the most comprehensive encylopedia of Indian districts.\n                Explore India one district at a time...\n                ...and while you're at it, let us know what we missed!\n                \n                \n                We begin with\n                Maharashtra districts\n                \n                (click on the state to navigate)\n            \n            \n                \n                \n                \n                    \n                \n                \n                    \n                        \n                            \n                                \n                                    Ahilyanagar\n                                    Maharashtra\n                                \n                            \n                                \n                                    Akola\n                                    Maharashtra\n                                \n                            \n                                \n                                    Amravati\n                                    Maharashtra\n                                \n                            \n                                \n                                    Beed\n                                    Maharashtra\n                                \n                            \n                                \n                                    Bhandara\n                                    Maharashtra\n                                \n                            \n                                \n                                    Buldhana\n                                    Maharashtra\n                                \n                            \n                                \n                                    Chandrapur\n                                    Maharashtra\n                                \n                            \n                                \n                                    Chh. Sambhaji Nagar\n                                    Maharashtra\n                                \n                            \n                                \n                                    Dharashiv\n                                    Maharashtra\n                                \n                            \n                                \n                                    Dhule\n                                    Maharashtra\n                                \n                            \n                                \n                                    Gadchiroli\n                                    Maharashtra\n                                \n                            \n                                \n                                    Gondia\n                                    Maharashtra\n                                \n                            \n                                \n                                    Hingoli\n                                    Maharashtra\n                                \n                            \n                                \n                                    Jalgaon\n                                    Maharashtra\n                                \n                            \n                                \n                                    Jalna\n                                    Maharashtra\n                                \n                            \n                                \n                                    Kolhapur\n                                    Maharashtra\n                                \n                            \n                                \n                                    Latur\n                                    Maharashtra\n                                \n                            \n                                \n                                    Mumbai\n                                    Maharashtra\n                                \n                            \n                                \n                                    Mumbai Suburban\n                                    Maharashtra\n                                \n                            \n                                \n                                    Nagpur\n                                    Maharashtra\n                                \n                            \n                                \n                                    Nanded\n                                    Maharashtra\n                                \n                            \n                                \n                                    Nandurbar\n                                    Maharashtra\n                                \n                            \n                                \n                                    Nashik\n                                    Maharashtra\n                                \n                            \n                                \n                                    Palghar\n                                    Maharashtra\n                                \n                            \n                                \n                                    Parbhani\n                                    Maharashtra\n                                \n                            \n                                \n                                    Pune\n                                    Maharashtra\n                                \n                            \n                                \n                                    Raigad\n                                    Maharashtra\n                                \n                            \n                                \n                                    Ratnagiri\n                                    Maharashtra\n                                \n                            \n                                \n                                    Sangli\n                                    Maharashtra\n                                \n                            \n                                \n                                    Satara\n                                    Maharashtra\n                                \n                            \n                                \n                                    Sindhudurg\n                                    Maharashtra\n                                \n                            \n                                \n                                    Solapur\n                                    Maharashtra\n                                \n                            \n                                \n                                    Thane\n                                    Maharashtra\n                                \n                            \n                                \n                                    Wardha\n                                    Maharashtra\n                                \n                            \n                                \n                                    Washim\n                                    Maharashtra\n                                \n                            \n                                \n                                    Yavatmal\n                                    Maharashtra\n                                \n                            \n                        \n                    \n                    \n                        \n                        No districts found\n                    \n                \n            \n        \n\n        \n            \n                \n                    \n                    \n                        /home/mahadev/frontmap.gpkg\n                        layer2, states",
+          "confidence": 0.5,
+          "_id": "691384faf0f6870eda61d755"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/maharashtra/"
+        ],
+        "external": []
+      },
+      "images": [],
+      "createdAt": "2025-11-11T18:48:26.463Z"
+    },
+    {
+      "url": "https://indiandistricts.in/maharashtra/",
+      "title": "Maharashtra State",
+      "description": "A comprehensive resource on district-level cultures and statistics of Maharashtra. Explore and tell us more!",
+      "content": "Home Maharashtra MAHARASHTRA Select State & District... Maharashtra Ahilyanagar Akola Amravati Beed Bhandara Buldhana Chandrapur Chh. Sambhaji Nagar Dharashiv Dhule Gadchiroli Gondia Hingoli Jalgaon Jalna Kolhapur Latur Mumbai Mumbai Suburban Nagpur Nanded Nandurbar Nashik Palghar Parbhani Pune Raigad Ratnagiri Sangli Satara Sindhudurg Solapur Thane Wardha Washim Yavatmal No states or districts found Try adjusting your search terms Raigad Ratnagiri Akola Amravati Chh. Sambhaji Nagar Gondia Beed Buldhana Chandrapur Dhule Gadchiroli Bhandara Hingoli Jalgaon Jalna Kolhapur Latur Mumbai Suburban Nagpur Nanded Nandurbar Nashik Dharashiv Palghar Parbhani Sangli Satara Sindhudurg Solapur Thane Washim Wardha Yavatmal Mumbai Pune Ahilyanagar",
+      "processingStatus": "extracted",
+      "metadata": {
+        "title": "Maharashtra State",
+        "description": "A comprehensive resource on district-level cultures and statistics of Maharashtra. Explore and tell us more!",
+        "aiAnalysis": {}
+      },
+      "contentChunks": [
+        {
+          "type": "unknown",
+          "selector": "main",
+          "content": "Home\n                \n                Maharashtra\n            \n        \n    \n\n    \n    \n        \n            \n                \n                    MAHARASHTRA\n                   \n                \n                \n                \n                \n                    \n                        \n                            \n                                \n                                    Select State & District...\n                                \n                                \n                                    \n                                        \n                                    \n                                \n                            \n                        \n                        \n                        \n                        \n                            \n                            \n                                \n                                    \n                                    \n                                    \n                                        \n                                    \n                                \n                            \n                            \n                            \n                            \n                                \n                                \n                                    \n                                    \n                                        \n                                            \n                                                Maharashtra\n                                                \n                                                \n                                                \n                                            \n                                            \n                                                \n                                            \n                                        \n                                    \n                                    \n                                    \n                                        \n                                        \n                                            Ahilyanagar\n                                        \n                                        \n                                        \n                                            Akola\n                                        \n                                        \n                                        \n                                            Amravati\n                                        \n                                        \n                                        \n                                            Beed\n                                        \n                                        \n                                        \n                                            Bhandara\n                                        \n                                        \n                                        \n                                            Buldhana\n                                        \n                                        \n                                        \n                                            Chandrapur\n                                        \n                                        \n                                        \n                                            Chh. Sambhaji Nagar\n                                        \n                                        \n                                        \n                                            Dharashiv\n                                        \n                                        \n                                        \n                                            Dhule\n                                        \n                                        \n                                        \n                                            Gadchiroli\n                                        \n                                        \n                                        \n                                            Gondia\n                                        \n                                        \n                                        \n                                            Hingoli\n                                        \n                                        \n                                        \n                                            Jalgaon\n                                        \n                                        \n                                        \n                                            Jalna\n                                        \n                                        \n                                        \n                                            Kolhapur\n                                        \n                                        \n                                        \n                                            Latur\n                                        \n                                        \n                                        \n                                            Mumbai\n                                        \n                                        \n                                        \n                                            Mumbai Suburban\n                                        \n                                        \n                                        \n                                            Nagpur\n                                        \n                                        \n                                        \n                                            Nanded\n                                        \n                                        \n                                        \n                                            Nandurbar\n                                        \n                                        \n                                        \n                                            Nashik\n                                        \n                                        \n                                        \n                                            Palghar\n                                        \n                                        \n                                        \n                                            Parbhani\n                                        \n                                        \n                                        \n                                            Pune\n                                        \n                                        \n                                        \n                                            Raigad\n                                        \n                                        \n                                        \n                                            Ratnagiri\n                                        \n                                        \n                                        \n                                            Sangli\n                                        \n                                        \n                                        \n                                            Satara\n                                        \n                                        \n                                        \n                                            Sindhudurg\n                                        \n                                        \n                                        \n                                            Solapur\n                                        \n                                        \n                                        \n                                            Thane\n                                        \n                                        \n                                        \n                                            Wardha\n                                        \n                                        \n                                        \n                                            Washim\n                                        \n                                        \n                                        \n                                            Yavatmal\n                                        \n                                        \n                                    \n                                \n                                \n                            \n                            \n                            \n                            \n                                \n                                No states or districts found\n                                Try adjusting your search terms\n                            \n                        \n                    \n                \n            \n            \n            \n\n\n  \n\n    \n    \n        \n            \n                \n                \n                    \n                        \n                        \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                                \n                            \n                            \n                            \n                            \n                            \n                                \n                                    \n                                        Raigad\n                                    \n                                \n                                \n                                \n                                    \n                                        Ratnagiri\n                                    \n                                \n                                \n                                \n                                    \n                                        Akola\n                                    \n                                \n                                \n                                \n                                    \n                                        Amravati\n                                    \n                                \n                                \n                                \n                                    \n                                        Chh. Sambhaji\n                                    \n                                        Nagar\n                                \n                                \n                                \n                                    \n                                        Gondia\n                                    \n                                \n                                \n                                \n                                    \n                                        Beed\n                                    \n                                \n                                \n                                \n                                    \n                                        Buldhana\n                                    \n                                \n                                \n                                \n                                    \n                                        Chandrapur\n                                    \n                                \n                                \n                                \n                                    \n                                        Dhule\n                                    \n                                \n                                \n                                \n                                    \n                                        Gadchiroli\n                                    \n                                \n                                \n                                \n                                    \n                                        Bhandara\n                                    \n                                \n                                \n                                \n                                    \n                                        Hingoli\n                                    \n                                \n                                \n                                \n                                    \n                                        Jalgaon\n                                    \n                                \n                                \n                                \n                                    \n                                        Jalna\n                                    \n                                \n                                \n                                \n                                    \n                                        Kolhapur\n                                    \n                                \n                                \n                                \n                                    \n                                        Latur\n                                    \n                                \n                                \n                                \n                                    \n                                        Mumbai\n                                    \n                                        Suburban\n                                    \n                                \n                                \n                                \n                                    \n                                        Nagpur\n                                    \n                                \n                                \n                                \n                                    \n                                        Nanded\n                                    \n                                \n                                \n                                \n                                    \n                                        Nandurbar\n                                    \n                                \n                                \n                                \n                                    \n                                        Nashik\n                                    \n                                \n                                \n                                \n                                    \n                                        Dharashiv\n                                    \n                                \n                                \n                                \n                                    \n                                        Palghar\n                                    \n                                \n                                \n                                \n                                    \n                                        Parbhani\n                                    \n                                \n                                \n                                \n                                    \n                                        Sangli\n                                    \n                                \n                                \n                                \n                                    \n                                        Satara\n                                    \n                                \n                                \n                                \n                                    \n                                        Sindhudurg\n                                    \n                                \n                                \n                                \n                                    \n                                        Solapur\n                                    \n                                \n                                \n                                \n                                    \n                                        Thane\n                                    \n                                \n                                \n                                \n                                    \n                                        Washim\n                                    \n                                \n                                \n                                \n                                    \n                                        Wardha\n                                    \n                                \n                                \n                                \n                                    \n                                        Yavatmal\n                                    \n                                \n                                \n                                \n                                    \n                                        Mumbai\n                                    \n                                \n                                \n                                \n                                    \n                                        Pune\n                                    \n                                \n                                \n                                \n                                    \n                                        Ahilyanagar",
+          "confidence": 0.5,
+          "_id": "691384fef0f6870eda61d763"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/",
+          "https://indiandistricts.in/maharashtra/ahilyanagar/",
+          "https://indiandistricts.in/maharashtra/akola/",
+          "https://indiandistricts.in/maharashtra/amravati/",
+          "https://indiandistricts.in/maharashtra/beed/",
+          "https://indiandistricts.in/maharashtra/bhandara/",
+          "https://indiandistricts.in/maharashtra/buldhana/",
+          "https://indiandistricts.in/maharashtra/chandrapur/",
+          "https://indiandistricts.in/maharashtra/chhatrapati-sambhaji-nagar/",
+          "https://indiandistricts.in/maharashtra/dharashiv/",
+          "https://indiandistricts.in/maharashtra/dhule/",
+          "https://indiandistricts.in/maharashtra/gadchiroli/",
+          "https://indiandistricts.in/maharashtra/gondia/",
+          "https://indiandistricts.in/maharashtra/hingoli/",
+          "https://indiandistricts.in/maharashtra/jalgaon/",
+          "https://indiandistricts.in/maharashtra/jalna/",
+          "https://indiandistricts.in/maharashtra/kolhapur/",
+          "https://indiandistricts.in/maharashtra/latur/",
+          "https://indiandistricts.in/maharashtra/mumbai/",
+          "https://indiandistricts.in/maharashtra/mumbai-suburban/",
+          "https://indiandistricts.in/maharashtra/nagpur/",
+          "https://indiandistricts.in/maharashtra/nanded/",
+          "https://indiandistricts.in/maharashtra/nandurbar/",
+          "https://indiandistricts.in/maharashtra/nashik/",
+          "https://indiandistricts.in/maharashtra/palghar/",
+          "https://indiandistricts.in/maharashtra/parbhani/",
+          "https://indiandistricts.in/maharashtra/pune/",
+          "https://indiandistricts.in/maharashtra/raigad/",
+          "https://indiandistricts.in/maharashtra/ratnagiri/",
+          "https://indiandistricts.in/maharashtra/sangli/",
+          "https://indiandistricts.in/maharashtra/satara/",
+          "https://indiandistricts.in/maharashtra/sindhudurg/",
+          "https://indiandistricts.in/maharashtra/solapur/",
+          "https://indiandistricts.in/maharashtra/thane/",
+          "https://indiandistricts.in/maharashtra/wardha/",
+          "https://indiandistricts.in/maharashtra/washim/",
+          "https://indiandistricts.in/maharashtra/yavatmal/"
+        ],
+        "external": []
+      },
+      "images": [],
+      "createdAt": "2025-11-11T18:48:30.364Z"
+    },
+    {
+      "url": "https://indiandistricts.in/maharashtra/ahilyanagar/",
+      "title": "Maharashtra | Ahilyanagar District",
+      "description": "Cultures and statistics of Ahilyanagar district. Explore and tell us more!",
+      "content": "Home Maharashtra Ahilyanagar Ahilyanagar Ahilyanagar Akola Amravati Beed Bhandara Buldhana Chandrapur Chh. Sambhaji Nagar Dharashiv Dhule Gadchiroli Gondia Hingoli Jalgaon Jalna Kolhapur Latur Mumbai Mumbai Suburban Nagpur Nanded Nandurbar Nashik Palghar Parbhani Pune Raigad Ratnagiri Sangli Satara Sindhudurg Solapur Thane Wardha Washim Yavatmal Introduction Introduction Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication Suggest Edits Suggest Edits Ahilyanagar Area 17,048 sq. km Population ~ 48.46 lakh (2019) Sex Ratio 939 (2011) Gross District Domestic Product (GDDP) ~ ₹65,780 crore (2019) GDDP Per Capita ~ ₹1.35 lakh (2019) Ahilyanagar (previously known as Ahmednagar) is the largest district in Maharashtra. Its historic headquarters is the city of Ahmednagar, and the largest cities are Ahmednagar and Sangamner. The area was once the seat of the Ahmednagar Sultanate (1496–1636 CE) and is renowned for important towns like Shirdi (linked to Sai Baba), Meherabad (linked to Meher Baba), and Shani Shinganapur. Ahmednagar district belongs to Nashik Division and borders Aurangabad, Nashik, Thane, Pune, Solapur, and Beed districts. Modern Ahmednagar was established in 1818 after the defeat of the Maratha Empire, with its present boundaries formed in 1869. It was part of the Bombay Presidency until 1947, then Bombay State, and has been in Maharashtra since 1960. During most part of the 15th century, Ahilyanagar was a battlefield controlled by the Bahmani troops. After the sultanate fell apart, the Nizam Shahi Dynasty was established which ruled the region until the 17th century. The district has notable historical and cultural remains, for instance, the fort and caves located in Takli Dhokeshwar, which date back to the mid-7th century. The famous Shirdi is located in Ahilyanagar too. Ahilyanagar is located on the Deccan Plateau, about 649 meters above sea level, near the Sina River. This river influences its semi-arid climate and farming practices. The landscape consists of rolling plains and hills, which affect how people live and work in the area. Notably, Ralegaon Siddhi is a village in Parner taluka of Ahilyanagar, which became known for brilliant model of environmental conservation. The economy of Ahilyanagar is diverse, with a mix of industries and agriculture. Farming is a key occupation, supported by sugarcane factories and dairy cooperatives. The district has one of the largest number of sugar mills in the state. Presence of some industrial establishment helps diversify the economy. Additionally, traditional markets like Savedi and Topkhana bazaars are important sites for local residents. Interestingly, the district is one of the most prolific in various sports activities. Explore Ahilyanagar Cultures Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Statistics Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication",
+      "processingStatus": "extracted",
+      "metadata": {
+        "title": "Maharashtra | Ahilyanagar District",
+        "description": "Cultures and statistics of Ahilyanagar district. Explore and tell us more!",
+        "aiAnalysis": {}
+      },
+      "contentChunks": [
+        {
+          "type": "unknown",
+          "selector": "main",
+          "content": "Home\n            \n            Maharashtra\n            \n            Ahilyanagar\n        \n    \n\n\n\n\n  \n     \n        \n          \n            \n              Ahilyanagar\n              \n            \n            \n              \n                \n                \n                  Ahilyanagar\n                \n                \n                \n                  Akola\n                \n                \n                \n                  Amravati\n                \n                \n                \n                  Beed\n                \n                \n                \n                  Bhandara\n                \n                \n                \n                  Buldhana\n                \n                \n                \n                  Chandrapur\n                \n                \n                \n                  Chh. Sambhaji Nagar\n                \n                \n                \n                  Dharashiv\n                \n                \n                \n                  Dhule\n                \n                \n                \n                  Gadchiroli\n                \n                \n                \n                  Gondia\n                \n                \n                \n                  Hingoli\n                \n                \n                \n                  Jalgaon\n                \n                \n                \n                  Jalna\n                \n                \n                \n                  Kolhapur\n                \n                \n                \n                  Latur\n                \n                \n                \n                  Mumbai\n                \n                \n                \n                  Mumbai Suburban\n                \n                \n                \n                  Nagpur\n                \n                \n                \n                  Nanded\n                \n                \n                \n                  Nandurbar\n                \n                \n                \n                  Nashik\n                \n                \n                \n                  Palghar\n                \n                \n                \n                  Parbhani\n                \n                \n                \n                  Pune\n                \n                \n                \n                  Raigad\n                \n                \n                \n                  Ratnagiri\n                \n                \n                \n                  Sangli\n                \n                \n                \n                  Satara\n                \n                \n                \n                  Sindhudurg\n                \n                \n                \n                  Solapur\n                \n                \n                \n                  Thane\n                \n                \n                \n                  Wardha\n                \n                \n                \n                  Washim\n                \n                \n                \n                  Yavatmal\n                \n                \n              \n            \n          \n          \n            \n              Introduction\n              \n            \n            \n              \n                \n                  Introduction\n                \n                \n                \n                \n                  Architecture\n                \n                \n                \n                  Artforms\n                \n                \n                \n                  Cultural Sites\n                \n                \n                \n                  Festivals & Fairs\n                \n                \n                \n                  Food\n                \n                \n                \n                  History\n                \n                \n                \n                  Language\n                \n                \n                \n                  Markets\n                \n                \n                \n                  Sports & Games\n                \n                \n                \n                  Stories\n                \n                \n                \n                \n                \n                \n                \n                  Agriculture\n                \n                \n                \n                  Demography\n                \n                \n                \n                  Education\n                \n                \n                \n                  Elections\n                \n                \n                \n                  Environment\n                \n                \n                \n                  Health\n                \n                \n                \n                  Industry\n                \n                \n                \n                  Labor\n                \n                \n                \n                  Livestock & Fisheries\n                \n                \n                \n                  Police & Judiciary\n                \n                \n                \n                  Revenue & Expenditure\n                \n                \n                \n                  Transport & Communication\n                \n                \n              \n            \n          \n        \n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n        \n          \n        \n        \n      \n    \n  \n\n\n\n\n    \n        \n            \n                Ahilyanagar\n                \n            \n        \n    \n\n\n\n\n     \n        \n            \n\n            \n            \n                \n                    \n                        \n                            \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                            \n\n                            \n                        \n                    \n                \n                \n                  \n                    \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Area\n                                        17,048 sq. km \n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Population\n                                        ~ 48.46 lakh (2019)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Sex Ratio\n                                        939 (2011)\n                                    \n                                \n                            \n                        \n                        \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Gross District Domestic Product (GDDP)\n                                        ~ ₹65,780 crore (2019)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        GDDP Per Capita\n                                        ~ ₹1.35 lakh (2019)\n                                    \n                                \n                            \n                        \n                    \n                \n            \n\n            \n\n                \n                    Ahilyanagar (previously known as Ahmednagar) is the largest district in Maharashtra. Its historic headquarters is the city of Ahmednagar, and the largest cities are Ahmednagar and Sangamner. The area was once the seat of the Ahmednagar Sultanate (1496–1636 CE) and is renowned for important towns like Shirdi (linked to Sai Baba), Meherabad (linked to Meher Baba), and Shani Shinganapur. Ahmednagar district belongs to Nashik Division and borders Aurangabad, Nashik, Thane, Pune, Solapur, and Beed districts. Modern Ahmednagar was established in 1818 after the defeat of the Maratha Empire, with its present boundaries formed in 1869. It was part of the Bombay Presidency until 1947, then Bombay State, and has been in Maharashtra since 1960.\n \nDuring most part of the 15th century, Ahilyanagar was a battlefield controlled by the Bahmani troops. After the sultanate fell apart, the Nizam Shahi Dynasty was established which ruled the region until the 17th century. The district has notable historical and cultural remains, for instance, the fort and caves located in Takli Dhokeshwar, which date back to the mid-7th century. The famous Shirdi is located in Ahilyanagar too.  \n \nAhilyanagar is located on the Deccan Plateau, about 649 meters above sea level, near the Sina River. This river influences its semi-arid climate and farming practices. The landscape consists of rolling plains and hills, which affect how people live and work in the area. Notably, Ralegaon Siddhi is a village in Parner taluka of Ahilyanagar, which became known for brilliant model of environmental conservation.\n \nThe economy of Ahilyanagar is diverse, with a mix of industries and agriculture. Farming is a key occupation, supported by sugarcane factories and dairy cooperatives. The district has one of the largest number of sugar mills in the state. Presence of some industrial establishment helps diversify the economy. Additionally, traditional markets like Savedi and Topkhana bazaars are important sites for local residents. Interestingly, the district is one of the most prolific in various sports activities. \n \n                \n                \n            \n            \n           \n             \n                \n                    \n                        \n                        \n                            \n                            \n                        \n                        \n                    \n                \n           \n\n\n            \n        \n    \n\n\n\n\n\n  \n    \n        \n            Explore Ahilyanagar\n\n            \n                \n                \n                    Cultures\n                    \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Architecture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Artforms\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Cultural Sites\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Festivals & Fairs\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Food\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        History\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Language\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Markets\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Sports & Games\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Stories\n                                        \n                                    \n                                \n                            \n                        \n                    \n                \n                \n                \n                \n                    Statistics\n                    \n                        \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Agriculture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Demography\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Education\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Elections\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Environment\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Health\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Industry\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Labor\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Livestock & Fisheries\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Police & Judiciary\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Revenue & Expenditure\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Transport & Communication",
+          "confidence": 0.5,
+          "_id": "69138502f0f6870eda61d7ad"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/",
+          "https://indiandistricts.in/maharashtra/",
+          "https://indiandistricts.in/maharashtra/ahilyanagar/",
+          "https://indiandistricts.in/maharashtra/akola/",
+          "https://indiandistricts.in/maharashtra/amravati/",
+          "https://indiandistricts.in/maharashtra/beed/",
+          "https://indiandistricts.in/maharashtra/bhandara/",
+          "https://indiandistricts.in/maharashtra/buldhana/",
+          "https://indiandistricts.in/maharashtra/chandrapur/",
+          "https://indiandistricts.in/maharashtra/chhatrapati-sambhaji-nagar/",
+          "https://indiandistricts.in/maharashtra/dharashiv/",
+          "https://indiandistricts.in/maharashtra/dhule/",
+          "https://indiandistricts.in/maharashtra/gadchiroli/",
+          "https://indiandistricts.in/maharashtra/gondia/",
+          "https://indiandistricts.in/maharashtra/hingoli/",
+          "https://indiandistricts.in/maharashtra/jalgaon/",
+          "https://indiandistricts.in/maharashtra/jalna/",
+          "https://indiandistricts.in/maharashtra/kolhapur/",
+          "https://indiandistricts.in/maharashtra/latur/",
+          "https://indiandistricts.in/maharashtra/mumbai/",
+          "https://indiandistricts.in/maharashtra/mumbai-suburban/",
+          "https://indiandistricts.in/maharashtra/nagpur/",
+          "https://indiandistricts.in/maharashtra/nanded/",
+          "https://indiandistricts.in/maharashtra/nandurbar/",
+          "https://indiandistricts.in/maharashtra/nashik/",
+          "https://indiandistricts.in/maharashtra/palghar/",
+          "https://indiandistricts.in/maharashtra/parbhani/",
+          "https://indiandistricts.in/maharashtra/pune/",
+          "https://indiandistricts.in/maharashtra/raigad/",
+          "https://indiandistricts.in/maharashtra/ratnagiri/",
+          "https://indiandistricts.in/maharashtra/sangli/",
+          "https://indiandistricts.in/maharashtra/satara/",
+          "https://indiandistricts.in/maharashtra/sindhudurg/",
+          "https://indiandistricts.in/maharashtra/solapur/",
+          "https://indiandistricts.in/maharashtra/thane/",
+          "https://indiandistricts.in/maharashtra/wardha/",
+          "https://indiandistricts.in/maharashtra/washim/",
+          "https://indiandistricts.in/maharashtra/yavatmal/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/architecture/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/artforms/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/cultural-sites/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/festivals-fairs/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/food/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/political-history/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/language/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/markets/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/sports-games/",
+          "https://indiandistricts.in/cultures/maharashtra/ahilyanagar/stories/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/agriculture/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/demography/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/education/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/local-politics/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/environment/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/health/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/industry/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/labour/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/livestock-fisheries/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/police-judiciary/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/revenue-expenditure/",
+          "https://indiandistricts.in/statistics/maharashtra/ahilyanagar/transport-communication/",
+          "https://indiandistricts.in/editor/district/2/suggest-intro/"
+        ],
+        "external": []
+      },
+      "images": [
+        {
+          "src": "https://indiandistricts.in/media/CACHE/images/district_images/originals/WhatsApp_Image_2025-10-30_at_11.40.09/170323b7919ee54e37276d1aec84f00a.webp",
+          "alt": "Ahilyanagar",
+          "title": "",
+          "type": "content",
+          "_id": "69138502f0f6870eda61d795"
+        },
+        {
+          "src": "https://indiandistricts.in/media/gif_images/originals/City_Growth_lEOCFw9.gif",
+          "alt": "",
+          "title": "",
+          "type": "content",
+          "_id": "69138502f0f6870eda61d796"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/architecture.png",
+          "alt": "Architecture",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d797"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/artforms.png",
+          "alt": "Artforms",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d798"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/cultural_sites.png",
+          "alt": "Cultural Sites",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d799"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/fair_festivals.png",
+          "alt": "Festivals & Fairs",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79a"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/food.png",
+          "alt": "Food",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79b"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/history.png",
+          "alt": "History",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79c"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/languages.png",
+          "alt": "Language",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79d"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/market.png",
+          "alt": "Markets",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79e"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/sports_games.png",
+          "alt": "Sports & Games",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d79f"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/stories.png",
+          "alt": "Stories",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a0"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/agriculture.png",
+          "alt": "Agriculture",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a1"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/demography.png",
+          "alt": "Demography",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a2"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/education.png",
+          "alt": "Education",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a3"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/elections.png",
+          "alt": "Elections",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a4"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/environment.png",
+          "alt": "Environment",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a5"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/health.png",
+          "alt": "Health",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a6"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/industry.png",
+          "alt": "Industry",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a7"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/labor.png",
+          "alt": "Labor",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a8"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/livestock_fisheries.png",
+          "alt": "Livestock & Fisheries",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7a9"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/police_judiciary.png",
+          "alt": "Police & Judiciary",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7aa"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/revenue.png",
+          "alt": "Revenue & Expenditure",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7ab"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/transcomm.png",
+          "alt": "Transport & Communication",
+          "title": "",
+          "type": "icon",
+          "_id": "69138502f0f6870eda61d7ac"
+        }
+      ],
+      "createdAt": "2025-11-11T18:48:34.535Z"
+    },
+    {
+      "url": "https://indiandistricts.in/maharashtra/akola/",
+      "title": "Maharashtra | Akola District",
+      "description": "Cultures and statistics of Akola district. Explore and tell us more!",
+      "content": "Home Maharashtra Akola Akola Ahilyanagar Akola Amravati Beed Bhandara Buldhana Chandrapur Chh. Sambhaji Nagar Dharashiv Dhule Gadchiroli Gondia Hingoli Jalgaon Jalna Kolhapur Latur Mumbai Mumbai Suburban Nagpur Nanded Nandurbar Nashik Palghar Parbhani Pune Raigad Ratnagiri Sangli Satara Sindhudurg Solapur Thane Wardha Washim Yavatmal Introduction Introduction Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication Suggest Edits Suggest Edits Akola Area 5,429 sq. km Population ~19.72 lakh (2019) Sex Ratio 942 (2011) Gross District Domestic Product (GDDP) ~ ₹24,047 crore (2019) GDDP Per Capita ~ ₹1.22 lakh (2019) Akola is located along the Morna River within the Tapti River valley, about 280 km west of Nagpur and 580 km from Mumbai. In 1998, the district underwent a significant change when it was bifurcated to create the new Washim district. This division shaped Akola into its present form, comprising the talukas of Akola, Balapur, Patur, Barshitakli, Murtizapur, Akot, and Telhara. The name \"Akola\" likely comes from the Marathi word \"Akol,\" meaning \"the end\" or \"the boundary,\" reflecting the city's historical role as a frontier or administrative center in the region. Local tradition also attributes the city's name to Maharaja Akolsingh, an influential figure who is said to have played a key role in the area's history. Historically, Akola has been influenced by various cultures and rulers. Akola is part of the central part of Amravati Division, which was part of the Berar province during the British Raj. It is also the site of the famous Battle of Argaon in 1803, during the Second Anglo-Maratha War, which led to Nizam of Hyderabad to take control of all Maratha claims in Berar from Bhonsales' rule. In the Third Anglo-Maratha War, it came under the British. Akola is also is known for the Shri Raj Rajeshwar Mandir, which continues the ancient tradition of lighting 11 akhand deep and celebrates the birth anniversary of Sahastrarjun Kartviry Arjun with a grand three-day festival generally during Karthik month (Oct-Nov typically). During the British era, the All Saints Church, established in 1873, became an important site and is recognized for its colonial architecture to this day. Akola is also home to the Katepurna Sanctuary, known for its biodiversity, including the rare four-horned antelope and barking deer. Geographically, Akola lies within the Tapti River valley, along the banks of the Morna River. The district experiences a tropical wet and dry climate, characterized by hot summers, significant monsoon rainfall, and mild winters. The fertile plains and gentle hills of this region contribute to its agricultural productivity, particularly in cotton farming, which drives the local economy. Akola's economy is largely supported by its thriving cotton industry, earning it the title of \"The Cotton City.\" The fertile lands of the Tapti River valley support extensive cotton farming, which fuels the oil and textile industries. Explore Akola Cultures Architecture Artforms Cultural Sites Festivals & Fairs Food History Language Markets Sports & Games Stories Statistics Agriculture Demography Education Elections Environment Health Industry Labor Livestock & Fisheries Police & Judiciary Revenue & Expenditure Transport & Communication",
+      "processingStatus": "extracted",
+      "metadata": {
+        "title": "Maharashtra | Akola District",
+        "description": "Cultures and statistics of Akola district. Explore and tell us more!",
+        "aiAnalysis": {}
+      },
+      "contentChunks": [
+        {
+          "type": "unknown",
+          "selector": "main",
+          "content": "Home\n            \n            Maharashtra\n            \n            Akola\n        \n    \n\n\n\n\n  \n     \n        \n          \n            \n              Akola\n              \n            \n            \n              \n                \n                \n                  Ahilyanagar\n                \n                \n                \n                  Akola\n                \n                \n                \n                  Amravati\n                \n                \n                \n                  Beed\n                \n                \n                \n                  Bhandara\n                \n                \n                \n                  Buldhana\n                \n                \n                \n                  Chandrapur\n                \n                \n                \n                  Chh. Sambhaji Nagar\n                \n                \n                \n                  Dharashiv\n                \n                \n                \n                  Dhule\n                \n                \n                \n                  Gadchiroli\n                \n                \n                \n                  Gondia\n                \n                \n                \n                  Hingoli\n                \n                \n                \n                  Jalgaon\n                \n                \n                \n                  Jalna\n                \n                \n                \n                  Kolhapur\n                \n                \n                \n                  Latur\n                \n                \n                \n                  Mumbai\n                \n                \n                \n                  Mumbai Suburban\n                \n                \n                \n                  Nagpur\n                \n                \n                \n                  Nanded\n                \n                \n                \n                  Nandurbar\n                \n                \n                \n                  Nashik\n                \n                \n                \n                  Palghar\n                \n                \n                \n                  Parbhani\n                \n                \n                \n                  Pune\n                \n                \n                \n                  Raigad\n                \n                \n                \n                  Ratnagiri\n                \n                \n                \n                  Sangli\n                \n                \n                \n                  Satara\n                \n                \n                \n                  Sindhudurg\n                \n                \n                \n                  Solapur\n                \n                \n                \n                  Thane\n                \n                \n                \n                  Wardha\n                \n                \n                \n                  Washim\n                \n                \n                \n                  Yavatmal\n                \n                \n              \n            \n          \n          \n            \n              Introduction\n              \n            \n            \n              \n                \n                  Introduction\n                \n                \n                \n                \n                  Architecture\n                \n                \n                \n                  Artforms\n                \n                \n                \n                  Cultural Sites\n                \n                \n                \n                  Festivals & Fairs\n                \n                \n                \n                  Food\n                \n                \n                \n                  History\n                \n                \n                \n                  Language\n                \n                \n                \n                  Markets\n                \n                \n                \n                  Sports & Games\n                \n                \n                \n                  Stories\n                \n                \n                \n                \n                \n                \n                \n                  Agriculture\n                \n                \n                \n                  Demography\n                \n                \n                \n                  Education\n                \n                \n                \n                  Elections\n                \n                \n                \n                  Environment\n                \n                \n                \n                  Health\n                \n                \n                \n                  Industry\n                \n                \n                \n                  Labor\n                \n                \n                \n                  Livestock & Fisheries\n                \n                \n                \n                  Police & Judiciary\n                \n                \n                \n                  Revenue & Expenditure\n                \n                \n                \n                  Transport & Communication\n                \n                \n              \n            \n          \n        \n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n          \n          Suggest Edits\n        \n      \n\n      \n      \n        \n        \n          \n        \n        \n      \n    \n  \n\n\n\n\n    \n        \n            \n                Akola\n                \n            \n        \n    \n\n\n\n\n     \n        \n            \n\n            \n            \n                \n                    \n                        \n                            \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                            \n\n                            \n                        \n                    \n                \n                \n                  \n                    \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Area\n                                        5,429 sq. km\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Population\n                                        ~19.72 lakh (2019)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        Sex Ratio\n                                        942 (2011)\n                                    \n                                \n                            \n                        \n                        \n                        \n                        \n                            \n                                \n                                    \n                                    \n                                        Gross District Domestic Product (GDDP)\n                                        ~ ₹24,047 crore (2019)\n                                    \n                                \n                            \n                                \n                                    \n                                    \n                                        GDDP Per Capita\n                                        ~ ₹1.22 lakh (2019)\n                                    \n                                \n                            \n                        \n                    \n                \n            \n\n            \n\n                \n                    Akola is located along the Morna River within the Tapti River valley, about 280 km west of Nagpur and 580 km from Mumbai. In 1998, the district underwent a significant change when it was bifurcated to create the new Washim district. This division shaped Akola into its present form, comprising the talukas of Akola, Balapur, Patur, Barshitakli, Murtizapur, Akot, and Telhara. The name \"Akola\" likely comes from the Marathi word \"Akol,\" meaning \"the end\" or \"the boundary,\" reflecting the city's historical role as a frontier or administrative center in the region. Local tradition also attributes the city's name to Maharaja Akolsingh, an influential figure who is said to have played a key role in the area's history.\n \nHistorically, Akola has been influenced by various cultures and rulers. Akola is part of the central part of Amravati Division, which was part of the Berar province during the British Raj. It is also the site of the famous Battle of Argaon in 1803, during the Second Anglo-Maratha War, which led to Nizam of Hyderabad to take control of all Maratha claims in Berar from Bhonsales' rule. In the Third Anglo-Maratha War, it came under the British.\n \nAkola is also is known for the Shri Raj Rajeshwar Mandir, which continues the ancient tradition of lighting 11 akhand deep and celebrates the birth anniversary of Sahastrarjun Kartviry Arjun with a grand three-day festival generally during Karthik month (Oct-Nov typically). During the British era, the All Saints Church, established in 1873, became an important site and is recognized for its colonial architecture to this day. Akola is also home to the Katepurna Sanctuary, known for its biodiversity, including the rare four-horned antelope and barking deer.\n \nGeographically, Akola lies within the Tapti River valley, along the banks of the Morna River. The district experiences a tropical wet and dry climate, characterized by hot summers, significant monsoon rainfall, and mild winters. The fertile plains and gentle hills of this region contribute to its agricultural productivity, particularly in cotton farming, which drives the local economy.\n \nAkola's economy is largely supported by its thriving cotton industry, earning it the title of \"The Cotton City.\" The fertile lands of the Tapti River valley support extensive cotton farming, which fuels the oil and textile industries.\n \n                \n                \n            \n            \n           \n             \n                \n                    \n                        \n                        \n                            \n                            \n                        \n                        \n                    \n                \n           \n\n\n            \n        \n    \n\n\n\n\n\n  \n    \n        \n            Explore Akola\n\n            \n                \n                \n                    Cultures\n                    \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Architecture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Artforms\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Cultural Sites\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Festivals & Fairs\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Food\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        History\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Language\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Markets\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Sports & Games\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Stories\n                                        \n                                    \n                                \n                            \n                        \n                    \n                \n                \n                \n                \n                    Statistics\n                    \n                        \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Agriculture\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Demography\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Education\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Elections\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Environment\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Health\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Industry\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Labor\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Livestock & Fisheries\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Police & Judiciary\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Revenue & Expenditure\n                                        \n                                    \n                                \n                            \n                        \n                            \n                                \n                                    \n                                        \n                                    \n                                    \n                                        Transport & Communication",
+          "confidence": 0.5,
+          "_id": "69138506f0f6870eda61d83d"
+        }
+      ],
+      "extractedLinks": {
+        "internal": [
+          "https://indiandistricts.in/",
+          "https://indiandistricts.in/maharashtra/",
+          "https://indiandistricts.in/maharashtra/ahilyanagar/",
+          "https://indiandistricts.in/maharashtra/akola/",
+          "https://indiandistricts.in/maharashtra/amravati/",
+          "https://indiandistricts.in/maharashtra/beed/",
+          "https://indiandistricts.in/maharashtra/bhandara/",
+          "https://indiandistricts.in/maharashtra/buldhana/",
+          "https://indiandistricts.in/maharashtra/chandrapur/",
+          "https://indiandistricts.in/maharashtra/chhatrapati-sambhaji-nagar/",
+          "https://indiandistricts.in/maharashtra/dharashiv/",
+          "https://indiandistricts.in/maharashtra/dhule/",
+          "https://indiandistricts.in/maharashtra/gadchiroli/",
+          "https://indiandistricts.in/maharashtra/gondia/",
+          "https://indiandistricts.in/maharashtra/hingoli/",
+          "https://indiandistricts.in/maharashtra/jalgaon/",
+          "https://indiandistricts.in/maharashtra/jalna/",
+          "https://indiandistricts.in/maharashtra/kolhapur/",
+          "https://indiandistricts.in/maharashtra/latur/",
+          "https://indiandistricts.in/maharashtra/mumbai/",
+          "https://indiandistricts.in/maharashtra/mumbai-suburban/",
+          "https://indiandistricts.in/maharashtra/nagpur/",
+          "https://indiandistricts.in/maharashtra/nanded/",
+          "https://indiandistricts.in/maharashtra/nandurbar/",
+          "https://indiandistricts.in/maharashtra/nashik/",
+          "https://indiandistricts.in/maharashtra/palghar/",
+          "https://indiandistricts.in/maharashtra/parbhani/",
+          "https://indiandistricts.in/maharashtra/pune/",
+          "https://indiandistricts.in/maharashtra/raigad/",
+          "https://indiandistricts.in/maharashtra/ratnagiri/",
+          "https://indiandistricts.in/maharashtra/sangli/",
+          "https://indiandistricts.in/maharashtra/satara/",
+          "https://indiandistricts.in/maharashtra/sindhudurg/",
+          "https://indiandistricts.in/maharashtra/solapur/",
+          "https://indiandistricts.in/maharashtra/thane/",
+          "https://indiandistricts.in/maharashtra/wardha/",
+          "https://indiandistricts.in/maharashtra/washim/",
+          "https://indiandistricts.in/maharashtra/yavatmal/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/architecture/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/artforms/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/cultural-sites/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/festivals-fairs/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/food/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/political-history/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/language/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/markets/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/sports-games/",
+          "https://indiandistricts.in/cultures/maharashtra/akola/stories/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/agriculture/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/demography/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/education/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/local-politics/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/environment/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/health/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/industry/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/labour/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/livestock-fisheries/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/police-judiciary/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/revenue-expenditure/",
+          "https://indiandistricts.in/statistics/maharashtra/akola/transport-communication/",
+          "https://indiandistricts.in/editor/district/5/suggest-intro/"
+        ],
+        "external": []
+      },
+      "images": [
+        {
+          "src": "https://indiandistricts.in/media/CACHE/images/district_images/originals/Talukas_3rTDlgq/89d736ceefce35ab75d3fdf279915244.webp",
+          "alt": "Akola Talukas",
+          "title": "",
+          "type": "content",
+          "_id": "69138506f0f6870eda61d825"
+        },
+        {
+          "src": "https://indiandistricts.in/media/gif_images/originals/City_Growth_fJh0c3P.gif",
+          "alt": "Akola gif",
+          "title": "",
+          "type": "content",
+          "_id": "69138506f0f6870eda61d826"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/architecture.png",
+          "alt": "Architecture",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d827"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/artforms.png",
+          "alt": "Artforms",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d828"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/cultural_sites.png",
+          "alt": "Cultural Sites",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d829"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/fair_festivals.png",
+          "alt": "Festivals & Fairs",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82a"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/food.png",
+          "alt": "Food",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82b"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/history.png",
+          "alt": "History",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82c"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/languages.png",
+          "alt": "Language",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82d"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/market.png",
+          "alt": "Markets",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82e"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/sports_games.png",
+          "alt": "Sports & Games",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d82f"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/stories.png",
+          "alt": "Stories",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d830"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/agriculture.png",
+          "alt": "Agriculture",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d831"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/demography.png",
+          "alt": "Demography",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d832"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/education.png",
+          "alt": "Education",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d833"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/elections.png",
+          "alt": "Elections",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d834"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/environment.png",
+          "alt": "Environment",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d835"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/health.png",
+          "alt": "Health",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d836"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/industry.png",
+          "alt": "Industry",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d837"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/labor.png",
+          "alt": "Labor",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d838"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/livestock_fisheries.png",
+          "alt": "Livestock & Fisheries",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d839"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/police_judiciary.png",
+          "alt": "Police & Judiciary",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d83a"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/revenue.png",
+          "alt": "Revenue & Expenditure",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d83b"
+        },
+        {
+          "src": "https://indiandistricts.in/static/img/icons/transcomm.png",
+          "alt": "Transport & Communication",
+          "title": "",
+          "type": "icon",
+          "_id": "69138506f0f6870eda61d83c"
+        }
+      ],
+      "createdAt": "2025-11-11T18:48:38.968Z"
+    }
+  ],
+  "structuredData": {
+    "summary": {
+      "totalItems": 5,
+      "schemas": [
+        "generic"
+      ],
+      "averageQuality": 1
+    },
+    "items": [
+      {
+        "url": "https://indiandistricts.in/maharashtra/pune/",
+        "schema": "generic",
+        "version": "1.0",
+        "fields": {
+          "title": "Pune",
+          "content": "15,643 sq. km",
+          "links": [
+            "/",
+            "/maharashtra/",
+            "/maharashtra/ahilyanagar/",
+            "/maharashtra/akola/",
+            "/maharashtra/amravati/",
+            "/maharashtra/beed/",
+            "/maharashtra/bhandara/",
+            "/maharashtra/buldhana/",
+            "/maharashtra/chandrapur/",
+            "/maharashtra/chhatrapati-sambhaji-nagar/",
+            "/maharashtra/dharashiv/",
+            "/maharashtra/dhule/",
+            "/maharashtra/gadchiroli/",
+            "/maharashtra/gondia/",
+            "/maharashtra/hingoli/",
+            "/maharashtra/jalgaon/",
+            "/maharashtra/jalna/",
+            "/maharashtra/kolhapur/",
+            "/maharashtra/latur/",
+            "/maharashtra/mumbai/",
+            "/maharashtra/mumbai-suburban/",
+            "/maharashtra/nagpur/",
+            "/maharashtra/nanded/",
+            "/maharashtra/nandurbar/",
+            "/maharashtra/nashik/",
+            "/maharashtra/palghar/",
+            "/maharashtra/parbhani/",
+            "/maharashtra/pune/",
+            "/maharashtra/raigad/",
+            "/maharashtra/ratnagiri/",
+            "/maharashtra/sangli/",
+            "/maharashtra/satara/",
+            "/maharashtra/sindhudurg/",
+            "/maharashtra/solapur/",
+            "/maharashtra/thane/",
+            "/maharashtra/wardha/",
+            "/maharashtra/washim/",
+            "/maharashtra/yavatmal/",
+            "/maharashtra/pune/",
+            "/cultures/maharashtra/pune/architecture/",
+            "/cultures/maharashtra/pune/artforms/",
+            "/cultures/maharashtra/pune/cultural-sites/",
+            "/cultures/maharashtra/pune/festivals-fairs/",
+            "/cultures/maharashtra/pune/food/",
+            "/cultures/maharashtra/pune/political-history/",
+            "/cultures/maharashtra/pune/language/",
+            "/cultures/maharashtra/pune/markets/",
+            "/cultures/maharashtra/pune/sports-games/",
+            "/cultures/maharashtra/pune/stories/",
+            "/statistics/maharashtra/pune/agriculture/",
+            "/statistics/maharashtra/pune/demography/",
+            "/statistics/maharashtra/pune/education/",
+            "/statistics/maharashtra/pune/local-politics/",
+            "/statistics/maharashtra/pune/environment/",
+            "/statistics/maharashtra/pune/health/",
+            "/statistics/maharashtra/pune/industry/",
+            "/statistics/maharashtra/pune/labour/",
+            "/statistics/maharashtra/pune/livestock-fisheries/",
+            "/statistics/maharashtra/pune/police-judiciary/",
+            "/statistics/maharashtra/pune/revenue-expenditure/",
+            "/statistics/maharashtra/pune/transport-communication/",
+            "/editor/district/1/suggest-intro/",
+            "/editor/district/1/suggest-intro/",
+            "/editor/district/1/suggest-intro/",
+            "/cultures/maharashtra/pune/architecture/",
+            "/cultures/maharashtra/pune/artforms/",
+            "/cultures/maharashtra/pune/cultural-sites/",
+            "/cultures/maharashtra/pune/festivals-fairs/",
+            "/cultures/maharashtra/pune/food/",
+            "/cultures/maharashtra/pune/political-history/",
+            "/cultures/maharashtra/pune/language/",
+            "/cultures/maharashtra/pune/markets/",
+            "/cultures/maharashtra/pune/sports-games/",
+            "/cultures/maharashtra/pune/stories/",
+            "/statistics/maharashtra/pune/agriculture/",
+            "/statistics/maharashtra/pune/demography/",
+            "/statistics/maharashtra/pune/education/",
+            "/statistics/maharashtra/pune/local-politics/",
+            "/statistics/maharashtra/pune/environment/",
+            "/statistics/maharashtra/pune/health/",
+            "/statistics/maharashtra/pune/industry/",
+            "/statistics/maharashtra/pune/labour/",
+            "/statistics/maharashtra/pune/livestock-fisheries/",
+            "/statistics/maharashtra/pune/police-judiciary/",
+            "/statistics/maharashtra/pune/revenue-expenditure/",
+            "/statistics/maharashtra/pune/transport-communication/"
+          ],
+          "images": [
+            "/media/CACHE/images/district_images/originals/Talukas_ngHKqqV/8533dbce9d864018fc02d1e735fa82cf.webp",
+            "/media/gif_images/originals/City_Growth_DEnYEzd.gif",
+            "/static/img/icons/architecture.png",
+            "/static/img/icons/artforms.png",
+            "/static/img/icons/cultural_sites.png",
+            "/static/img/icons/fair_festivals.png",
+            "/static/img/icons/food.png",
+            "/static/img/icons/history.png",
+            "/static/img/icons/languages.png",
+            "/static/img/icons/market.png",
+            "/static/img/icons/sports_games.png",
+            "/static/img/icons/stories.png",
+            "/static/img/icons/agriculture.png",
+            "/static/img/icons/demography.png",
+            "/static/img/icons/education.png",
+            "/static/img/icons/elections.png",
+            "/static/img/icons/environment.png",
+            "/static/img/icons/health.png",
+            "/static/img/icons/industry.png",
+            "/static/img/icons/labor.png",
+            "/static/img/icons/livestock_fisheries.png",
+            "/static/img/icons/police_judiciary.png",
+            "/static/img/icons/revenue.png",
+            "/static/img/icons/transcomm.png"
+          ]
+        },
+        "nestedStructures": [],
+        "qualityScore": 1,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-11-11T18:48:21.196Z"
+      },
+      {
+        "url": "https://indiandistricts.in/",
+        "schema": "generic",
+        "version": "1.0",
+        "fields": {
+          "title": "The Districts Project\n                Beta",
+          "content": "Welcome to the most comprehensive encylopedia of Indian districts.\n                Explore India one district at a time...\n                ...and while you're at it, let us know what we missed!",
+          "links": [
+            "/maharashtra/",
+            "/maharashtra/"
+          ],
+          "images": []
+        },
+        "nestedStructures": [],
+        "qualityScore": 1,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-11-11T18:48:26.738Z"
+      },
+      {
+        "url": "https://indiandistricts.in/maharashtra/",
+        "schema": "generic",
+        "version": "1.0",
+        "fields": {
+          "title": "MAHARASHTRA",
+          "content": "No states or districts found",
+          "links": [
+            "/",
+            "/maharashtra/ahilyanagar/",
+            "/maharashtra/akola/",
+            "/maharashtra/amravati/",
+            "/maharashtra/beed/",
+            "/maharashtra/bhandara/",
+            "/maharashtra/buldhana/",
+            "/maharashtra/chandrapur/",
+            "/maharashtra/chhatrapati-sambhaji-nagar/",
+            "/maharashtra/dharashiv/",
+            "/maharashtra/dhule/",
+            "/maharashtra/gadchiroli/",
+            "/maharashtra/gondia/",
+            "/maharashtra/hingoli/",
+            "/maharashtra/jalgaon/",
+            "/maharashtra/jalna/",
+            "/maharashtra/kolhapur/",
+            "/maharashtra/latur/",
+            "/maharashtra/mumbai/",
+            "/maharashtra/mumbai-suburban/",
+            "/maharashtra/nagpur/",
+            "/maharashtra/nanded/",
+            "/maharashtra/nandurbar/",
+            "/maharashtra/nashik/",
+            "/maharashtra/palghar/",
+            "/maharashtra/parbhani/",
+            "/maharashtra/pune/",
+            "/maharashtra/raigad/",
+            "/maharashtra/ratnagiri/",
+            "/maharashtra/sangli/",
+            "/maharashtra/satara/",
+            "/maharashtra/sindhudurg/",
+            "/maharashtra/solapur/",
+            "/maharashtra/thane/",
+            "/maharashtra/wardha/",
+            "/maharashtra/washim/",
+            "/maharashtra/yavatmal/"
+          ],
+          "images": []
+        },
+        "nestedStructures": [],
+        "qualityScore": 1,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-11-11T18:48:30.426Z"
+      },
+      {
+        "url": "https://indiandistricts.in/maharashtra/ahilyanagar/",
+        "schema": "generic",
+        "version": "1.0",
+        "fields": {
+          "title": "Ahilyanagar",
+          "content": "17,048 sq. km",
+          "links": [
+            "/",
+            "/maharashtra/",
+            "/maharashtra/ahilyanagar/",
+            "/maharashtra/akola/",
+            "/maharashtra/amravati/",
+            "/maharashtra/beed/",
+            "/maharashtra/bhandara/",
+            "/maharashtra/buldhana/",
+            "/maharashtra/chandrapur/",
+            "/maharashtra/chhatrapati-sambhaji-nagar/",
+            "/maharashtra/dharashiv/",
+            "/maharashtra/dhule/",
+            "/maharashtra/gadchiroli/",
+            "/maharashtra/gondia/",
+            "/maharashtra/hingoli/",
+            "/maharashtra/jalgaon/",
+            "/maharashtra/jalna/",
+            "/maharashtra/kolhapur/",
+            "/maharashtra/latur/",
+            "/maharashtra/mumbai/",
+            "/maharashtra/mumbai-suburban/",
+            "/maharashtra/nagpur/",
+            "/maharashtra/nanded/",
+            "/maharashtra/nandurbar/",
+            "/maharashtra/nashik/",
+            "/maharashtra/palghar/",
+            "/maharashtra/parbhani/",
+            "/maharashtra/pune/",
+            "/maharashtra/raigad/",
+            "/maharashtra/ratnagiri/",
+            "/maharashtra/sangli/",
+            "/maharashtra/satara/",
+            "/maharashtra/sindhudurg/",
+            "/maharashtra/solapur/",
+            "/maharashtra/thane/",
+            "/maharashtra/wardha/",
+            "/maharashtra/washim/",
+            "/maharashtra/yavatmal/",
+            "/maharashtra/ahilyanagar/",
+            "/cultures/maharashtra/ahilyanagar/architecture/",
+            "/cultures/maharashtra/ahilyanagar/artforms/",
+            "/cultures/maharashtra/ahilyanagar/cultural-sites/",
+            "/cultures/maharashtra/ahilyanagar/festivals-fairs/",
+            "/cultures/maharashtra/ahilyanagar/food/",
+            "/cultures/maharashtra/ahilyanagar/political-history/",
+            "/cultures/maharashtra/ahilyanagar/language/",
+            "/cultures/maharashtra/ahilyanagar/markets/",
+            "/cultures/maharashtra/ahilyanagar/sports-games/",
+            "/cultures/maharashtra/ahilyanagar/stories/",
+            "/statistics/maharashtra/ahilyanagar/agriculture/",
+            "/statistics/maharashtra/ahilyanagar/demography/",
+            "/statistics/maharashtra/ahilyanagar/education/",
+            "/statistics/maharashtra/ahilyanagar/local-politics/",
+            "/statistics/maharashtra/ahilyanagar/environment/",
+            "/statistics/maharashtra/ahilyanagar/health/",
+            "/statistics/maharashtra/ahilyanagar/industry/",
+            "/statistics/maharashtra/ahilyanagar/labour/",
+            "/statistics/maharashtra/ahilyanagar/livestock-fisheries/",
+            "/statistics/maharashtra/ahilyanagar/police-judiciary/",
+            "/statistics/maharashtra/ahilyanagar/revenue-expenditure/",
+            "/statistics/maharashtra/ahilyanagar/transport-communication/",
+            "/editor/district/2/suggest-intro/",
+            "/editor/district/2/suggest-intro/",
+            "/editor/district/2/suggest-intro/",
+            "/cultures/maharashtra/ahilyanagar/architecture/",
+            "/cultures/maharashtra/ahilyanagar/artforms/",
+            "/cultures/maharashtra/ahilyanagar/cultural-sites/",
+            "/cultures/maharashtra/ahilyanagar/festivals-fairs/",
+            "/cultures/maharashtra/ahilyanagar/food/",
+            "/cultures/maharashtra/ahilyanagar/political-history/",
+            "/cultures/maharashtra/ahilyanagar/language/",
+            "/cultures/maharashtra/ahilyanagar/markets/",
+            "/cultures/maharashtra/ahilyanagar/sports-games/",
+            "/cultures/maharashtra/ahilyanagar/stories/",
+            "/statistics/maharashtra/ahilyanagar/agriculture/",
+            "/statistics/maharashtra/ahilyanagar/demography/",
+            "/statistics/maharashtra/ahilyanagar/education/",
+            "/statistics/maharashtra/ahilyanagar/local-politics/",
+            "/statistics/maharashtra/ahilyanagar/environment/",
+            "/statistics/maharashtra/ahilyanagar/health/",
+            "/statistics/maharashtra/ahilyanagar/industry/",
+            "/statistics/maharashtra/ahilyanagar/labour/",
+            "/statistics/maharashtra/ahilyanagar/livestock-fisheries/",
+            "/statistics/maharashtra/ahilyanagar/police-judiciary/",
+            "/statistics/maharashtra/ahilyanagar/revenue-expenditure/",
+            "/statistics/maharashtra/ahilyanagar/transport-communication/"
+          ],
+          "images": [
+            "/media/CACHE/images/district_images/originals/WhatsApp_Image_2025-10-30_at_11.40.09/170323b7919ee54e37276d1aec84f00a.webp",
+            "/media/gif_images/originals/City_Growth_lEOCFw9.gif",
+            "/static/img/icons/architecture.png",
+            "/static/img/icons/artforms.png",
+            "/static/img/icons/cultural_sites.png",
+            "/static/img/icons/fair_festivals.png",
+            "/static/img/icons/food.png",
+            "/static/img/icons/history.png",
+            "/static/img/icons/languages.png",
+            "/static/img/icons/market.png",
+            "/static/img/icons/sports_games.png",
+            "/static/img/icons/stories.png",
+            "/static/img/icons/agriculture.png",
+            "/static/img/icons/demography.png",
+            "/static/img/icons/education.png",
+            "/static/img/icons/elections.png",
+            "/static/img/icons/environment.png",
+            "/static/img/icons/health.png",
+            "/static/img/icons/industry.png",
+            "/static/img/icons/labor.png",
+            "/static/img/icons/livestock_fisheries.png",
+            "/static/img/icons/police_judiciary.png",
+            "/static/img/icons/revenue.png",
+            "/static/img/icons/transcomm.png"
+          ]
+        },
+        "nestedStructures": [],
+        "qualityScore": 1,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-11-11T18:48:34.616Z"
+      },
+      {
+        "url": "https://indiandistricts.in/maharashtra/akola/",
+        "schema": "generic",
+        "version": "1.0",
+        "fields": {
+          "title": "Akola",
+          "content": "5,429 sq. km",
+          "links": [
+            "/",
+            "/maharashtra/",
+            "/maharashtra/ahilyanagar/",
+            "/maharashtra/akola/",
+            "/maharashtra/amravati/",
+            "/maharashtra/beed/",
+            "/maharashtra/bhandara/",
+            "/maharashtra/buldhana/",
+            "/maharashtra/chandrapur/",
+            "/maharashtra/chhatrapati-sambhaji-nagar/",
+            "/maharashtra/dharashiv/",
+            "/maharashtra/dhule/",
+            "/maharashtra/gadchiroli/",
+            "/maharashtra/gondia/",
+            "/maharashtra/hingoli/",
+            "/maharashtra/jalgaon/",
+            "/maharashtra/jalna/",
+            "/maharashtra/kolhapur/",
+            "/maharashtra/latur/",
+            "/maharashtra/mumbai/",
+            "/maharashtra/mumbai-suburban/",
+            "/maharashtra/nagpur/",
+            "/maharashtra/nanded/",
+            "/maharashtra/nandurbar/",
+            "/maharashtra/nashik/",
+            "/maharashtra/palghar/",
+            "/maharashtra/parbhani/",
+            "/maharashtra/pune/",
+            "/maharashtra/raigad/",
+            "/maharashtra/ratnagiri/",
+            "/maharashtra/sangli/",
+            "/maharashtra/satara/",
+            "/maharashtra/sindhudurg/",
+            "/maharashtra/solapur/",
+            "/maharashtra/thane/",
+            "/maharashtra/wardha/",
+            "/maharashtra/washim/",
+            "/maharashtra/yavatmal/",
+            "/maharashtra/akola/",
+            "/cultures/maharashtra/akola/architecture/",
+            "/cultures/maharashtra/akola/artforms/",
+            "/cultures/maharashtra/akola/cultural-sites/",
+            "/cultures/maharashtra/akola/festivals-fairs/",
+            "/cultures/maharashtra/akola/food/",
+            "/cultures/maharashtra/akola/political-history/",
+            "/cultures/maharashtra/akola/language/",
+            "/cultures/maharashtra/akola/markets/",
+            "/cultures/maharashtra/akola/sports-games/",
+            "/cultures/maharashtra/akola/stories/",
+            "/statistics/maharashtra/akola/agriculture/",
+            "/statistics/maharashtra/akola/demography/",
+            "/statistics/maharashtra/akola/education/",
+            "/statistics/maharashtra/akola/local-politics/",
+            "/statistics/maharashtra/akola/environment/",
+            "/statistics/maharashtra/akola/health/",
+            "/statistics/maharashtra/akola/industry/",
+            "/statistics/maharashtra/akola/labour/",
+            "/statistics/maharashtra/akola/livestock-fisheries/",
+            "/statistics/maharashtra/akola/police-judiciary/",
+            "/statistics/maharashtra/akola/revenue-expenditure/",
+            "/statistics/maharashtra/akola/transport-communication/",
+            "/editor/district/5/suggest-intro/",
+            "/editor/district/5/suggest-intro/",
+            "/editor/district/5/suggest-intro/",
+            "/cultures/maharashtra/akola/architecture/",
+            "/cultures/maharashtra/akola/artforms/",
+            "/cultures/maharashtra/akola/cultural-sites/",
+            "/cultures/maharashtra/akola/festivals-fairs/",
+            "/cultures/maharashtra/akola/food/",
+            "/cultures/maharashtra/akola/political-history/",
+            "/cultures/maharashtra/akola/language/",
+            "/cultures/maharashtra/akola/markets/",
+            "/cultures/maharashtra/akola/sports-games/",
+            "/cultures/maharashtra/akola/stories/",
+            "/statistics/maharashtra/akola/agriculture/",
+            "/statistics/maharashtra/akola/demography/",
+            "/statistics/maharashtra/akola/education/",
+            "/statistics/maharashtra/akola/local-politics/",
+            "/statistics/maharashtra/akola/environment/",
+            "/statistics/maharashtra/akola/health/",
+            "/statistics/maharashtra/akola/industry/",
+            "/statistics/maharashtra/akola/labour/",
+            "/statistics/maharashtra/akola/livestock-fisheries/",
+            "/statistics/maharashtra/akola/police-judiciary/",
+            "/statistics/maharashtra/akola/revenue-expenditure/",
+            "/statistics/maharashtra/akola/transport-communication/"
+          ],
+          "images": [
+            "/media/CACHE/images/district_images/originals/Talukas_3rTDlgq/89d736ceefce35ab75d3fdf279915244.webp",
+            "/media/gif_images/originals/City_Growth_fJh0c3P.gif",
+            "/static/img/icons/architecture.png",
+            "/static/img/icons/artforms.png",
+            "/static/img/icons/cultural_sites.png",
+            "/static/img/icons/fair_festivals.png",
+            "/static/img/icons/food.png",
+            "/static/img/icons/history.png",
+            "/static/img/icons/languages.png",
+            "/static/img/icons/market.png",
+            "/static/img/icons/sports_games.png",
+            "/static/img/icons/stories.png",
+            "/static/img/icons/agriculture.png",
+            "/static/img/icons/demography.png",
+            "/static/img/icons/education.png",
+            "/static/img/icons/elections.png",
+            "/static/img/icons/environment.png",
+            "/static/img/icons/health.png",
+            "/static/img/icons/industry.png",
+            "/static/img/icons/labor.png",
+            "/static/img/icons/livestock_fisheries.png",
+            "/static/img/icons/police_judiciary.png",
+            "/static/img/icons/revenue.png",
+            "/static/img/icons/transcomm.png"
+          ]
+        },
+        "nestedStructures": [],
+        "qualityScore": 1,
+        "extractionMethod": "heuristic",
+        "extractedAt": "2025-11-11T18:48:39.027Z"
+      }
+    ]
+  },
+  "aiAnalysis": {
+    "recommendations": []
+  }
+}

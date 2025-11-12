@@ -1,118 +1,172 @@
-# 🚀 ScrapperX - AI-Powered Website Scraper
+# ScrapperX - Advanced Website Scraper
 
-A modern, ethical website scraper with AI-powered content summarization. Built with Next.js, Express.js, and DeepSeek AI.
+ScrapperX is a web scraping platform that uses advanced techniques to extract content from websites, even those protected by anti-bot systems. It features stealth mode, CAPTCHA solving, and domain crawling capabilities.
 
-## ✨ Features
+## 🚀 Key Features
 
-- **🔍 Smart Content Extraction**: Automatically identifies and extracts main content, titles, links, and metadata
-- **🤖 AI Summarization**: Powered by DeepSeek AI for intelligent content summarization
-- **⚖️ Ethical Compliance**: Automatic robots.txt checking and compliance reporting
-- **⚡ Lightning Fast**: Optimized scraping with both static and dynamic content support
-- **📊 Rich Results**: Comprehensive data extraction with multiple export formats
-- **🛡️ Rate Limited**: Built-in rate limiting for responsible scraping
-- **📱 Modern UI**: Beautiful, responsive interface built with Tailwind CSS
+### Core Scraping Capabilities
+- **Static HTML Scraping**: Fast extraction from simple websites
+- **Dynamic JavaScript Rendering**: Full browser automation with Playwright
+- **API Endpoint Discovery**: Automatic detection and extraction from REST APIs
+- **Hybrid Approach**: Combines multiple methods for optimal results
 
-## 🛠️ Tech Stack
+### Advanced Anti-Bot Protection
+- **🥷 Stealth Mode**: Advanced browser fingerprinting protection
+- **🔐 CAPTCHA Solving**: Integration with 2captcha and AntiCaptcha services
+- **⚡ Smart Retries**: Intelligent fallback strategies and rate limiting
+- **🎭 Human Behavior Simulation**: Realistic mouse movements and scrolling
+- **🔄 Session Management**: Cookie persistence and user agent rotation
 
-### Frontend
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Modern styling
-- **React Hooks** - State management
+### Domain Crawling
+- **🌐 Full Website Crawling**: Crawl entire domains with configurable depth
+- **📊 Structured Data Extraction**: Extract structured data from crawled pages
+- **💾 Markdown Export**: Export crawled data in markdown format
+- **🔐 Authentication Support**: Handle login forms, basic auth, and bearer tokens
+
+## 🛠️ Technology Stack
 
 ### Backend
-- **Node.js + Express.js** - RESTful API server
-- **TypeScript** - Type-safe backend development
-- **Axios + Cheerio** - Static content scraping
-- **Playwright** - Dynamic content scraping (planned)
-- **MongoDB** - Data persistence (optional)
-- **Rate Limiting** - Request throttling and abuse prevention
+- **Node.js** with TypeScript
+- **Express.js** for REST API
+- **Playwright** for browser automation
+- **MongoDB** for data persistence
+- **Cheerio** for HTML parsing
 
-### AI Integration
-- **DeepSeek API** - Content summarization (planned)
-- **OpenRouter** - AI model access (planned)
+### Frontend
+- **Next.js 14** with TypeScript
+- **Tailwind CSS** for styling
+- **React Hooks** for state management
 
-## 🚀 Quick Start
+## 📦 Installation
 
 ### Prerequisites
 - Node.js 18+ 
-- npm or yarn
-- MongoDB (optional, for data persistence)
+- MongoDB (local or cloud)
+- Git
 
-### Installation
+### Backend Setup
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ScrapperX
-   ```
-
-2. **Install dependencies**
-   ```bash
-   # Install root dependencies
-   npm install
-   
-   # Install frontend dependencies
-   cd frontend && npm install
-   
-   # Install backend dependencies
-   cd ../backend && npm install
-   ```
-
-3. **Environment Setup**
-   
-   Create a `.env` file in the `backend` directory:
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   FRONTEND_URL=http://localhost:3000
-   MONGODB_URI=mongodb://localhost:27017/scrapperx
-   
-   # Optional: AI Integration
-   OPENROUTER_API_KEY=your_openrouter_api_key_here
-   OPENROUTER_MODEL=deepseek/deepseek-r1-0528:free
-   ```
-
-4. **Start the application**
-   
-   **Option 1: Start both services together (from root)**
-   ```bash
-   npm run dev
-   ```
-   
-   **Option 2: Start services separately**
-   ```bash
-   # Terminal 1 - Backend
-   cd backend && npm run dev
-   
-   # Terminal 2 - Frontend  
-   cd frontend && npm run dev
-   ```
-
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5000
-   - Health Check: http://localhost:5000/health
-
-## 📖 Usage
-
-### Web Interface
-
-1. **Enter URL**: Paste the website URL you want to scrape
-2. **Check Robots.txt** (Optional): Verify scraping permissions
-3. **Scrape Website**: Extract content and metadata
-4. **View Results**: Browse extracted content in organized tabs
-5. **Export Data**: Download results as JSON or TXT
-
-### API Endpoints
-
-#### Health Check
 ```bash
-GET /health
+git clone <repository-url>
+cd ScrapperX/backend
 ```
 
-#### Check Robots.txt
+2. **Install dependencies**
 ```bash
+npm install
+```
+
+3. **Install Playwright browsers**
+```bash
+npx playwright install
+```
+
+4. **Environment Configuration**
+Create a `.env` file in the backend directory:
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/scrapperx
+
+# JWT Secret
+JWT_SECRET=your-super-secret-jwt-key-here
+
+# CAPTCHA Solving Services (Optional)
+TWOCAPTCHA_API_KEY=your-2captcha-api-key
+ANTICAPTCHA_API_KEY=your-anticaptcha-api-key
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+5. **Start the backend server**
+```bash
+npm run dev
+```
+
+### Frontend Setup
+
+1. **Navigate to frontend directory**
+```bash
+cd ../frontend
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Environment Configuration**
+Create a `.env.local` file in the frontend directory:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+4. **Start the frontend development server**
+```bash
+npm run dev
+```
+
+## 🎯 Usage Guide
+
+### Basic Scraping
+
+1. **Enter URL**: Input the website URL you want to scrape
+2. **Check robots.txt** (Optional): Verify scraping permissions
+3. **Configure Options**: Set advanced options if needed
+4. **Scrape**: Click the scrape button to extract content
+5. **Export Results**: Download results in JSON or TXT format
+
+### Advanced Configuration
+
+#### Scraping Methods
+- **Auto-detect** (Recommended): Intelligently selects the best method
+- **Static HTML**: Fast extraction for simple websites
+- **Dynamic (JavaScript)**: Full browser rendering for SPAs
+- **Stealth Mode**: Advanced anti-bot protection bypass
+
+#### Stealth Options
+- **Basic**: Standard anti-detection measures
+- **Advanced**: Enhanced fingerprinting protection
+- **Maximum**: Full stealth mode with human behavior simulation
+
+#### CAPTCHA Handling
+- **Skip**: Ignore CAPTCHA challenges
+- **Manual**: Wait for manual solving
+- **2captcha**: Automatic solving via 2captcha service
+- **AntiCaptcha**: Automatic solving via AntiCaptcha service
+
+
+### Core Endpoints
+
+#### Scrape Website
+```http
+POST /api/scraper/scrape
+Content-Type: application/json
+
+{
+  "url": "https://example.com",
+  "options": {
+    "forceMethod": "adaptive",
+    "enableStealthScraping": true,
+    "enableAdaptiveScraping": true,
+    "captchaSolver": "2captcha",
+    "captchaApiKey": "your-api-key",
+    "stealthLevel": "advanced",
+    "timeout": 60000,
+    "maxRetries": 3,
+    "learningMode": true
+  }
+}
+```
+
+#### Check robots.txt
+```http
 POST /api/scraper/check-robots
 Content-Type: application/json
 
@@ -122,136 +176,148 @@ Content-Type: application/json
 }
 ```
 
-#### Scrape Website
-```bash
-POST /api/scraper/scrape
+### Domain Crawling
+
+#### Start Domain Crawl
+```http
+POST /api/crawler/start-domain-crawl
 Content-Type: application/json
 
 {
   "url": "https://example.com",
-  "options": {
-    "userAgent": "Mozilla/5.0...",
-    "timeout": 15000,
-    "followRedirects": true,
-    "maxRedirects": 5
+  "config": {
+    "maxPages": 50,
+    "maxDepth": 3,
+    "delay": 1000,
+    "concurrent": 3,
+    "respectRobots": true,
+    "authentication": {
+      "type": "none"
+    },
+    "extraction": {
+      "enableStructuredData": true,
+      "dataTypes": ["product", "article", "contact"],
+      "qualityThreshold": 0.7
+    }
   }
 }
 ```
 
-## 🏗️ Development Phases
-
-### ✅ Phase 1: Foundation (COMPLETED)
-- [x] Project structure setup
-- [x] Next.js frontend with Tailwind CSS
-- [x] Express.js backend API
-- [x] Static HTML scraper (axios + cheerio)
-- [x] Robots.txt checker
-- [x] Basic UI components
-- [x] API integration
-
-### 🚧 Phase 2: AI Integration (IN PROGRESS)
-- [ ] DeepSeek API integration
-- [ ] Content summarization
-- [ ] AI-powered content analysis
-
-### 📋 Phase 3: Dynamic Content (PLANNED)
-- [ ] Playwright integration
-- [ ] JavaScript-rendered content scraping
-- [ ] Fallback mechanisms
-
-### 💾 Phase 4: Data Persistence (PLANNED)
-- [ ] MongoDB integration
-- [ ] User sessions
-- [ ] Scraping history
-- [ ] Project management
-
-### 🔐 Phase 5: Authentication (PLANNED)
-- [ ] User registration/login
-- [ ] API key management
-- [ ] Usage analytics
-- [ ] Premium features
-
-## 🔧 Configuration
-
-### Rate Limiting
-- **General API**: 50 requests/minute (dev), 10 requests/minute (prod)
-- **Scraping**: 20 requests/5min (dev), 5 requests/5min (prod)
-
-### Scraping Options
-- **Timeout**: 15 seconds default
-- **User Agent**: Configurable, defaults to modern browser
-- **Redirects**: Up to 5 redirects followed
-- **Content Types**: HTML, XHTML, XML
-
-## 🛡️ Ethical Guidelines
-
-ScrapperX is designed for responsible web scraping:
-
-- ✅ **Respects robots.txt** - Automatic compliance checking
-- ✅ **Rate limited** - Prevents server overload
-- ✅ **User consent** - Requires user confirmation for scraping
-- ✅ **Transparent** - Clear about scraping activities
-- ⚠️ **User responsibility** - Users must ensure they have permission
-
-## 📊 API Response Format
-
-### Successful Response
-```json
-{
-  "success": true,
-  "data": {
-    "url": "https://example.com",
-    "title": "Page Title",
-    "description": "Meta description",
-    "content": "Main content text...",
-    "links": [...],
-    "images": [...],
-    "headings": [...],
-    "metadata": {...},
-    "wordCount": 1234,
-    "scrapedAt": "2025-01-16T...",
-    "method": "static",
-    "robotsCompliance": {...}
-  },
-  "timestamp": "2025-01-16T..."
-}
+#### Get Session Status
+```http
+GET /api/crawler/session/:sessionId/status
 ```
 
-### Error Response
-```json
-{
-  "success": false,
-  "error": "Error Type",
-  "message": "Detailed error message",
-  "timestamp": "2025-01-16T..."
-}
+#### Export Session Data
+```http
+GET /api/crawler/session/:sessionId/export?format=markdown&includeStructuredData=true
 ```
+
+## 🧠 How It Works
+
+### Strategy Selection
+
+1. **Website Analysis**: Analyzes the target website for characteristics
+2. **Strategy Selection**: Chooses optimal method based on analysis
+3. **Execution**: Performs scraping with selected strategy
+4. **Fallback**: Tries alternative methods if initial attempt fails
+
+### Stealth Mode Features
+
+- **Browser Fingerprinting Protection**: Randomizes browser characteristics
+- **User Agent Rotation**: Uses realistic, rotating user agents
+- **Human Behavior Simulation**: Mimics human interaction patterns
+- **Anti-Detection Measures**: Bypasses common bot detection methods
+- **Session Management**: Maintains cookies and session state
+- **Rate Limiting**: Intelligent request pacing
+
+## 📊 Performance Optimization
+
+### Best Practices
+
+1. **Use Appropriate Methods**: Choose the right scraping method for each website
+2. **Configure Timeouts**: Set appropriate timeouts for your use case
+3. **Respect Rate Limits**: Use appropriate delays between requests
+4. **Check robots.txt**: Always verify scraping permissions
+5. **Handle Authentication**: Configure authentication for protected sites
+
+### Troubleshooting
+
+#### Common Issues
+
+**High Failure Rate**
+- Enable stealth mode
+- Increase timeout values
+- Check for CAPTCHA challenges
+- Verify website accessibility
+
+**CAPTCHA Challenges**
+- Configure CAPTCHA solving service
+- Use manual solving for testing
+- Check API key configuration
+
+**Rate Limiting**
+- Increase delays between requests
+- Use session persistence
+- Monitor rate limit indicators
+
+## 🔒 Security & Ethics
+
+### Responsible Scraping
+
+- **Respect robots.txt**: Check and follow robots.txt guidelines
+- **Rate Limiting**: Don't overwhelm target servers
+- **Terms of Service**: Respect website terms and conditions
+- **Data Privacy**: Handle scraped data responsibly
+- **Legal Compliance**: Ensure compliance with applicable laws
+
+### Security Features
+
+- **Input Validation**: All inputs are validated and sanitized
+- **Rate Limiting**: Built-in protection against abuse
+- **Error Handling**: Comprehensive error handling and logging
+- **Data Encryption**: Sensitive data is encrypted in transit
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-## 📝 License
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- **Next.js** - React framework
-- **Express.js** - Web framework for Node.js
-- **Cheerio** - Server-side jQuery implementation
-- **Tailwind CSS** - Utility-first CSS framework
-- **DeepSeek** - AI model for content summarization
-- **Playwright** - Browser automation (planned)
+- **Documentation**: Check this README and inline code comments
+- **Issues**: Report bugs and request features via GitHub Issues
+- **Discussions**: Join community discussions in GitHub Discussions
 
-## 📞 Support
+## 🚧 Roadmap
 
-For support, email support@scrapperx.com or join our Discord community.
+### Upcoming Features
+
+- [ ] Proxy rotation support
+- [ ] Custom JavaScript injection
+- [ ] Scheduled scraping
+- [ ] Webhook notifications
+- [ ] Advanced data transformation
+- [ ] Multi-language support
+- [ ] Docker containerization
+- [ ] Cloud deployment guides
+
+### Version History
+
+- **v2.0.0** - Advanced scraping with stealth mode and domain crawling
+- **v1.0.0** - Initial release with basic scraping capabilities
 
 ---
 
-**⚠️ Disclaimer**: By using ScrapperX, you agree to scrape websites responsibly and in compliance with their terms of service and applicable laws. The developers are not responsible for misuse of this tool. 
+**Disclaimer**: This tool is for educational and legitimate research purposes. Users are responsible for ensuring compliance with website terms of service and applicable laws. Always obtain proper authorization before scraping websites. 
