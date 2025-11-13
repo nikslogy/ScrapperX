@@ -56,7 +56,7 @@ export default function APIDocumentation() {
   const getCodeLanguage = (endpointId: string) => {
     return activeCodeLanguage[endpointId] || "python"
   }
-
+  // TODO: Change to the actual API URL
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
   return (
