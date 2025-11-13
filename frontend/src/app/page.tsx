@@ -53,14 +53,13 @@ export default function Home() {
               Docs
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/nikslogy/ScrapperX"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             >
               GitHub
-            </a>
-          </div>
+            </a>          </div>
         </div>
       </header>
 
@@ -74,7 +73,7 @@ export default function Home() {
               <span className="inline-flex items-center gap-2">
                 Free and Open-Source
                 <a
-                  href="https://github.com"
+                  href="https://github.com/nikslogy/ScrapperX"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View on GitHub"

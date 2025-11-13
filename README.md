@@ -211,8 +211,8 @@ Scrape responsibly!
 ## 🔗 Links
 
 - **API Documentation**: Visit `/docs` on the hosted service
-- **GitHub**: [View Source Code](https://github.com/yourusername/scrapperx)
-- **Issues**: [Report Bugs](https://github.com/yourusername/scrapperx/issues)
+- **GitHub**: [View Source Code](https://github.com/nikslogy/scrapperx)
+- **Issues**: [Report Bugs](https://github.com/nikslogy/scrapperx/issues)
 
 ---
 

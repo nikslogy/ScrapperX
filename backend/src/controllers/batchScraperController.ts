@@ -7,6 +7,9 @@ import TurndownService from 'turndown';
 import path from 'path';
 import fs from 'fs/promises';
 
+const env = process.env.NODE_ENV || 'development';
+const BATCH_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
 const turndownService = new TurndownService({
   headingStyle: 'atx',
   codeBlockStyle: 'fenced',
@@ -19,12 +22,12 @@ const batchScrapeSchema = Joi.object({
   urls: Joi.array()
     .items(Joi.string().uri())
     .min(1)
-    .max(process.env.NODE_ENV === 'production' ? 10 : 100) // Limit to 10 URLs in production
+    .max(env === 'production' ? 10 : 100) // Limit to 10 URLs in production
     .required()
     .messages({
       'array.min': 'At least 1 URL is required',
-      'array.max': process.env.NODE_ENV === 'production' 
-        ? 'Maximum 10 URLs allowed per batch request' 
+      'array.max': env === 'production'
+        ? 'Maximum 10 URLs allowed per batch request'
         : 'Maximum 100 URLs allowed per batch request',
       'any.required': 'URLs array is required'
     }),
@@ -71,6 +74,18 @@ export const batchScrapeController = async (
     const { urls, options = {} } = value;
 
     console.log(`🚀 Starting batch scraping for ${urls.length} URLs`);
+
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Batch operation timed out'));
+      }, BATCH_TIMEOUT);
+    });
+
+    // Race the main processing against the timeout
+    await Promise.race([
+      // Main processing logic
+      (async () => {
 
     // Process all URLs concurrently with Promise.allSettled
     const results = await Promise.allSettled(
@@ -229,6 +244,10 @@ export const batchScrapeController = async (
     }
 
     console.log(`✅ Batch scraping completed: ${successfulResults.length}/${urls.length} successful`);
+
+      })(), // Close the main processing async function
+      timeoutPromise
+    ]); // Close Promise.race
 
   } catch (error: any) {
     console.error('❌ Batch scraping failed:', error);
