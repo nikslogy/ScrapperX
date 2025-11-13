@@ -20,10 +20,11 @@ export class CrawlerController {
   startDomainCrawl = async (req: Request, res: Response): Promise<void> => {
     try {
       // Validate request
+      const isProduction = process.env.NODE_ENV === 'production';
       const schema = Joi.object({
         url: Joi.string().uri().required(),
         config: Joi.object({
-          maxPages: Joi.number().integer().min(1).max(10000).default(100),
+          maxPages: Joi.number().integer().min(1).max(isProduction ? 200 : 10000).default(100),
           maxDepth: Joi.number().integer().min(1).max(10).default(5),
           respectRobots: Joi.boolean().default(true),
           delay: Joi.number().integer().min(0).max(10000).default(1000),

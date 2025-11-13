@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { CrawlerController } from '../controllers/crawlerController';
+import { crawlerRateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const crawlerController = new CrawlerController();
 
 // Domain crawling routes
-router.post('/start-domain-crawl', crawlerController.startDomainCrawl);
+router.post('/start-domain-crawl', crawlerRateLimiter, crawlerController.startDomainCrawl);
 router.get('/sessions', crawlerController.getAllSessions);
 router.get('/session/:sessionId/status', crawlerController.getCrawlStatus);
 router.get('/session/:sessionId/progress', crawlerController.getCrawlProgress);

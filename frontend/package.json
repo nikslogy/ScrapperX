@@ -1,6 +1,9 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "scrapperx-frontend",
+  "version": "1.0.0",
+  "description": "ScrapperX Frontend - Web interface for the ScrapperX API",
+  "author": "ScrapperX Team",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
