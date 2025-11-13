@@ -73,7 +73,7 @@ export default function APIDocumentation() {
               <span className="text-gray-600 text-sm hidden sm:block">API Docs</span>
             </div>
             <a
-              href="https://github.com"
+              href="https://github.com/nikslogy/ScrapperX"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
