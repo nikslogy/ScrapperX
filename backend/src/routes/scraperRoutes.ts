@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { scrapeRateLimiter } from '../middleware/rateLimiter';
+import { scrapeRateLimiter, batchScrapeRateLimiter } from '../middleware/rateLimiter';
 import { 
   checkRobotsController, 
   scrapeStaticController,
@@ -10,6 +10,7 @@ import {
   exportAdaptiveProfilesController,
   importAdaptiveProfilesController
 } from '../controllers/scraperController';
+import { batchScrapeController } from '../controllers/batchScraperController';
 
 const router = Router();
 
@@ -18,6 +19,9 @@ router.post('/check-robots', checkRobotsController);
 
 // Intelligent scraping endpoint (new default)
 router.post('/scrape', scrapeRateLimiter, scrapeIntelligentController);
+
+// Batch scraping endpoint (scrape multiple URLs at once)
+router.post('/batch-scrape', batchScrapeRateLimiter, batchScrapeController);
 
 // Static scraping endpoint (legacy/fallback)
 router.post('/scrape-static', scrapeRateLimiter, scrapeStaticController);

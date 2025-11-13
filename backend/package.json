@@ -1,8 +1,25 @@
 {
   "name": "scrapperx-backend",
   "version": "1.0.0",
-  "description": "Backend API for ScrapperX - Advanced Website Scraper",
+  "description": "ScrapperX - Free, open-source web scraping API with intelligent extraction and markdown output",
   "main": "dist/index.js",
+  "author": "ScrapperX Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/scrapperx"
+  },
+  "keywords": [
+    "web-scraping",
+    "scraper",
+    "crawler",
+    "markdown",
+    "api",
+    "open-source",
+    "stealth-scraping",
+    "playwright",
+    "content-extraction"
+  ],
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc",

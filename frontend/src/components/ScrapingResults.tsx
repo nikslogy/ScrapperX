@@ -125,13 +125,15 @@ export default function ScrapingResults({ data }: ScrapingResultsProps) {
     URL.revokeObjectURL(url);
   };
 
+  // Responsive tab navigation: show horizontal scroll and/or dropdown for small screens
+  // Also fix "Metadata" tab not showing by using horizontal scroll/overflow on small screens & fixed tab width
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Scraping Complete</h3>
-          <p className="text-sm text-slate-600">{data.url}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -148,15 +150,25 @@ export default function ScrapingResults({ data }: ScrapingResultsProps) {
           </button>
         </div>
       </div>
+      <div className="mb-6">
+        <p className="text-sm text-slate-600 break-all max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl">
+          {data.url}
+        </p>
+      </div>
 
-      {/* Tab Navigation */}
+      {/* Tab Navigation - responsive */}
       <div className="border-b border-slate-200 mb-6">
-        <nav className="flex space-x-6" aria-label="Tabs">
+        {/* Small screens: horizontal scroll flex */}
+        <nav
+          className="flex space-x-4 sm:space-x-6 overflow-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
+          aria-label="Tabs"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`shrink-0 py-2 px-2 min-w-[110px] border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-slate-900 text-slate-900'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
