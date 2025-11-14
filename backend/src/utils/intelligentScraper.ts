@@ -591,10 +591,8 @@ export class IntelligentScraper {
   async forceCleanup(): Promise<void> {
     try {
       console.log('🧹 Force cleanup initiated');
-      await Promise.all([
-        this.dynamicScraper.forceCleanup().catch(err => console.error('Dynamic scraper cleanup failed:', err)),
-        this.staticScraper.close ? this.staticScraper.close().catch(err => console.error('Static scraper cleanup failed:', err)) : Promise.resolve()
-      ]);
+      // Only cleanup dynamic scraper (static scraper doesn't need cleanup)
+      await this.dynamicScraper.forceCleanup().catch((err: any) => console.error('Dynamic scraper cleanup failed:', err));
       console.log('✅ Force cleanup completed');
     } catch (error) {
       console.error('❌ Force cleanup failed:', error);
