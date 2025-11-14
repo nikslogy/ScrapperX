@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { exportSession, startDomainCrawl } from '@/lib/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '' : 'http://localhost:5000');
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 interface CrawlConfig {
   maxPages: number;
@@ -56,8 +56,9 @@ interface CrawlSession {
   status: 'pending' | 'running' | 'paused' | 'completed' | 'failed';
   config: CrawlConfig;
   stats: {
-    pagesProcessed: number;
-    totalPages: number;
+    processedUrls: number;
+    totalUrls: number;
+    failedUrls: number;
     extractedItems: number;
     startTime: string;
     endTime?: string;
@@ -151,6 +152,11 @@ export default function DomainCrawler() {
           const statusData = await statusResponse.json();
           if (statusData.success) {
             const updatedSession = statusData.data.session;
+            console.log('Session update:', {
+              status: updatedSession.status,
+              stats: updatedSession.stats
+            }); // Debug log
+            
             setSession(prevSession => ({
               ...prevSession!,
               status: updatedSession.status,
@@ -159,6 +165,7 @@ export default function DomainCrawler() {
 
             // Update crawling state
             if (updatedSession.status === 'completed' || updatedSession.status === 'failed') {
+              console.log(`Crawl ${updatedSession.status}. Processed: ${updatedSession.stats.processedUrls}`); // Debug log
               setIsCrawling(false);
               if (updatedSession.status === 'failed') {
                 setError('Crawl failed. Please check the session details for errors.');
@@ -203,6 +210,7 @@ export default function DomainCrawler() {
   // Auto-load results when session completes
   useEffect(() => {
     if (session?.status === 'completed' && detailedResults.length === 0 && !loadingResults) {
+      console.log('Auto-loading results for completed session:', session.sessionId); // Debug log
       loadDetailedResults();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -237,6 +245,10 @@ export default function DomainCrawler() {
       const response = await startDomainCrawl(url, config);
       
       if (!response.success) {
+        // Check if it's a MongoDB error
+        if (response.message && response.message.includes('MongoDB')) {
+          throw new Error('Database not configured. The domain crawler requires MongoDB to be set up on the server. Please contact the administrator or use the Quick Scrape feature instead.');
+        }
         throw new Error(response.message || 'Failed to start crawl');
       }
 
@@ -247,8 +259,9 @@ export default function DomainCrawler() {
         status: 'pending',
         config,
         stats: {
-          pagesProcessed: 0,
-          totalPages: 0,
+          processedUrls: 0,
+          totalUrls: 0,
+          failedUrls: 0,
           extractedItems: 0,
           startTime: new Date().toISOString()
         }
@@ -256,7 +269,16 @@ export default function DomainCrawler() {
       
       setSession(newSession);
     } catch (err: any) {
-      setError(err.message || 'Failed to start crawl. Please try again.');
+      let errorMessage = err.message || 'Failed to start crawl. Please try again.';
+      
+      // Handle specific error cases
+      if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable')) {
+        errorMessage = 'Domain crawler service is currently unavailable. MongoDB database is not configured. Please try the Quick Scrape feature instead.';
+      } else if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
+        errorMessage = 'Server error occurred. The database might not be properly configured. Please contact the administrator.';
+      }
+      
+      setError(errorMessage);
       setIsCrawling(false);
     } finally {
       setLoading(false);
@@ -293,18 +315,23 @@ export default function DomainCrawler() {
       const response = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/content?limit=1000`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch content');
+        const errorText = await response.text();
+        console.error('Failed to fetch content:', response.status, errorText);
+        throw new Error(`Failed to fetch content: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log('Received crawl results:', data); // Debug log
       
-      if (data.success && data.data.content) {
+      if (data.success && data.data && data.data.content) {
+        console.log(`Found ${data.data.content.length} pages in results`); // Debug log
+        
         // Transform the data to match PageResult interface
         const transformedResults: PageResult[] = data.data.content.map((item: any) => ({
           url: item.url,
           title: item.metadata?.title || '',
           description: item.metadata?.description || '',
-          content: item.textContent || '',
+          content: item.textContent || item.markdownContent || '',
           processingStatus: item.processingStatus || 'raw',
           metadata: {
             title: item.metadata?.title || '',
@@ -317,8 +344,14 @@ export default function DomainCrawler() {
           createdAt: item.createdAt || new Date().toISOString()
         }));
         
+        console.log(`Transformed ${transformedResults.length} results`); // Debug log
         setDetailedResults(transformedResults);
+        
+        if (transformedResults.length === 0) {
+          setError('No content was extracted. The crawler may have encountered errors or the pages may be blocking scraping.');
+        }
       } else {
+        console.error('Unexpected response structure:', data);
         throw new Error('No content data received');
       }
     } catch (err) {
@@ -794,8 +827,8 @@ export default function DomainCrawler() {
             <div>
               <div className="text-xs text-slate-600 mb-1">Pages</div>
               <div className="text-xl font-bold text-slate-900">
-                {progress?.processedUrls || session.stats.pagesProcessed}
-                <span className="text-sm text-slate-500 ml-1">/ {progress?.totalUrls || session.stats.totalPages || '?'}</span>
+                {progress?.processedUrls || session.stats.processedUrls || 0}
+                <span className="text-sm text-slate-500 ml-1">/ {progress?.totalUrls || session.stats.totalUrls || '?'}</span>
               </div>
             </div>
             <div>

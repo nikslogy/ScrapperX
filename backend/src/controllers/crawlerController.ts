@@ -4,6 +4,7 @@ import { DomainCrawlerService } from '../services/domainCrawler';
 import { RawContent } from '../models/crawlerModels';
 import { ExportService } from '../services/exportService';
 import { ExportOptions } from '../services/exporters/baseExporter';
+import { isMongoDBConnected } from '../config/database';
 
 export class CrawlerController {
   private crawlerService: DomainCrawlerService;
@@ -19,6 +20,16 @@ export class CrawlerController {
    */
   startDomainCrawl = async (req: Request, res: Response): Promise<void> => {
     try {
+      // Check if MongoDB is connected
+      if (!isMongoDBConnected()) {
+        res.status(503).json({
+          success: false,
+          message: 'Domain crawler requires MongoDB. Please configure MONGODB_URI in your environment variables.',
+          error: 'MongoDB connection not available'
+        });
+        return;
+      }
+
       // Validate request
       const isProduction = process.env.NODE_ENV === 'production';
       const schema = Joi.object({

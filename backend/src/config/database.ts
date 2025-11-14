@@ -1,13 +1,20 @@
 import mongoose from 'mongoose';
 
+// Check if MongoDB is connected
+export const isMongoDBConnected = (): boolean => {
+  return mongoose.connection.readyState === 1;
+};
+
 export const connectDB = async (): Promise<void> => {
   try {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/scrapperx';
     
     const conn = await mongoose.connect(mongoURI, {
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000, // Increased from 5000ms to 30000ms
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000, // Added connection timeout
+      bufferCommands: false, // Disable buffering to fail fast
     });
 
     console.log(`📦 MongoDB Connected: ${conn.connection.host}`);
@@ -30,6 +37,7 @@ export const connectDB = async (): Promise<void> => {
 
   } catch (error) {
     console.error('❌ Database connection failed:', error);
-    process.exit(1);
+    // Don't exit - allow app to run without MongoDB
+    console.log('⚠️ Running without MongoDB - crawler features will be limited');
   }
 }; 
