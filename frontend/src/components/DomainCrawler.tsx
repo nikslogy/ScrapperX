@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { exportSession, startDomainCrawl } from '@/lib/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '' : 'http://localhost:5000');
 
 interface CrawlConfig {
   maxPages: number;

@@ -28,8 +28,8 @@ export class DynamicScraper {
   private browser: Browser | null = null;
   private defaultOptions: DynamicScrapeOptions = {
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    timeout: 30000,
-    waitForNetworkIdle: true,
+    timeout: 15000, // Reduced from 30000 to prevent hangs
+    waitForNetworkIdle: false, // Disabled to prevent infinite waiting
     blockImages: true,
     blockCSS: false,
     viewport: { width: 1920, height: 1080 },
@@ -111,9 +111,9 @@ export class DynamicScraper {
     });
 
     try {
-      // Navigate to the page
+      // Navigate to the page with safer settings
       const response = await page.goto(url, {
-        waitUntil: config.waitForNetworkIdle ? 'networkidle' : 'domcontentloaded',
+        waitUntil: 'domcontentloaded', // Always use domcontentloaded, never networkidle
         timeout: config.timeout
       });
 
@@ -121,13 +121,13 @@ export class DynamicScraper {
         throw new Error(`HTTP ${response?.status()}: Failed to load page`);
       }
 
-      // Wait for specific selector if provided
+      // Wait for specific selector if provided (reduced timeout)
       if (config.waitForSelector) {
-        await page.waitForSelector(config.waitForSelector, { timeout: 10000 });
+        await page.waitForSelector(config.waitForSelector, { timeout: 5000 });
       }
 
-      // Wait for dynamic content to load
-      await page.waitForTimeout(2000);
+      // Brief wait for dynamic content (reduced from 2000ms to 500ms)
+      await page.waitForTimeout(500);
 
       // Execute JavaScript to enhance content extraction
       await page.evaluate(() => {
@@ -325,6 +325,25 @@ export class DynamicScraper {
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
+    }
+  }
+
+  // Force cleanup method for emergency situations
+  async forceCleanup(): Promise<void> {
+    try {
+      if (this.browser) {
+        const contexts = this.browser.contexts();
+        for (const context of contexts) {
+          const pages = context.pages();
+          await Promise.all(pages.map(page => page.close().catch(() => {})));
+          await context.close().catch(() => {});
+        }
+        await this.browser.close().catch(() => {});
+        this.browser = null;
+      }
+    } catch (error) {
+      console.error('Force cleanup failed:', error);
+      this.browser = null; // Force null even if cleanup fails
     }
   }
 

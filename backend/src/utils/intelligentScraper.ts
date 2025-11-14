@@ -68,7 +68,7 @@ export class IntelligentScraper {
     const startTime = Date.now();
     const defaultOptions: Required<IntelligentScrapeOptions> = {
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      timeout: 30000,
+      timeout: 15000, // Reduced to prevent hangs on low-resource VPS
       maxRetries: 2,
       forceMethod: undefined as any,
       enableApiScraping: true,
@@ -84,6 +84,30 @@ export class IntelligentScraper {
     };
 
     const config = { ...defaultOptions, ...options };
+
+    // Add overall timeout protection (45 seconds max)
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        console.error('Scraping operation timed out after 45 seconds');
+        reject(new Error('Scraping operation timed out - taking too long'));
+      }, 45000);
+    });
+
+    try {
+      const result = await Promise.race([
+        this.performScraping(url, config, startTime),
+        timeoutPromise
+      ]);
+      return result;
+    } catch (timeoutError) {
+      console.error('Scraping timeout error:', timeoutError);
+      // Force cleanup on timeout
+      await this.forceCleanup();
+      throw timeoutError;
+    }
+  }
+
+  private async performScraping(url: string, config: Required<IntelligentScrapeOptions>, startTime: number): Promise<IntelligentScrapedData> {
     const methodsAttempted: string[] = [];
     let finalResult: IntelligentScrapedData;
 
@@ -561,6 +585,20 @@ export class IntelligentScraper {
 
   importAdaptiveProfiles(data: string) {
     this.adaptiveScraper.importProfiles(data);
+  }
+
+  // Force cleanup method for emergency situations
+  async forceCleanup(): Promise<void> {
+    try {
+      console.log('🧹 Force cleanup initiated');
+      await Promise.all([
+        this.dynamicScraper.forceCleanup().catch(err => console.error('Dynamic scraper cleanup failed:', err)),
+        this.staticScraper.close ? this.staticScraper.close().catch(err => console.error('Static scraper cleanup failed:', err)) : Promise.resolve()
+      ]);
+      console.log('✅ Force cleanup completed');
+    } catch (error) {
+      console.error('❌ Force cleanup failed:', error);
+    }
   }
 }
 
