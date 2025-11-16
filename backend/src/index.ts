@@ -106,6 +106,35 @@ app.use('*', (req, res) => {
   });
 });
 
+// Automatic cleanup function for old export files
+async function cleanupOldExports() {
+  try {
+    const exportsDir = path.join(process.cwd(), 'exports');
+    const files = await fs.readdir(exportsDir);
+    const now = Date.now();
+    const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    
+    let deletedCount = 0;
+    for (const file of files) {
+      const filePath = path.join(exportsDir, file);
+      const stats = await fs.stat(filePath);
+      
+      // Delete files older than 7 days
+      if (now - stats.mtimeMs > maxAge) {
+        await fs.unlink(filePath);
+        deletedCount++;
+        console.log(`🗑️ Deleted old export: ${file}`);
+      }
+    }
+    
+    if (deletedCount > 0) {
+      console.log(`✅ Cleanup completed: ${deletedCount} old files deleted`);
+    }
+  } catch (error) {
+    console.error('❌ Cleanup error:', error);
+  }
+}
+
 // Start server
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 ScrapperX Backend Server running on port ${PORT}`);
@@ -115,6 +144,13 @@ app.listen(PORT, '0.0.0.0', async () => {
   
   // Initialize exports directory
   await initializeExportsDirectory();
+  
+  // Run initial cleanup
+  await cleanupOldExports();
+  
+  // Schedule cleanup every 24 hours
+  setInterval(cleanupOldExports, 24 * 60 * 60 * 1000);
+  console.log('🧹 Automatic cleanup scheduled (every 24 hours)');
 });
 
 export default app; 
