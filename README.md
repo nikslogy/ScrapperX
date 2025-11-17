@@ -36,10 +36,12 @@ ScrapperX is a **free, open-source web scraping API** that makes it easy to extr
 
 ## 🔥 Try It Now
 
+**🌐 [Try ScrapperX Live](https://scrapperx.run.place)** • **[📖 API Documentation](https://scrapperx.run.place/docs)**
+
 ### Quick Scrape
 
 ```bash
-curl -X POST https://your-api-url.com/api/scraper/scrape \
+curl -X POST https://scrapperx.run.place/api/scraper/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}'
 ```
@@ -47,7 +49,7 @@ curl -X POST https://your-api-url.com/api/scraper/scrape \
 ### Batch Scrape (Multiple URLs)
 
 ```bash
-curl -X POST https://your-api-url.com/api/scraper/batch-scrape \
+curl -X POST https://scrapperx.run.place/api/scraper/batch-scrape \
   -H "Content-Type: application/json" \
   -d '{
     "urls": [
@@ -62,7 +64,7 @@ Returns a download link to a markdown file with all scraped content!
 ### Website Crawler
 
 ```bash
-curl -X POST https://your-api-url.com/api/crawler/start-domain-crawl \
+curl -X POST https://scrapperx.run.place/api/crawler/start-domain-crawl \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com",
@@ -77,7 +79,7 @@ curl -X POST https://your-api-url.com/api/crawler/start-domain-crawl \
 
 ## 📖 API Documentation
 
-Visit `/docs` on the hosted API or your local instance for complete interactive documentation with examples.
+Visit **[scrapperx.run.place/docs](https://scrapperx.run.place/docs)** for complete interactive documentation with examples.
 
 ### Available Endpoints
 
@@ -101,41 +103,21 @@ Visit `/docs` on the hosted API or your local instance for complete interactive 
 
 ---
 
-## 🏠 Self-Hosting
+## 🏠 Self-Hosting (Optional)
 
-Want unlimited requests? Deploy your own instance!
-
-### Quick Start
+For unlimited requests without rate limits, you can deploy your own instance:
 
 ```bash
-# Clone repository
+# Clone and setup
 git clone https://github.com/nikslogy/scrapperx
-cd scrapperx
-
-# Backend setup
-cd backend
+cd scrapperx/backend
 npm install
 npx playwright install
 cp env.example .env
-
-# Start server
 npm run dev
 ```
 
-Backend runs on `http://localhost:5000`
-
-### Production Deployment
-
-For production deployment on your own server:
-
-1. Set `NODE_ENV=production` in your `.env`
-2. Build: `npm run build`
-3. Start: `npm start`
-4. Use a process manager like PM2
-5. Setup reverse proxy (Nginx)
-6. Configure SSL with Let's Encrypt
-
-**When self-hosted, there are NO rate limits!**
+**View full setup instructions on [GitHub](https://github.com/nikslogy/scrapperx).**
 
 ---
 
@@ -156,17 +138,19 @@ PORT=5000
 
 ---
 
-## 🌟 Rate Limits (Hosted Service Only)
+## 🌟 Rate Limits
 
 Our hosted service has fair rate limits to keep it free for everyone:
 
-| Feature | Hosted Service | Self-Hosted |
-|---------|---------------|-------------|
-| Quick Scrape | 20 requests/min | ∞ Unlimited |
-| Batch Scrape | 5 requests/5min | ∞ Unlimited |
-| Crawler | 3 requests/5min | ∞ Unlimited |
-| URLs per batch | 10 max | 100 max |
-| Pages per crawl | 200 max | 10,000 max |
+| Feature | Rate Limit | Description |
+|---------|------------|-------------|
+| Quick Scrape | 20 requests/min | Single URL scraping |
+| Batch Scrape | 5 requests/5min | Up to 10 URLs at once |
+| Site Crawler | 3 requests/5min | Up to 200 pages per crawl |
+| URLs per batch | 10 max | Maximum URLs in one request |
+| Pages per crawl | 200 max | Maximum pages per crawl |
+
+**💡 Self-host for unlimited requests!**
 
 ---
 
@@ -210,9 +194,10 @@ Scrape responsibly!
 
 ## 🔗 Links
 
-- **API Documentation**: Visit `/docs` on the hosted service
-- **GitHub**: [View Source Code](https://github.com/nikslogy/scrapperx)
-- **Issues**: [Report Bugs](https://github.com/nikslogy/scrapperx/issues)
+- **🌐 Live API**: [scrapperx.run.place](https://scrapperx.run.place)
+- **📖 API Documentation**: [scrapperx.run.place/docs](https://scrapperx.run.place/docs)
+- **🐙 GitHub**: [View Source Code](https://github.com/nikslogy/scrapperx)
+- **🐛 Issues**: [Report Bugs](https://github.com/nikslogy/scrapperx/issues)
 
 ---
 
@@ -220,6 +205,6 @@ Scrape responsibly!
 
 **Made with ❤️ for the web scraping community**
 
-[⭐ Star on GitHub](https://github.com/nikslogy/scrapperx) • [🚀 Try the API](/) • [📖 Read Docs](/docs)
+[⭐ Star on GitHub](https://github.com/nikslogy/scrapperx) • [🚀 Try ScrapperX](https://scrapperx.run.place) • [📖 API Docs](https://scrapperx.run.place/docs)
 
 </div>
