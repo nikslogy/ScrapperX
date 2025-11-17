@@ -133,6 +133,18 @@ export const getCrawlSessions = async (): Promise<ApiResponse<{ sessions: any[] 
   }
 };
 
+export const getCrawlStatus = async (sessionId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/status`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get crawl status.');
+  }
+};
+
 export const getCrawlProgress = async (sessionId: string): Promise<ApiResponse<any>> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/progress`);
@@ -142,6 +154,18 @@ export const getCrawlProgress = async (sessionId: string): Promise<ApiResponse<a
       throw error;
     }
     throw new ApiError('Failed to get crawl progress.');
+  }
+};
+
+export const getCrawlContent = async (sessionId: string, limit: number = 1000): Promise<ApiResponse<any>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/crawler/session/${sessionId}/content?limit=${limit}`);
+    return await handleApiResponse(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError('Failed to get crawl content.');
   }
 };
 

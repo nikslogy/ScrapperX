@@ -13,9 +13,14 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import { exportSession, startDomainCrawl } from '@/lib/api';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import {
+  exportSession,
+  startDomainCrawl,
+  getCrawlStatus,
+  getCrawlProgress,
+  getCrawlContent,
+  stopCrawl
+} from '@/lib/api';
 
 interface CrawlConfig {
   maxPages: number;
@@ -140,50 +145,37 @@ export default function DomainCrawler() {
 
       try {
         // Get current session status
-        const statusResponse = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/status`);
-        
-        if (statusResponse.status === 429) {
-          // Rate limited, just skip this poll
-          console.warn('Rate limited, skipping poll');
-          return;
-        }
-        
-        if (statusResponse.ok) {
-          const statusData = await statusResponse.json();
-          if (statusData.success) {
-            const updatedSession = statusData.data.session;
-            console.log('Session update:', {
-              status: updatedSession.status,
-              stats: updatedSession.stats
-            }); // Debug log
-            
-            setSession(prevSession => ({
-              ...prevSession!,
-              status: updatedSession.status,
-              stats: updatedSession.stats
-            }));
+        const statusResponse = await getCrawlStatus(session.sessionId);
 
-            // Update crawling state
-            if (updatedSession.status === 'completed' || updatedSession.status === 'failed') {
-              console.log(`Crawl ${updatedSession.status}. Processed: ${updatedSession.stats.processedUrls}`); // Debug log
-              setIsCrawling(false);
-              if (updatedSession.status === 'failed') {
-                setError('Crawl failed. Please check the session details for errors.');
-              }
-            }
+        if (statusResponse.success) {
+          const statusData = statusResponse.data;
+          const updatedSession = statusData.session;
 
-            // Get progress data
-            const progressResponse = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/progress`);
-            if (progressResponse.ok) {
-              const progressData = await progressResponse.json();
-              if (progressData.success) {
-                setProgress(progressData.data);
-              }
+          console.log('Session update:', {
+            status: updatedSession.status,
+            stats: updatedSession.stats
+          }); // Debug log
+
+          setSession(prevSession => ({
+            ...prevSession!,
+            status: updatedSession.status,
+            stats: updatedSession.stats
+          }));
+
+          // Update crawling state
+          if (updatedSession.status === 'completed' || updatedSession.status === 'failed') {
+            console.log(`Crawl ${updatedSession.status}. Processed: ${updatedSession.stats.processedUrls}`); // Debug log
+            setIsCrawling(false);
+            if (updatedSession.status === 'failed') {
+              setError('Crawl failed. Please check the session details for errors.');
             }
           }
-        } else {
-          const errorData = await statusResponse.json().catch(() => ({ message: 'Failed to fetch status' }));
-          console.error('Status check failed:', errorData);
+
+          // Get progress data
+          const progressResponse = await getCrawlProgress(session.sessionId);
+          if (progressResponse.success) {
+            setProgress(progressResponse.data);
+          }
         }
       } catch (error) {
         console.warn('Failed to poll progress:', error);
@@ -285,20 +277,18 @@ export default function DomainCrawler() {
     }
   };
 
-  const stopCrawl = async () => {
+  const handleStopCrawl = async () => {
     if (!session) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/stop`, {
-        method: 'POST'
-      });
+      const response = await stopCrawl(session.sessionId);
 
-      if (response.ok) {
+      if (response.success) {
         setSession(prev => prev ? { ...prev, status: 'failed' } : null);
         setIsCrawling(false);
         setError('Crawl stopped by user');
       } else {
-        throw new Error('Failed to stop crawl');
+        throw new Error(response.message || 'Failed to stop crawl');
       }
     } catch (err) {
       console.error('Failed to stop crawl:', err);
@@ -311,23 +301,21 @@ export default function DomainCrawler() {
     
     setLoadingResults(true);
     try {
-      // Use the direct content API endpoint instead of export
-      const response = await fetch(`${API_BASE_URL}/api/crawler/session/${session.sessionId}/content?limit=1000`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to fetch content:', response.status, errorText);
-        throw new Error(`Failed to fetch content: ${response.status}`);
+      // Use the content API endpoint
+      const response = await getCrawlContent(session.sessionId, 1000);
+
+      if (!response.success) {
+        console.error('Failed to fetch content:', response);
+        throw new Error(response.message || 'Failed to fetch content');
       }
-      
-      const data = await response.json();
-      console.log('Received crawl results:', data); // Debug log
-      
-      if (data.success && data.data && data.data.content) {
-        console.log(`Found ${data.data.content.length} pages in results`); // Debug log
-        
+
+      console.log('Received crawl results:', response); // Debug log
+
+      if (response.success && response.data && response.data.content) {
+        console.log(`Found ${response.data.content.length} pages in results`); // Debug log
+
         // Transform the data to match PageResult interface
-        const transformedResults: PageResult[] = data.data.content.map((item: any) => ({
+        const transformedResults: PageResult[] = response.data.content.map((item: any) => ({
           url: item.url,
           title: item.metadata?.title || '',
           description: item.metadata?.description || '',
@@ -351,7 +339,7 @@ export default function DomainCrawler() {
           setError('No content was extracted. The crawler may have encountered errors or the pages may be blocking scraping.');
         }
       } else {
-        console.error('Unexpected response structure:', data);
+        console.error('Unexpected response structure:', response);
         throw new Error('No content data received');
       }
     } catch (err) {
@@ -517,7 +505,7 @@ export default function DomainCrawler() {
               </button>
             ) : (
               <button
-                onClick={stopCrawl}
+                onClick={handleStopCrawl}
                 className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1106,7 +1094,7 @@ function ExportButton({ sessionId, format }: { sessionId: string; format: string
       });
       
       if (response.success && response.data.downloadUrl) {
-        const downloadUrl = `${API_BASE_URL}${response.data.downloadUrl}`;
+        const downloadUrl = response.data.downloadUrl;
         
         // Try direct download
         const link = document.createElement('a');
