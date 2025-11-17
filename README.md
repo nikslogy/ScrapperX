@@ -8,7 +8,7 @@
 
 **Free web scraping API with intelligent extraction and markdown output**
 
-[Try API](#-try-it-now) • [API Docs](#-api-documentation) • [Features](#-features) • [Self-Host](#-self-hosting)
+🌐 **[Try ScrapperX Live](https://scrapperx.run.place)** • 📖 **[API Documentation](https://scrapperx.run.place/docs)** • ✨ **[Features](#-features)** • 🏠 **[Self-Host](#-self-hosting-optional)**
 
 </div>
 
@@ -18,10 +18,10 @@
 
 ScrapperX is a **free, open-source web scraping API** that makes it easy to extract content from any website and get clean markdown output.
 
-**Two ways to use it:**
+**Use our hosted service or deploy your own:**
 
-1. **Use our hosted API** (with fair rate limits - free forever)
-2. **Deploy your own instance** (unlimited requests)
+1. **🌐 Hosted API** - Ready to use with fair rate limits (free forever)
+2. **🏠 Self-Hosted** - Deploy your own instance for unlimited requests
 
 ## ✨ Features
 
