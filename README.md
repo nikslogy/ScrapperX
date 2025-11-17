@@ -8,7 +8,7 @@
 
 **Free web scraping API with intelligent extraction and markdown output**
 
-🌐 **[Try ScrapperX Live](https://scrapperx.run.place)** • 📖 **[API Documentation](https://scrapperx.run.place/docs)** • ✨ **[Features](#-features)** • 🏠 **[Self-Host](#-self-hosting-optional)**
+**[Try ScrapperX Live](https://scrapperx.run.place)** • **[API Documentation](https://scrapperx.run.place/docs)** • **[Features](#-features)** • **[Self-Host](#-self-hosting-optional)**
 
 </div>
 
@@ -20,23 +20,23 @@ ScrapperX is a **free, open-source web scraping API** that makes it easy to extr
 
 **Use our hosted service or deploy your own:**
 
-1. **🌐 Hosted API** - Ready to use with fair rate limits (free forever)
-2. **🏠 Self-Hosted** - Deploy your own instance for unlimited requests
+1. **Hosted API** - Ready to use with fair rate limits (free forever)
+2. **Self-Hosted** - Deploy your own instance for unlimited requests
 
 ## ✨ Features
 
-- **🎯 Quick Scrape** - Single URL → Clean markdown (20 req/min)
-- **📦 Batch Scrape** - Up to 10 URLs at once → Combined MD file (5 req/5min)  
-- **🌐 Site Crawler** - Crawl entire domains up to 200 pages (3 req/5min)
-- **🤖 Intelligent** - Auto-detects best scraping method
-- **🔓 No Auth** - No API keys, no sign-up, just start using
-- **📄 Markdown Output** - Perfect for docs and content pipelines
+- **Quick Scrape** - Single URL → Clean markdown (20 req/min)
+- **Batch Scrape** - Up to 10 URLs at once → Combined MD file (5 req/5min)
+- **Site Crawler** - Crawl entire domains up to 200 pages (3 req/5min)
+- **Intelligent** - Auto-detects best scraping method
+- **No Auth** - No API keys, no sign-up, just start using
+- **Markdown Output** - Perfect for docs and content pipelines
 
 ---
 
 ## 🔥 Try It Now
 
-**🌐 [Try ScrapperX Live](https://scrapperx.run.place)** • **[📖 API Documentation](https://scrapperx.run.place/docs)**
+**[Try ScrapperX Live](https://scrapperx.run.place)** • **[API Documentation](https://scrapperx.run.place/docs)**
 
 ### Quick Scrape
 
@@ -95,11 +95,11 @@ Visit **[scrapperx.run.place/docs](https://scrapperx.run.place/docs)** for compl
 
 ## 🎯 Use Cases
 
-- **📚 Documentation Scraping** - Extract docs to markdown for offline use
-- **📰 Content Aggregation** - Scrape multiple articles/posts at once
-- **🔍 Research** - Gather data from multiple sources quickly
-- **💾 Website Archiving** - Create markdown archives of websites
-- **🤖 Data Collection** - Extract structured data for analysis
+- **Documentation Scraping** - Extract docs to markdown for offline use
+- **Content Aggregation** - Scrape multiple articles/posts at once
+- **Research** - Gather data from multiple sources quickly
+- **Website Archiving** - Create markdown archives of websites
+- **Data Collection** - Extract structured data for analysis
 
 ---
 
@@ -116,9 +116,6 @@ npx playwright install
 cp env.example .env
 npm run dev
 ```
-
-**View full setup instructions on [GitHub](https://github.com/nikslogy/scrapperx).**
-
 ---
 
 ## 🔧 Configuration
@@ -150,7 +147,7 @@ Our hosted service has fair rate limits to keep it free for everyone:
 | URLs per batch | 10 max | Maximum URLs in one request |
 | Pages per crawl | 200 max | Maximum pages per crawl |
 
-**💡 Self-host for unlimited requests!**
+**Self-host for unlimited requests!**
 
 ---
 
@@ -194,10 +191,10 @@ Scrape responsibly!
 
 ## 🔗 Links
 
-- **🌐 Live API**: [scrapperx.run.place](https://scrapperx.run.place)
-- **📖 API Documentation**: [scrapperx.run.place/docs](https://scrapperx.run.place/docs)
-- **🐙 GitHub**: [View Source Code](https://github.com/nikslogy/scrapperx)
-- **🐛 Issues**: [Report Bugs](https://github.com/nikslogy/scrapperx/issues)
+- **Live API**: [scrapperx.run.place](https://scrapperx.run.place)
+- **API Documentation**: [scrapperx.run.place/docs](https://scrapperx.run.place/docs)
+- **GitHub**: [View Source Code](https://github.com/nikslogy/scrapperx)
+- **Issues**: [Report Bugs](https://github.com/nikslogy/scrapperx/issues)
 
 ---
 
@@ -205,6 +202,6 @@ Scrape responsibly!
 
 **Made with ❤️ for the web scraping community**
 
-[⭐ Star on GitHub](https://github.com/nikslogy/scrapperx) • [🚀 Try ScrapperX](https://scrapperx.run.place) • [📖 API Docs](https://scrapperx.run.place/docs)
+[⭐ Star on GitHub](https://github.com/nikslogy/scrapperx) • [Try ScrapperX](https://scrapperx.run.place) • [API Docs](https://scrapperx.run.place/docs)
 
 </div>
