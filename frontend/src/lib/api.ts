@@ -1,6 +1,21 @@
 import { ApiResponse, RobotsCheckData, ScrapedData, ScrapeOptions, WebsiteProfile, SuccessRatesSummary } from '@/types/scraper';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Determine API URL based on environment
+const getApiBaseUrl = () => {
+  // Check if running in browser
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // If hostname indicates local development, use local backend
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+      return 'http://localhost:5000';
+    }
+  }
+
+  // Use environment variable if set, otherwise default to production domain
+  return process.env.NEXT_PUBLIC_API_URL || 'https://scrapperx.run.place';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiError extends Error {
   constructor(message: string, public status?: number) {

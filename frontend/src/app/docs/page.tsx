@@ -56,8 +56,22 @@ export default function APIDocumentation() {
   const getCodeLanguage = (endpointId: string) => {
     return activeCodeLanguage[endpointId] || "python"
   }
-  // API URL - using production domain
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://scrapperx.run.place"
+  // Determine API URL based on environment
+  const getApiBaseUrl = () => {
+    // Check if running in browser
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      // If hostname indicates local development, use local backend
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+        return 'http://localhost:5000';
+      }
+    }
+
+    // Use environment variable if set, otherwise default to production domain
+    return process.env.NEXT_PUBLIC_API_URL || "https://scrapperx.run.place";
+  };
+
+  const apiBaseUrl = getApiBaseUrl();
 
   return (
     <main className="min-h-screen bg-white">
