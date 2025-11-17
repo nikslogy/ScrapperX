@@ -20,6 +20,23 @@ export default function APIDocumentation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const sectionsRefs = useRef<Record<string, HTMLElement | null>>({})
 
+  // Determine API URL based on environment (called inside component to avoid build-time evaluation)
+  const getApiBaseUrl = () => {
+    // Check if running in browser
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      // If hostname indicates local development, use local backend
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+        return 'http://localhost:5000';
+      }
+    }
+
+    // Use environment variable if set, otherwise default to production domain (HTTP for API)
+    return process.env.NEXT_PUBLIC_API_URL || "http://scrapperx.run.place";
+  };
+
+  const apiBaseUrl = getApiBaseUrl();
+
   // Handles auto-scrolling to section on hash change
   useEffect(() => {
     const scrollToHash = (init = false) => {
@@ -56,22 +73,6 @@ export default function APIDocumentation() {
   const getCodeLanguage = (endpointId: string) => {
     return activeCodeLanguage[endpointId] || "python"
   }
-  // Determine API URL based on environment
-  const getApiBaseUrl = () => {
-    // Check if running in browser
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      // If hostname indicates local development, use local backend
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-        return 'http://localhost:5000';
-      }
-    }
-
-    // Use environment variable if set, otherwise default to production domain (HTTP for API)
-    return process.env.NEXT_PUBLIC_API_URL || "http://scrapperx.run.place";
-  };
-
-  const apiBaseUrl = getApiBaseUrl();
 
   return (
     <main className="min-h-screen bg-white">
