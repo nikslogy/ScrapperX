@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8fafc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative elements -->
+  <g opacity="0.1">
+    <!-- Spider web pattern in background -->
+    <circle cx="100" cy="100" r="40" fill="none" stroke="url(#accent)" stroke-width="2"/>
+    <circle cx="100" cy="100" r="25" fill="none" stroke="url(#accent)" stroke-width="1"/>
+    <circle cx="100" cy="100" r="10" fill="none" stroke="url(#accent)" stroke-width="1"/>
+    <line x1="100" y1="60" x2="100" y2="140" stroke="url(#accent)" stroke-width="1"/>
+    <line x1="60" y1="100" x2="140" y2="100" stroke="url(#accent)" stroke-width="1"/>
+  </g>
+
+  <!-- Main content -->
+  <g transform="translate(100, 150)">
+    <!-- Title -->
+    <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#1e293b">
+      Scrapper
+      <tspan fill="#2563eb">X</tspan>
+    </text>
+
+    <!-- Subtitle -->
+    <text x="0" y="100" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#64748b">
+      Free Web Scraping API
+    </text>
+
+    <!-- Description -->
+    <text x="0" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#64748b">
+      Extract content from any website
+    </text>
+    <text x="0" y="185" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#64748b">
+      Convert URLs to clean markdown
+    </text>
+
+    <!-- Features -->
+    <g transform="translate(0, 220)">
+      <circle cx="15" cy="15" r="8" fill="#2563eb"/>
+      <text x="35" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#374151">
+        Quick Scrape • Batch Scrape • Domain Crawler
+      </text>
+    </g>
+
+    <g transform="translate(0, 260)">
+      <circle cx="15" cy="15" r="8" fill="#2563eb"/>
+      <text x="35" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#374151">
+        Intelligent extraction • No authentication • Free forever
+      </text>
+    </g>
+  </g>
+
+  <!-- URL -->
+  <text x="100" y="580" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#64748b">
+    scrapperx.com
+  </text>
+</svg>

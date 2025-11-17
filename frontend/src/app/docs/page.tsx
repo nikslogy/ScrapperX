@@ -56,8 +56,8 @@ export default function APIDocumentation() {
   const getCodeLanguage = (endpointId: string) => {
     return activeCodeLanguage[endpointId] || "python"
   }
-  // TODO: Change to the actual API URL
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+  // API URL - using production domain
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://scrapperx.run.place"
 
   return (
     <main className="min-h-screen bg-white">
@@ -648,7 +648,7 @@ console.log(data.data.markdownContent);`}</code>
                 Try API
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/nikslogy/ScrapperX"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-black transition-colors"

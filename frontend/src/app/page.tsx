@@ -72,6 +72,7 @@ export default function Home() {
             <span className="text-gray-600 flex flex-col items-center justify-center gap-2 sm:inline sm:gap-0">
               <span className="inline-flex items-center gap-2">
                 Free and Open-Source
+              </span>
                 <a
                   href="https://github.com/nikslogy/ScrapperX"
                   target="_blank"
@@ -80,9 +81,8 @@ export default function Home() {
                   className="ml-2 inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-black transition-colors shadow-sm"
                   style={{ verticalAlign: 'middle' }}
                 >
-                  <Github className="w-4 h-4 mr-1" /> GitHub
+                  <Github className="w-7 h-6 mr-0 mt-0" />
                 </a>
-              </span>
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-gray-600 sm:text-lg lg:text-xl">
@@ -152,15 +152,36 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-gray-600 sm:flex-row sm:px-6 lg:px-8">
-          <span className="text-black">© {new Date().getFullYear()} ScrapperX</span>
-          <div className="flex items-center gap-6">
-            <a href="/docs" className="text-black transition-colors hover:text-gray-600">
-              Docs
-            </a>
-            <a href="mailto:nikitpotdar@gmail.com" className="text-black transition-colors hover:text-gray-600">
-              Contact
-            </a>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          {/* Warning Section */}
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="font-medium">Use Responsibly</p>
+                <p className="mt-1">
+                  Some websites may not work due to anti-bot measures. We are continuously improving compatibility.
+                  Use responsibly and respect website terms of service. We are not responsible for any misuse.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Links */}
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-gray-600 sm:flex-row">
+            <span className="text-black">© {new Date().getFullYear()} ScrapperX</span>
+            <div className="flex items-center gap-6">
+              <a href="/docs" className="text-black transition-colors hover:text-gray-600">
+                Docs
+              </a>
+              <a href="mailto:nikitpotdar@gmail.com" className="text-black transition-colors hover:text-gray-600">
+                Contact
+              </a>
+            </div>
           </div>
         </div>
       </footer>
