@@ -67,8 +67,8 @@ export default function APIDocumentation() {
       }
     }
 
-    // Use environment variable if set, otherwise default to production domain
-    return process.env.NEXT_PUBLIC_API_URL || "https://scrapperx.run.place";
+    // Use environment variable if set, otherwise default to production domain (HTTP for API)
+    return process.env.NEXT_PUBLIC_API_URL || "http://scrapperx.run.place";
   };
 
   const apiBaseUrl = getApiBaseUrl();
