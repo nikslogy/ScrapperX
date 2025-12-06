@@ -4,7 +4,7 @@ import { ApiScraper, ApiScrapedData } from './apiScraper';
 import { RobotsChecker, RobotsInfo } from './robotsChecker';
 import { AdaptiveScraper, AdaptiveScrapingResult } from './adaptiveScraper';
 import { StealthScraper } from './stealthScraper';
-import { ContentExtractorService } from '../services/contentExtractor';
+import { ContentExtractorService } from '../../crawler/services/contentExtractor';
 
 export interface ScrapingStrategy {
   method: 'static' | 'dynamic' | 'stealth' | 'adaptive' | 'api' | 'hybrid';

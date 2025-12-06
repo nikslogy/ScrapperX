@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { IRawContent } from '../models/crawlerModels';
+import { IRawContent } from '../../../models/crawlerModels';
 
 export interface ExtractionSchema {
   name: string;

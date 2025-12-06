@@ -4,12 +4,11 @@ import { URL } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import robotsParser from 'robots-parser';
 
-import { CrawlSession, ICrawlSession, RawContent } from '../models/crawlerModels';
+import { CrawlSession, ICrawlSession, RawContent } from '../../../models/crawlerModels';
 import { URLQueueService } from './urlQueue';
 import { ContentExtractorService } from './contentExtractor';
 import { AuthenticationHandler, AuthConfig } from './authenticationHandler';
 import { StructuredExtractor } from './structuredExtractor';
-// import { checkRobotsTxt } from '../utils/robotsChecker';
 
 export interface CrawlConfig {
   maxPages: number;

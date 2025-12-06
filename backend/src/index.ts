@@ -8,12 +8,13 @@ import fs from 'fs/promises';
 import { connectDB } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
-import { CrawlerController } from './controllers/crawlerController';
 
-// Import routes
-import scraperRoutes from './routes/scraperRoutes';
+// Import module routes
+import { scraperRoutes, batchRoutes, crawlerRoutes, exportRoutes } from './modules';
 import healthRoutes from './routes/healthRoutes';
-import crawlerRoutes from './routes/crawlerRoutes';
+
+// Import export controller for downloads
+import { ExportController } from './modules/export';
 
 // Load environment variables
 dotenv.config();
@@ -57,20 +58,16 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) return callback(null, true);
     
-    // Allow if origin is in the allowed list
     if (allowedOrigins.some(allowed => origin.startsWith(allowed as string))) {
       return callback(null, true);
     }
     
-    // In development, allow all origins
     if (process.env.NODE_ENV !== 'production') {
       return callback(null, true);
     }
     
-    // Block if not allowed
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -89,12 +86,14 @@ app.use('/api/', rateLimiter);
 app.use('/health', healthRoutes);
 
 // Download route for exported files
-const crawlerController = new CrawlerController();
-app.get('/api/downloads/:fileName', crawlerController.downloadExport);
+const exportController = new ExportController();
+app.get('/api/downloads/:fileName', exportController.downloadExport);
 
-// API routes
+// API routes (modular)
 app.use('/api/scraper', scraperRoutes);
+app.use('/api/scraper', batchRoutes); // Batch routes under /api/scraper for backward compatibility
 app.use('/api/crawler', crawlerRoutes);
+app.use('/api/crawler', exportRoutes); // Export routes under /api/crawler for backward compatibility
 
 // Error handling middleware
 app.use(errorHandler);
@@ -121,7 +120,6 @@ async function cleanupOldExports() {
       const filePath = path.join(exportsDir, file);
       const stats = await fs.stat(filePath);
       
-      // Delete files older than 7 days
       if (now - stats.mtimeMs > maxAge) {
         await fs.unlink(filePath);
         deletedCount++;
@@ -144,15 +142,11 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
   console.log(`🌐 Listening on: 0.0.0.0:${PORT}`);
   
-  // Initialize exports directory
   await initializeExportsDirectory();
-  
-  // Run initial cleanup
   await cleanupOldExports();
   
-  // Schedule cleanup every 24 hours
   setInterval(cleanupOldExports, 24 * 60 * 60 * 1000);
   console.log('🧹 Automatic cleanup scheduled (every 24 hours)');
 });
 
-export default app; 
+export default app;
