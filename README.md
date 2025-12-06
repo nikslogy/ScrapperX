@@ -162,6 +162,64 @@ Our hosted service has fair rate limits to keep it free for everyone:
 
 ---
 
+## 🏗️ Backend Architecture
+
+The backend follows a modular, domain-oriented architecture for maintainability and scalability:
+
+```
+backend/src/
+├── config/                    # Shared configuration
+│   └── database.ts            # MongoDB connection
+├── middleware/                # Shared middleware
+│   ├── errorHandler.ts        # Global error handling
+│   └── rateLimiter.ts         # Rate limiting (general, scrape, batch, crawler)
+├── models/                    # Shared data models
+│   └── crawlerModels.ts       # Mongoose schemas (CrawlSession, UrlQueue, RawContent, CrawlPattern)
+├── modules/                   # Domain-oriented modules
+│   ├── scraper/               # Single-URL scraping module
+│   │   ├── controllers/       # robots, quickScrape, adaptiveProfiles
+│   │   ├── services/          # intelligentScraper, staticScraper, dynamicScraper,
+│   │   │                      # stealthScraper, adaptiveScraper, apiScraper, robotsChecker
+│   │   ├── validators/        # Joi validation schemas
+│   │   ├── routes.ts          # Module router
+│   │   └── index.ts           # Barrel export
+│   ├── batch/                 # Batch scraping module
+│   │   ├── controllers/       # batch.controller
+│   │   ├── validators/        # Batch validation schema
+│   │   ├── routes.ts          # Module router
+│   │   └── index.ts           # Barrel export
+│   ├── crawler/               # Domain crawling module
+│   │   ├── controllers/       # session, content, structuredData, authentication, analytics
+│   │   ├── services/          # domainCrawler, urlQueue, contentExtractor,
+│   │   │                      # authenticationHandler, structuredExtractor
+│   │   ├── validators/        # Crawler validation schemas
+│   │   ├── routes.ts          # Module router
+│   │   └── index.ts           # Barrel export
+│   ├── export/                # Export/download module
+│   │   ├── controllers/       # export.controller
+│   │   ├── services/          # exportService + exporters (JSON, Markdown)
+│   │   ├── routes.ts          # Module router
+│   │   └── index.ts           # Barrel export
+│   ├── shared/                # Shared types across modules
+│   │   └── types/             # Common interfaces
+│   └── index.ts               # Central module exports
+├── routes/
+│   └── healthRoutes.ts        # Health check endpoint
+└── index.ts                   # Application entry point (wires modules + middleware)
+```
+
+### Module Responsibilities
+
+| Module | Description |
+|--------|-------------|
+| **scraper** | Single-URL intelligent scraping with adaptive strategy selection, robots.txt checking, and profile management |
+| **batch** | Multi-URL batch processing with combined output generation |
+| **crawler** | Domain-wide crawling with queue management, Playwright workers, content extraction, and session persistence |
+| **export** | Data export in multiple formats (JSON, Markdown, ZIP), download management, and history tracking |
+| **shared** | Common type definitions used across modules |
+
+---
+
 ## 📝 License
 
 MIT License - free to use, modify, and distribute.

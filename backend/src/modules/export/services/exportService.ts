@@ -1,5 +1,5 @@
-import { RawContent } from '../models/crawlerModels';
-import { DomainCrawlerService } from './domainCrawler';
+import { RawContent } from '../../../models/crawlerModels';
+import { DomainCrawlerService } from '../../crawler/services/domainCrawler';
 import { 
   ExportData, 
   ExportOptions, 

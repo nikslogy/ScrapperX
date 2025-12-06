@@ -1,4 +1,4 @@
-import { UrlQueue, IUrlQueue } from '../models/crawlerModels';
+import { UrlQueue, IUrlQueue } from '../../../models/crawlerModels';
 import { URL } from 'url';
 
 export class URLQueueService {
