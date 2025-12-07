@@ -5,6 +5,8 @@ import { StaticScraper } from '../utils/staticScraper';
 import { RobotsChecker } from '../utils/robotsChecker';
 import { IntelligentScraper } from '../utils/intelligentScraper';
 import { ContentExtractorService } from '../services/contentExtractor';
+import { validateUrl } from '../utils/urlValidator';
+import { logSecurityEvent } from '../middleware/requestLogger';
 
 // Validation schemas
 const urlSchema = Joi.object({
@@ -87,11 +89,11 @@ export const getAdaptiveStatsController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     const { domain } = req.query;
     const stats = intelligentScraper.getAdaptiveStats(domain as string);
-    
+
     res.status(200).json({
       success: true,
       data: stats,
@@ -115,10 +117,10 @@ export const getSuccessRatesController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     const successRates = intelligentScraper.getSuccessRates();
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -156,10 +158,10 @@ export const clearAdaptiveProfileController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     const { domain } = req.params;
-    
+
     if (!domain) {
       res.status(400).json({
         success: false,
@@ -167,9 +169,9 @@ export const clearAdaptiveProfileController = async (
       });
       return;
     }
-    
+
     intelligentScraper.clearAdaptiveProfile(domain);
-    
+
     res.status(200).json({
       success: true,
       message: `Adaptive profile cleared for domain: ${domain}`,
@@ -193,10 +195,10 @@ export const exportAdaptiveProfilesController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     const profiles = intelligentScraper.exportAdaptiveProfiles();
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename="adaptive-profiles.json"');
     res.status(200).send(profiles);
@@ -218,10 +220,10 @@ export const importAdaptiveProfilesController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     const { profiles } = req.body;
-    
+
     if (!profiles || typeof profiles !== 'string') {
       res.status(400).json({
         success: false,
@@ -229,9 +231,9 @@ export const importAdaptiveProfilesController = async (
       });
       return;
     }
-    
+
     intelligentScraper.importAdaptiveProfiles(profiles);
-    
+
     res.status(200).json({
       success: true,
       message: 'Adaptive profiles imported successfully',
@@ -255,7 +257,7 @@ export const scrapeIntelligentController = async (
   next: NextFunction
 ): Promise<void> => {
   const intelligentScraper = new IntelligentScraper();
-  
+
   try {
     // Validate input
     const { error, value } = scrapeSchema.validate(req.body);
@@ -270,34 +272,52 @@ export const scrapeIntelligentController = async (
 
     const { url, options = {} } = value;
 
-    console.log(`🚀 Starting intelligent scraping for: ${url}`);
+    // SECURITY: Validate URL to prevent SSRF attacks
+    const urlValidation = await validateUrl(url);
+    if (!urlValidation.valid) {
+      logSecurityEvent({
+        type: 'invalid_url',
+        ip: req.ip || 'unknown',
+        details: `Blocked URL: ${url} - ${urlValidation.reason}`,
+        path: req.path
+      });
+      res.status(400).json({
+        success: false,
+        error: 'URL Not Allowed',
+        message: urlValidation.reason
+      });
+      return;
+    }
+
+    const sanitizedUrl = urlValidation.sanitizedUrl || url;
+    console.log(`🚀 Starting intelligent scraping for: ${sanitizedUrl}`);
     console.log(`⚙️ Options:`, options);
 
     // Perform intelligent scraping
-    const scrapedData = await intelligentScraper.scrape(url, options);
+    const scrapedData = await intelligentScraper.scrape(sanitizedUrl, options);
 
-        // Extract clean markdown content (Firecrawl-style)
-        let markdownContent: string | undefined;
-        try {
-          const htmlResponse = await axios.get(url, {
-            headers: {
-              'User-Agent': options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-            },
-            timeout: 15000
-          });
-          
-          const contentExtractor = new ContentExtractorService();
-          const extractedContent = await contentExtractor.extractContent(htmlResponse.data, url, new URL(url).hostname);
-          markdownContent = extractedContent.markdownContent;
-          
-          if (!markdownContent || markdownContent.length === 0) {
-            markdownContent = undefined;
-          }
-        } catch (markdownError) {
-          console.error('Failed to extract markdown content:', markdownError);
-          markdownContent = undefined;
-        }
+    // Extract clean markdown content (Firecrawl-style)
+    let markdownContent: string | undefined;
+    try {
+      const htmlResponse = await axios.get(url, {
+        headers: {
+          'User-Agent': options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        timeout: 15000
+      });
+
+      const contentExtractor = new ContentExtractorService();
+      const extractedContent = await contentExtractor.extractContent(htmlResponse.data, url, new URL(url).hostname);
+      markdownContent = extractedContent.markdownContent;
+
+      if (!markdownContent || markdownContent.length === 0) {
+        markdownContent = undefined;
+      }
+    } catch (markdownError) {
+      console.error('Failed to extract markdown content:', markdownError);
+      markdownContent = undefined;
+    }
 
     // Prepare response with comprehensive data
     const response = {
@@ -316,13 +336,13 @@ export const scrapeIntelligentController = async (
         wordCount: scrapedData.wordCount,
         scrapedAt: scrapedData.scrapedAt,
         method: scrapedData.method,
-        
+
         // Enhanced intelligent scraping data
         strategy: scrapedData.strategy,
         qualityScore: scrapedData.qualityScore,
         completenessScore: scrapedData.completenessScore,
         performanceMetrics: scrapedData.performanceMetrics,
-        
+
         // Robots compliance (logged but not enforced)
         robotsCompliance: {
           isAllowed: scrapedData.robotsInfo.isAllowed,
@@ -331,12 +351,12 @@ export const scrapeIntelligentController = async (
           policy: scrapedData.robotsInfo.isAllowed ? 'ALLOWED' : 'BLOCKED',
           enforced: options.respectRobots || false
         },
-        
+
         // Additional content if available
         ...(scrapedData.additionalContent && {
           additionalContent: scrapedData.additionalContent
         }),
-        
+
         // API data if available
         ...(scrapedData.apiData && {
           apiData: {
@@ -390,7 +410,7 @@ export const scrapeStaticController = async (
 
     // Check robots.txt first (enforce if respectRobots is true)
     const robotsInfo = await RobotsChecker.checkRobots(url);
-    
+
     if (!robotsInfo.isAllowed && options.respectRobots) {
       res.status(403).json({
         success: false,

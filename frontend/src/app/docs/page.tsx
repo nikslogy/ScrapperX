@@ -5,6 +5,7 @@ import { Code, Zap, Globe, Github, Copy, Check, AlertCircle } from "lucide-react
 
 // Slugs for each endpoint, mapping to their anchor/hash and display name
 const ENDPOINTS = [
+  { id: "authentication", hash: "authentication", title: "Authentication" },
   { id: "quick-scrape", hash: "quickscrape", title: "Quick Scrape" },
   { id: "batch-scrape", hash: "batchscrape", title: "Batch Scrape" },
   { id: "domain-crawler", hash: "domaincrawler", title: "Domain Crawler" },
@@ -119,7 +120,7 @@ export default function APIDocumentation() {
           </div>
         </nav>
         {/* ---- */}
-<br />
+        <br />
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-3 py-1.5 rounded-full text-xs font-medium mb-4 sm:mb-6">
             <Github className="w-3 h-3" />
@@ -145,8 +146,13 @@ export default function APIDocumentation() {
             <p className="text-sm text-gray-600 mb-3 leading-relaxed">
               Single URL scraping with intelligent content extraction
             </p>
-            <div className="text-xs font-medium text-black bg-gray-50 px-2 py-1 rounded inline-block">
-              20 requests/min
+            <div className="flex flex-wrap gap-2">
+              <div className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                Free: 3/hour
+              </div>
+              <div className="text-xs font-medium text-black bg-black/10 px-2 py-1 rounded">
+                API Key: 20/min
+              </div>
             </div>
           </div>
 
@@ -158,8 +164,13 @@ export default function APIDocumentation() {
               <h3 className="font-semibold text-black text-base sm:text-lg">Batch Scrape</h3>
             </div>
             <p className="text-sm text-gray-600 mb-3 leading-relaxed">Scrape up to 10 URLs in one request</p>
-            <div className="text-xs font-medium text-black bg-gray-50 px-2 py-1 rounded inline-block">
-              5 requests/5min
+            <div className="flex flex-wrap gap-2">
+              <div className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                Free: 1/hour
+              </div>
+              <div className="text-xs font-medium text-black bg-black/10 px-2 py-1 rounded">
+                API Key: 5/5min
+              </div>
             </div>
           </div>
 
@@ -171,26 +182,86 @@ export default function APIDocumentation() {
               <h3 className="font-semibold text-black text-base sm:text-lg">Site Crawler</h3>
             </div>
             <p className="text-sm text-gray-600 mb-3 leading-relaxed">Crawl entire domains with up to 200 pages</p>
-            <div className="text-xs font-medium text-black bg-gray-50 px-2 py-1 rounded inline-block">
-              3 requests/5min
+            <div className="flex flex-wrap gap-2">
+              <div className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                Free: Disabled
+              </div>
+              <div className="text-xs font-medium text-black bg-black/10 px-2 py-1 rounded">
+                API Key: 3/5min
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Rate Limiting Notice */}
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 mb-8 sm:mb-12 lg:mb-16">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex-shrink-0 mt-0.5">
-              <AlertCircle className="w-5 h-5 text-black" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-black mb-2 text-sm sm:text-base">Hosted Service vs Self-Hosted</h4>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Use our <span className="font-medium text-black">free hosted API</span> with rate limits shown above, or{" "}
-                <span className="font-medium text-black">deploy your own instance</span> for unlimited requests. No
-                authentication required - just start making requests!
+        {/* How to Use - Two Paths */}
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4 sm:p-6 mb-8 sm:mb-12 lg:mb-16" id="authentication">
+          <h3 className="text-xl sm:text-2xl font-bold text-black mb-6">How to Use the API</h3>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Free Users - No Key */}
+            <div className="bg-white rounded-xl p-5 border border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg font-semibold text-gray-700">🆓 Free Access</span>
+                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">No Registration</span>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                Just make requests directly — no API key, no sign-up needed. Perfect for trying out the API.
               </p>
+
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <div className="text-xs font-semibold text-gray-500 mb-2">LIMITS (per hour):</div>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• 3 Quick Scrapes</li>
+                  <li>• 1 Batch Scrape</li>
+                  <li>• Crawler not available</li>
+                </ul>
+              </div>
+
+              <div className="text-xs font-medium text-gray-500 mb-2">Example (no key needed):</div>
+              <pre className="bg-gray-900 text-gray-100 rounded-lg p-3 text-xs overflow-x-auto">
+                {`curl -X POST ${apiBaseUrl}/api/scraper/scrape \\
+  -H "Content-Type: application/json" \\
+  -d '{"url": "https://example.com"}'`}
+              </pre>
             </div>
+
+            {/* API Key Users */}
+            <div className="bg-white rounded-xl p-5 border-2 border-black">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg font-semibold text-black">🔑 With API Key</span>
+                <span className="text-xs bg-black text-white px-2 py-0.5 rounded">Recommended</span>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                Get an API key for higher limits, crawler access, and production use.
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <div className="text-xs font-semibold text-gray-500 mb-2">LIMITS (per minute):</div>
+                <ul className="text-sm text-gray-700 space-y-1">
+                  <li>• 20 Quick Scrapes</li>
+                  <li>• 5 Batch Scrapes (per 5 min)</li>
+                  <li>• 3 Crawler sessions (per 5 min)</li>
+                </ul>
+              </div>
+
+              <div className="text-xs font-medium text-gray-500 mb-2">Example (with API key):</div>
+              <pre className="bg-gray-900 text-gray-100 rounded-lg p-3 text-xs overflow-x-auto">
+                {`curl -X POST ${apiBaseUrl}/api/scraper/scrape \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: scx_your-key-here" \\
+  -d '{"url": "https://example.com"}'`}
+              </pre>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">💡 Get an API Key:</span>{" "}
+              Contact <a href="mailto:nikitpotdar@gmail.com" className="underline hover:no-underline">nikitpotdar@gmail.com</a>{" "}
+              or <a href="https://github.com/nikslogy/ScrapperX" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">self-host</a> for unlimited requests.
+            </p>
           </div>
         </div>
 
@@ -207,11 +278,10 @@ export default function APIDocumentation() {
                 <button
                   key={lang.id}
                   onClick={() => setActiveLanguage(lang.id)}
-                  className={`px-4 sm:px-6 py-3 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                    activeLanguage === lang.id
-                      ? "bg-black text-white"
-                      : "text-gray-600 hover:text-black hover:bg-gray-50"
-                  }`}
+                  className={`px-4 sm:px-6 py-3 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${activeLanguage === lang.id
+                    ? "bg-black text-white"
+                    : "text-gray-600 hover:text-black hover:bg-gray-50"
+                    }`}
                 >
                   {lang.label}
                 </button>
@@ -1049,11 +1119,10 @@ a.click();`
                   <button
                     key={lang.id}
                     onClick={() => setCodeLanguage(lang.id)}
-                    className={`px-4 py-2.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                      activeCodeLanguage === lang.id
-                        ? "bg-black text-white"
-                        : "text-gray-600 hover:text-black hover:bg-gray-50"
-                    }`}
+                    className={`px-4 py-2.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${activeCodeLanguage === lang.id
+                      ? "bg-black text-white"
+                      : "text-gray-600 hover:text-black hover:bg-gray-50"
+                      }`}
                   >
                     {lang.label}
                   </button>

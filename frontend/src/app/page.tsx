@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import ScrapperInterface from '@/components/ScrapperInterface';
 import DomainCrawler from '@/components/DomainCrawler';
+import ApiKeyInput from '@/components/ApiKeyInput';
 import { Globe, Zap, Github, ListPlus, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -46,6 +47,10 @@ export default function Home() {
             </span>
           </a>
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* API Key Input - only show on larger screens */}
+            <div className="hidden md:block">
+              <ApiKeyInput />
+            </div>
             <a
               href="/docs"
               className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-black"
@@ -59,7 +64,12 @@ export default function Home() {
               className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             >
               GitHub
-            </a>          </div>
+            </a>
+          </div>
+        </div>
+        {/* Mobile API Key - show below header on small screens */}
+        <div className="md:hidden border-t border-gray-100 px-4 py-2">
+          <ApiKeyInput />
         </div>
       </header>
 
@@ -67,22 +77,22 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight text-black sm:text-5xl lg:text-6xl">
-            URL to structured data, 
+            URL to structured data,
             <br />
             <span className="text-gray-600 flex flex-col items-center justify-center gap-2 sm:inline sm:gap-0">
               <span className="inline-flex items-center gap-2">
                 Free and Open-Source
               </span>
-                <a
-                  href="https://github.com/nikslogy/ScrapperX"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="View on GitHub"
-                  className="ml-2 inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-black transition-colors shadow-sm"
-                  style={{ verticalAlign: 'middle' }}
-                >
-                  <Github className="w-7 h-6 mr-0 mt-0" />
-                </a>
+              <a
+                href="https://github.com/nikslogy/ScrapperX"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="View on GitHub"
+                className="ml-2 inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-black transition-colors shadow-sm"
+                style={{ verticalAlign: 'middle' }}
+              >
+                <Github className="w-7 h-6 mr-0 mt-0" />
+              </a>
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-gray-600 sm:text-lg lg:text-xl">
@@ -133,11 +143,10 @@ export default function Home() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-medium transition-colors sm:text-base ${
-                  activeTab === tab.id
+                className={`flex flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-medium transition-colors sm:text-base ${activeTab === tab.id
                     ? 'border-b-2 border-black bg-gray-50 text-black'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-black'
-                }`}
+                  }`}
               >
                 {tab.icon}
                 <span>{tab.name}</span>

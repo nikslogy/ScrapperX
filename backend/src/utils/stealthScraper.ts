@@ -89,7 +89,7 @@ export class StealthScraper {
     ];
 
     const timezones = [
-      'America/New_York', 'America/Los_Angeles', 'Europe/London', 
+      'America/New_York', 'America/Los_Angeles', 'Europe/London',
       'Europe/Berlin', 'Asia/Tokyo', 'Australia/Sydney'
     ];
 
@@ -114,7 +114,7 @@ export class StealthScraper {
       'ANGLE (NVIDIA, NVIDIA GeForce GTX 1060 Direct3D11 vs_5_0 ps_5_0)',
       'WebKit WebGL'
     ];
-    
+
     return `${vendors[Math.floor(Math.random() * vendors.length)]}~${renderers[Math.floor(Math.random() * renderers.length)]}`;
   }
 
@@ -128,14 +128,16 @@ export class StealthScraper {
     const launchOptions: any = {
       headless: true,
       args: [
-        '--no-sandbox',
+        // NOTE: --no-sandbox is required in Docker/containerized environments
+        // but is a security risk. Only enable if running in a trusted container.
+        // '--no-sandbox', 
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
         '--disable-gpu',
-        '--disable-web-security',
+        // REMOVED: '--disable-web-security' - This was a CRITICAL security vulnerability
         '--disable-features=VizDisplayCompositor',
         '--disable-background-networking',
         '--disable-background-timer-throttling',
@@ -154,9 +156,12 @@ export class StealthScraper {
         '--metrics-recording-only',
         '--no-default-browser-check',
         '--safebrowsing-disable-auto-update',
-        '--enable-automation',
+        // '--enable-automation', // Removed - can be detected by anti-bot systems
         '--password-store=basic',
-        '--use-mock-keychain'
+        '--use-mock-keychain',
+        // Memory/resource limits for VPS environments
+        '--js-flags=--max-old-space-size=512',
+        '--single-process', // Reduces memory footprint
       ]
     };
 
@@ -248,12 +253,12 @@ export class StealthScraper {
           imperva: document.cookie.includes('incap_ses') || document.cookie.includes('visid_incap'),
           akamai: !!document.querySelector('[data-akamai-bm-capabilities]'),
           botDetect: document.title.toLowerCase().includes('bot') || document.title.toLowerCase().includes('blocked'),
-          accessDenied: document.body.innerText.toLowerCase().includes('access denied') || 
-                       document.body.innerText.toLowerCase().includes('forbidden'),
+          accessDenied: document.body.innerText.toLowerCase().includes('access denied') ||
+            document.body.innerText.toLowerCase().includes('forbidden'),
           rateLimited: document.body.innerText.toLowerCase().includes('rate limit') ||
-                      document.body.innerText.toLowerCase().includes('too many requests'),
-          jsChallenge: !!document.querySelector('script[src*="challenge"]') || 
-                      document.body.innerText.includes('Checking your browser'),
+            document.body.innerText.toLowerCase().includes('too many requests'),
+          jsChallenge: !!document.querySelector('script[src*="challenge"]') ||
+            document.body.innerText.includes('Checking your browser'),
           suspiciousRedirect: window.location.href !== window.location.href
         };
         return results;
@@ -404,10 +409,10 @@ export class StealthScraper {
   private async solveCaptchaWithService(page: Page, captcha: CaptchaChallenge, service: string, apiKey: string): Promise<boolean> {
     try {
       console.log(`🔧 Attempting to solve ${captcha.type} with ${service}`);
-      
+
       // This is a placeholder for actual CAPTCHA solving service integration
       // In a real implementation, you would integrate with 2captcha, anticaptcha, etc.
-      
+
       if (captcha.type === 'recaptcha' && captcha.siteKey) {
         // Example integration with 2captcha for reCAPTCHA
         const response = await this.solve2CaptchaRecaptcha(page.url(), captcha.siteKey, apiKey);
@@ -450,9 +455,9 @@ export class StealthScraper {
       // Poll for result
       for (let i = 0; i < 30; i++) {
         await new Promise(resolve => setTimeout(resolve, 5000));
-        
+
         const resultResponse = await axios.get(`http://2captcha.com/res.php?key=${apiKey}&action=get&id=${captchaId}&json=1`);
-        
+
         if (resultResponse.data.status === 1) {
           return resultResponse.data.request;
         }
@@ -483,7 +488,7 @@ export class StealthScraper {
         const scrollHeight = document.body.scrollHeight;
         const viewportHeight = window.innerHeight;
         const scrollSteps = Math.floor(scrollHeight / viewportHeight);
-        
+
         for (let i = 0; i < Math.min(scrollSteps, 5); i++) {
           setTimeout(() => {
             window.scrollTo(0, (i + 1) * viewportHeight * 0.8);
@@ -533,7 +538,7 @@ export class StealthScraper {
 
   private getOrCreateSession(domain: string): ScrapingSession {
     let session = this.sessions.get(domain);
-    
+
     if (!session || Date.now() - session.lastUsed.getTime() > 3600000) { // 1 hour expiry
       const fingerprint = this.generateBrowserFingerprint();
       session = {
@@ -561,32 +566,32 @@ export class StealthScraper {
   }> {
     const startTime = Date.now();
     const domain = new URL(url).hostname;
-    
+
     // Check rate limiting
     await this.checkRateLimit(domain);
-    
+
     // Get or create session
     const session = this.getOrCreateSession(domain);
-    
+
     // Initialize browser
     await this.initializeBrowser(options);
-    
+
     const maxRetries = options.maxRetries || 3;
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       console.log(`🎯 Stealth scraping attempt ${attempt}/${maxRetries} for: ${url}`);
-      
+
       try {
         const context = await this.createStealthContext(session.fingerprint, options);
-        
+
         // Restore cookies
         if (session.cookies.length > 0) {
           await context.addCookies(session.cookies);
         }
 
         const page = await context.newPage();
-        
+
         // Set additional stealth measures
         await page.setExtraHTTPHeaders({
           'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
@@ -616,7 +621,7 @@ export class StealthScraper {
           // Apply countermeasures
           console.log('🔧 Applying anti-detection countermeasures...');
           await page.waitForTimeout(2000 + Math.random() * 3000);
-          
+
           if (options.humanBehavior !== false) {
             await this.simulateHumanBehavior(page);
           }
@@ -686,7 +691,7 @@ export class StealthScraper {
           const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
           console.log(`⏳ Retrying in ${Math.ceil(delay / 1000)}s...`);
           await new Promise(resolve => setTimeout(resolve, delay));
-          
+
           // Generate new fingerprint for retry
           session.fingerprint = this.generateBrowserFingerprint();
         }
@@ -698,13 +703,13 @@ export class StealthScraper {
 
   private extractContent($: cheerio.CheerioAPI, url: string): Omit<ScrapedContent, 'method' | 'scrapedAt'> {
     // Enhanced content extraction with better selectors
-    const title = $('title').first().text().trim() || 
-                 $('h1').first().text().trim() || 
-                 $('[data-testid*="title"], [class*="title"], [id*="title"]').first().text().trim() ||
-                 'No title found';
+    const title = $('title').first().text().trim() ||
+      $('h1').first().text().trim() ||
+      $('[data-testid*="title"], [class*="title"], [id*="title"]').first().text().trim() ||
+      'No title found';
 
-    const description = $('meta[name="description"]').attr('content') || 
-                       $('meta[property="og:description"]').attr('content') || '';
+    const description = $('meta[name="description"]').attr('content') ||
+      $('meta[property="og:description"]').attr('content') || '';
 
     // Comprehensive content selectors for maximum depth extraction
     const contentSelectors = [
@@ -749,7 +754,7 @@ export class StealthScraper {
       const elements = $(selector);
       elements.each((_, element) => {
         const $element = $(element);
-        
+
         // Remove unwanted elements but preserve structure
         const clonedElement = $element.clone();
         clonedElement.find(`
@@ -761,7 +766,7 @@ export class StealthScraper {
           [class*="share"], [class*="social"], [class*="comment"],
           [class*="related"], [class*="recommend"]
         `).remove();
-        
+
         const text = clonedElement.text().replace(/\s+/g, ' ').trim();
         if (text.length > maxLength && text.length > 50) {
           maxLength = text.length;
@@ -782,7 +787,7 @@ export class StealthScraper {
         [class*="popup"], [class*="modal"], [class*="overlay"],
         [class*="cookie"], [class*="gdpr"], [class*="consent"]
       `).remove();
-      
+
       content = bodyClone.text().replace(/\s+/g, ' ').trim();
     }
 
@@ -791,7 +796,7 @@ export class StealthScraper {
       const $link = $(el);
       const href = $link.attr('href');
       const text = $link.text().trim();
-      
+
       if (!href) return null;
 
       try {
@@ -812,7 +817,7 @@ export class StealthScraper {
       const $img = $(el);
       const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src') || $img.attr('srcset') || $img.attr('poster');
       const alt = $img.attr('alt') || $img.attr('title') || '';
-      
+
       if (!src) return null;
 
       try {
@@ -831,9 +836,9 @@ export class StealthScraper {
       const $heading = $(el);
       const text = $heading.text().trim();
       const level = parseInt(el.tagName.charAt(1));
-      
+
       if (!text) return null;
-      
+
       return {
         level,
         text,
@@ -853,7 +858,7 @@ export class StealthScraper {
       const $meta = $(el);
       const name = $meta.attr('name') || $meta.attr('property') || $meta.attr('http-equiv');
       const content = $meta.attr('content');
-      
+
       if (name && content) {
         metadata[name] = content;
       }
