@@ -13,38 +13,61 @@ export default function ApiKeyInput({ onKeyChange }: ApiKeyInputProps) {
     const [isConfigured, setIsConfigured] = useState(false);
     const [showKey, setShowKey] = useState(false);
     const [showInput, setShowInput] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Check if API key is already configured
-        const configured = hasApiKey();
-        setIsConfigured(configured);
+        setMounted(true);
 
-        // Load the key for display (masked)
-        if (typeof window !== 'undefined') {
+        // Only access localStorage after component mounts (client-side)
+        try {
+            const configured = hasApiKey();
+            setIsConfigured(configured);
+
             const storedKey = localStorage.getItem('scrapperx_api_key');
             if (storedKey) {
                 setApiKeyState(storedKey);
             }
+        } catch (e) {
+            // localStorage not available (SSR or restricted context)
+            console.warn('localStorage not available');
         }
     }, []);
 
     const handleSaveKey = () => {
         if (apiKey.trim()) {
-            setApiKey(apiKey.trim());
-            setIsConfigured(true);
-            setShowInput(false);
-            onKeyChange?.(true);
+            try {
+                setApiKey(apiKey.trim());
+                setIsConfigured(true);
+                setShowInput(false);
+                onKeyChange?.(true);
+            } catch (e) {
+                console.warn('Could not save API key');
+            }
         }
     };
 
     const handleClearKey = () => {
-        clearApiKey();
-        setApiKeyState('');
-        setIsConfigured(false);
-        onKeyChange?.(false);
+        try {
+            clearApiKey();
+            setApiKeyState('');
+            setIsConfigured(false);
+            onKeyChange?.(false);
+        } catch (e) {
+            console.warn('Could not clear API key');
+        }
     };
 
     const maskedKey = apiKey ? `${apiKey.slice(0, 8)}${'•'.repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}` : '';
+
+    // Don't render anything until mounted (prevents hydration mismatch)
+    if (!mounted) {
+        return (
+            <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg opacity-50">
+                <Key className="w-4 h-4" />
+                <span>Add API Key</span>
+            </button>
+        );
+    }
 
     if (!showInput && !isConfigured) {
         return (
@@ -102,7 +125,7 @@ export default function ApiKeyInput({ onKeyChange }: ApiKeyInputProps) {
                     value={apiKey}
                     onChange={(e) => setApiKeyState(e.target.value)}
                     placeholder="scx_your-api-key-here"
-                    className="w-full pl-10 pr-10 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
+                    className="w-full pl-10 pr-10 py-2 text-sm text-black placeholder:text-black border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
                     onKeyDown={(e) => e.key === 'Enter' && handleSaveKey()}
                 />
                 <button

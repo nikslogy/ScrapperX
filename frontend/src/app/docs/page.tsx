@@ -14,6 +14,9 @@ const ENDPOINTS = [
   { id: "download-export", hash: "downloadexport", title: "Download Export" },
 ]
 
+// Default production URL (used during SSR and as fallback)
+const DEFAULT_API_URL = "https://scrapperx.run.place"
+
 export default function APIDocumentation() {
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null)
   const [activeLanguage, setActiveLanguage] = useState<string>("python")
@@ -21,22 +24,18 @@ export default function APIDocumentation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const sectionsRefs = useRef<Record<string, HTMLElement | null>>({})
 
-  // Determine API URL based on environment (called inside component to avoid build-time evaluation)
-  const getApiBaseUrl = () => {
-    // Check if running in browser
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      // If hostname indicates local development, use local backend
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-        return 'http://localhost:5000';
-      }
+  // Start with production URL to match SSR, update after mount for local dev
+  const [apiBaseUrl, setApiBaseUrl] = useState(DEFAULT_API_URL)
+
+  // Set correct API URL after component mounts (client-side only)
+  useEffect(() => {
+    const hostname = window.location.hostname
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+      setApiBaseUrl('http://localhost:5000')
+    } else if (process.env.NEXT_PUBLIC_API_URL) {
+      setApiBaseUrl(process.env.NEXT_PUBLIC_API_URL)
     }
-
-    // Use environment variable if set, otherwise default to production domain (HTTP for API)
-    return process.env.NEXT_PUBLIC_API_URL || "https://scrapperx.run.place";
-  };
-
-  const apiBaseUrl = getApiBaseUrl();
+  }, [])
 
   // Handles auto-scrolling to section on hash change
   useEffect(() => {

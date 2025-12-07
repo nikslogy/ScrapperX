@@ -25,8 +25,12 @@ const getApiKey = (): string | null => {
   }
 
   // Client-side: check localStorage for self-hosted instances
-  const storedKey = localStorage.getItem('scrapperx_api_key');
-  if (storedKey) return storedKey;
+  try {
+    const storedKey = localStorage.getItem('scrapperx_api_key');
+    if (storedKey) return storedKey;
+  } catch (e) {
+    // localStorage not available (iframe, incognito restrictions, etc.)
+  }
 
   // Check if public instance (no auth needed for scrapperx.run.place demo)
   const hostname = window.location.hostname;
@@ -40,19 +44,28 @@ const getApiKey = (): string | null => {
 // Set API key (for self-hosted instances)
 export const setApiKey = (key: string) => {
   if (typeof window !== 'undefined') {
-    localStorage.setItem('scrapperx_api_key', key);
+    try {
+      localStorage.setItem('scrapperx_api_key', key);
+    } catch (e) {
+      console.warn('Could not save API key to localStorage');
+    }
   }
 };
 
 // Clear API key
 export const clearApiKey = () => {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('scrapperx_api_key');
+    try {
+      localStorage.removeItem('scrapperx_api_key');
+    } catch (e) {
+      console.warn('Could not clear API key from localStorage');
+    }
   }
 };
 
 // Check if API key is configured
 export const hasApiKey = (): boolean => {
+  if (typeof window === 'undefined') return false;
   return getApiKey() !== null;
 };
 
