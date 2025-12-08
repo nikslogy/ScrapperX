@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { readFileSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 import { isMongoDBConnected } from '../config/database';
+import { getConcurrencyStats } from '../utils/concurrencyLimiter';
 
 const router = Router();
 
@@ -78,7 +79,8 @@ router.get('/', (req: Request, res: Response) => {
     // Service status
     services: {
       mongodb: mongoConnected ? 'connected' : 'not configured',
-      crawler: mongoConnected ? 'available' : 'requires MongoDB'
+      crawler: mongoConnected ? 'available' : 'requires MongoDB',
+      browsers: getConcurrencyStats()
     },
 
     // Storage info

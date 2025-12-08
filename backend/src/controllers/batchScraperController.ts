@@ -4,6 +4,7 @@ import { IntelligentScraper } from '../utils/intelligentScraper';
 import { ContentExtractorService } from '../services/contentExtractor';
 import { validateUrls } from '../utils/urlValidator';
 import { logSecurityEvent } from '../middleware/requestLogger';
+import { withBrowserSlot, getConcurrencyStats } from '../utils/concurrencyLimiter';
 import axios from 'axios';
 import TurndownService from 'turndown';
 import path from 'path';
@@ -59,7 +60,10 @@ async function scrapeUrl(url: string, options: any, scrapers: IntelligentScraper
   scrapers.push(intelligentScraper);
 
   try {
-    const scrapedData = await intelligentScraper.scrape(url, options);
+    // Use concurrency limiter to control browser instances
+    const scrapedData = await withBrowserSlot(async () => {
+      return await intelligentScraper.scrape(url, options);
+    });
 
     let markdownContent: string | undefined;
     try {

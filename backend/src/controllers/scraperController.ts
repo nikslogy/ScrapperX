@@ -7,6 +7,7 @@ import { IntelligentScraper } from '../utils/intelligentScraper';
 import { ContentExtractorService } from '../services/contentExtractor';
 import { validateUrl } from '../utils/urlValidator';
 import { logSecurityEvent } from '../middleware/requestLogger';
+import { withBrowserSlot, getConcurrencyStats } from '../utils/concurrencyLimiter';
 
 // Validation schemas
 const urlSchema = Joi.object({
@@ -292,9 +293,12 @@ export const scrapeIntelligentController = async (
     const sanitizedUrl = urlValidation.sanitizedUrl || url;
     console.log(`🚀 Starting intelligent scraping for: ${sanitizedUrl}`);
     console.log(`⚙️ Options:`, options);
+    console.log(`📊 Concurrency: ${JSON.stringify(getConcurrencyStats())}`);
 
-    // Perform intelligent scraping
-    const scrapedData = await intelligentScraper.scrape(sanitizedUrl, options);
+    // Wrap in concurrency limiter to prevent too many browsers running
+    const scrapedData = await withBrowserSlot(async () => {
+      return await intelligentScraper.scrape(sanitizedUrl, options);
+    });
 
     // Extract clean markdown content (Firecrawl-style)
     let markdownContent: string | undefined;
