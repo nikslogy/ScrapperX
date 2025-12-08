@@ -55,6 +55,9 @@ router.get('/', (req: Request, res: Response) => {
   const mongoConnected = isMongoDBConnected();
   const exportsInfo = getExportsInfo();
 
+  // Check production mode at runtime (not at module load time)
+  const isProd = process.env.NODE_ENV === 'production';
+
   res.status(200).json({
     success: true,
     message: 'ScrapperX API is healthy',
@@ -85,7 +88,7 @@ router.get('/', (req: Request, res: Response) => {
     },
 
     // Rate limits (tiered: anonymous vs authenticated)
-    limits: isProduction ? {
+    limits: isProd ? {
       anonymous: {
         quickScrape: '3 req/hour',
         batchScrape: '1 req/hour',

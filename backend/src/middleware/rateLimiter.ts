@@ -14,9 +14,10 @@
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import { Request, Response, NextFunction } from 'express';
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Check production at runtime (NOT at module load time!)
+const isProduction = (): boolean => process.env.NODE_ENV === 'production';
 
-// Get valid API keys from environment
+// Get valid API keys from environment (also runtime)
 const getApiKeys = (): Set<string> => {
   const keys = process.env.API_KEYS || '';
   return new Set(keys.split(',').filter(k => k.trim().length > 0));
@@ -40,125 +41,192 @@ const isPremiumKey = (key: string | null): boolean => {
 
 // ---- FREE USERS (Anonymous - No API Key) ----
 const FREE_LIMITS = {
-  general: { prod: 5, dev: 50 },           // General API requests per hour (prod) / per minute (dev)
-  scrape: { prod: 3, dev: 50 },            // Quick scrapes per hour (prod) / per minute (dev)
-  batch: { prod: 1, dev: 20 },             // Batch scrapes per hour (prod) / per 5 minutes (dev)
-  crawler: { prod: 0, dev: 20 },           // Crawler disabled in prod for free users
+  general: { prod: 5, dev: 50 },
+  scrape: { prod: 3, dev: 50 },
+  batch: { prod: 1, dev: 20 },
+  crawler: { prod: 0, dev: 20 },
 };
 
 // ---- API KEY USERS (Authenticated) ----
 const API_KEY_LIMITS = {
-  general: { prod: 100, dev: 1000 },       // General API requests per minute
-  scrape: { prod: 20, dev: 100 },          // Quick scrapes per minute
-  batch: { prod: 5, dev: 50 },             // Batch scrapes per 5 minutes
-  crawler: { prod: 3, dev: 20 },           // Crawler requests per 5 minutes
+  general: { prod: 100, dev: 1000 },
+  scrape: { prod: 20, dev: 100 },
+  batch: { prod: 5, dev: 50 },
+  crawler: { prod: 3, dev: 20 },
 };
 
 // ---- PREMIUM API KEY USERS (scx_premium_...) ----
 const PREMIUM_LIMITS = {
-  general: { prod: 1000, dev: 10000 },     // 10x higher than regular API key
-  scrape: { prod: 200, dev: 1000 },        // 10x higher
-  batch: { prod: 50, dev: 500 },           // 10x higher
-  crawler: { prod: 30, dev: 200 },         // 10x higher
+  general: { prod: 1000, dev: 10000 },
+  scrape: { prod: 200, dev: 1000 },
+  batch: { prod: 50, dev: 500 },
+  crawler: { prod: 30, dev: 200 },
 };
 
 // ============================================
-// Rate Limiters (using the config above)
+// Rate Limiters (Lazy initialization)
 // ============================================
+// These are created on first use to ensure NODE_ENV is loaded
 
-// Anonymous users - very strict limits (for trying the API)
-const anonymousLimiter = new RateLimiterMemory({
-  points: isProduction ? FREE_LIMITS.general.prod : FREE_LIMITS.general.dev,
-  duration: isProduction ? 3600 : 60,  // Per hour in production, per minute in dev
-  blockDuration: isProduction ? 3600 : 60,
-});
+let _anonymousLimiter: RateLimiterMemory | null = null;
+let _authenticatedLimiter: RateLimiterMemory | null = null;
+let _premiumLimiter: RateLimiterMemory | null = null;
+let _anonymousScrapeLimiter: RateLimiterMemory | null = null;
+let _authenticatedScrapeLimiter: RateLimiterMemory | null = null;
+let _premiumScrapeLimiter: RateLimiterMemory | null = null;
+let _anonymousBatchLimiter: RateLimiterMemory | null = null;
+let _authenticatedBatchLimiter: RateLimiterMemory | null = null;
+let _premiumBatchLimiter: RateLimiterMemory | null = null;
+let _authenticatedCrawlerLimiter: RateLimiterMemory | null = null;
+let _premiumCrawlerLimiter: RateLimiterMemory | null = null;
 
-// Authenticated users - normal limits
-const authenticatedLimiter = new RateLimiterMemory({
-  points: isProduction ? API_KEY_LIMITS.general.prod : API_KEY_LIMITS.general.dev,
-  duration: 60,
-  blockDuration: 60,
-});
+const getAnonymousLimiter = (): RateLimiterMemory => {
+  if (!_anonymousLimiter) {
+    const isProd = isProduction();
+    _anonymousLimiter = new RateLimiterMemory({
+      points: isProd ? FREE_LIMITS.general.prod : FREE_LIMITS.general.dev,
+      duration: isProd ? 3600 : 60,
+      blockDuration: isProd ? 3600 : 60,
+    });
+  }
+  return _anonymousLimiter;
+};
 
-// Premium users - 10x higher limits
-const premiumLimiter = new RateLimiterMemory({
-  points: isProduction ? PREMIUM_LIMITS.general.prod : PREMIUM_LIMITS.general.dev,
-  duration: 60,
-  blockDuration: 60,
-});
+const getAuthenticatedLimiter = (): RateLimiterMemory => {
+  if (!_authenticatedLimiter) {
+    const isProd = isProduction();
+    _authenticatedLimiter = new RateLimiterMemory({
+      points: isProd ? API_KEY_LIMITS.general.prod : API_KEY_LIMITS.general.dev,
+      duration: 60,
+      blockDuration: 60,
+    });
+  }
+  return _authenticatedLimiter;
+};
 
-// Scrape endpoint - stricter for anonymous
-const anonymousScrapeLimiter = new RateLimiterMemory({
-  points: isProduction ? FREE_LIMITS.scrape.prod : FREE_LIMITS.scrape.dev,
-  duration: isProduction ? 3600 : 60,
-  blockDuration: isProduction ? 3600 : 60,
-});
+const getPremiumLimiter = (): RateLimiterMemory => {
+  if (!_premiumLimiter) {
+    const isProd = isProduction();
+    _premiumLimiter = new RateLimiterMemory({
+      points: isProd ? PREMIUM_LIMITS.general.prod : PREMIUM_LIMITS.general.dev,
+      duration: 60,
+      blockDuration: 60,
+    });
+  }
+  return _premiumLimiter;
+};
 
-const authenticatedScrapeLimiter = new RateLimiterMemory({
-  points: isProduction ? API_KEY_LIMITS.scrape.prod : API_KEY_LIMITS.scrape.dev,
-  duration: 60,
-  blockDuration: 120,
-});
+const getAnonymousScrapeLimiter = (): RateLimiterMemory => {
+  if (!_anonymousScrapeLimiter) {
+    const isProd = isProduction();
+    _anonymousScrapeLimiter = new RateLimiterMemory({
+      points: isProd ? FREE_LIMITS.scrape.prod : FREE_LIMITS.scrape.dev,
+      duration: isProd ? 3600 : 60,
+      blockDuration: isProd ? 3600 : 60,
+    });
+  }
+  return _anonymousScrapeLimiter;
+};
 
-const premiumScrapeLimiter = new RateLimiterMemory({
-  points: isProduction ? PREMIUM_LIMITS.scrape.prod : PREMIUM_LIMITS.scrape.dev,
-  duration: 60,
-  blockDuration: 60,
-});
+const getAuthenticatedScrapeLimiter = (): RateLimiterMemory => {
+  if (!_authenticatedScrapeLimiter) {
+    const isProd = isProduction();
+    _authenticatedScrapeLimiter = new RateLimiterMemory({
+      points: isProd ? API_KEY_LIMITS.scrape.prod : API_KEY_LIMITS.scrape.dev,
+      duration: 60,
+      blockDuration: 120,
+    });
+  }
+  return _authenticatedScrapeLimiter;
+};
 
-// Batch scrape - very strict for anonymous
-const anonymousBatchLimiter = new RateLimiterMemory({
-  points: isProduction ? FREE_LIMITS.batch.prod : FREE_LIMITS.batch.dev,
-  duration: isProduction ? 3600 : 300,
-  blockDuration: isProduction ? 3600 : 300,
-});
+const getPremiumScrapeLimiter = (): RateLimiterMemory => {
+  if (!_premiumScrapeLimiter) {
+    const isProd = isProduction();
+    _premiumScrapeLimiter = new RateLimiterMemory({
+      points: isProd ? PREMIUM_LIMITS.scrape.prod : PREMIUM_LIMITS.scrape.dev,
+      duration: 60,
+      blockDuration: 60,
+    });
+  }
+  return _premiumScrapeLimiter;
+};
 
-const authenticatedBatchLimiter = new RateLimiterMemory({
-  points: isProduction ? API_KEY_LIMITS.batch.prod : API_KEY_LIMITS.batch.dev,
-  duration: 300,
-  blockDuration: 300,
-});
+const getAnonymousBatchLimiter = (): RateLimiterMemory => {
+  if (!_anonymousBatchLimiter) {
+    const isProd = isProduction();
+    _anonymousBatchLimiter = new RateLimiterMemory({
+      points: isProd ? FREE_LIMITS.batch.prod : FREE_LIMITS.batch.dev,
+      duration: isProd ? 3600 : 300,
+      blockDuration: isProd ? 3600 : 300,
+    });
+  }
+  return _anonymousBatchLimiter;
+};
 
-const premiumBatchLimiter = new RateLimiterMemory({
-  points: isProduction ? PREMIUM_LIMITS.batch.prod : PREMIUM_LIMITS.batch.dev,
-  duration: 300,
-  blockDuration: 300,
-});
+const getAuthenticatedBatchLimiter = (): RateLimiterMemory => {
+  if (!_authenticatedBatchLimiter) {
+    const isProd = isProduction();
+    _authenticatedBatchLimiter = new RateLimiterMemory({
+      points: isProd ? API_KEY_LIMITS.batch.prod : API_KEY_LIMITS.batch.dev,
+      duration: 300,
+      blockDuration: 300,
+    });
+  }
+  return _authenticatedBatchLimiter;
+};
 
-// Crawler - disabled for anonymous in production
-const authenticatedCrawlerLimiter = new RateLimiterMemory({
-  points: isProduction ? API_KEY_LIMITS.crawler.prod : API_KEY_LIMITS.crawler.dev,
-  duration: 300,
-  blockDuration: 600,
-});
+const getPremiumBatchLimiter = (): RateLimiterMemory => {
+  if (!_premiumBatchLimiter) {
+    const isProd = isProduction();
+    _premiumBatchLimiter = new RateLimiterMemory({
+      points: isProd ? PREMIUM_LIMITS.batch.prod : PREMIUM_LIMITS.batch.dev,
+      duration: 300,
+      blockDuration: 300,
+    });
+  }
+  return _premiumBatchLimiter;
+};
 
-const premiumCrawlerLimiter = new RateLimiterMemory({
-  points: isProduction ? 30 : 200,    // 30 crawls per 5 minutes for premium
-  duration: 300,
-  blockDuration: 300,
-});
+const getAuthenticatedCrawlerLimiter = (): RateLimiterMemory => {
+  if (!_authenticatedCrawlerLimiter) {
+    const isProd = isProduction();
+    _authenticatedCrawlerLimiter = new RateLimiterMemory({
+      points: isProd ? API_KEY_LIMITS.crawler.prod : API_KEY_LIMITS.crawler.dev,
+      duration: 300,
+      blockDuration: 600,
+    });
+  }
+  return _authenticatedCrawlerLimiter;
+};
+
+const getPremiumCrawlerLimiter = (): RateLimiterMemory => {
+  if (!_premiumCrawlerLimiter) {
+    const isProd = isProduction();
+    _premiumCrawlerLimiter = new RateLimiterMemory({
+      points: isProd ? PREMIUM_LIMITS.crawler.prod : PREMIUM_LIMITS.crawler.dev,
+      duration: 300,
+      blockDuration: 300,
+    });
+  }
+  return _premiumCrawlerLimiter;
+};
 
 // ============================================
 // Helper Functions
 // ============================================
 
-/**
- * Extract API key from request
- */
 function extractApiKey(req: Request): string | null {
-  // Check X-API-Key header
   const headerKey = req.headers['x-api-key'];
   if (headerKey && typeof headerKey === 'string') {
     return headerKey;
   }
 
-  // Check Authorization: Bearer <key>
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.slice(7);
   }
 
-  // Check query parameter (for easy testing)
   if (req.query.api_key && typeof req.query.api_key === 'string') {
     return req.query.api_key;
   }
@@ -166,39 +234,26 @@ function extractApiKey(req: Request): string | null {
   return null;
 }
 
-/**
- * Check if API key is valid
- */
 function isValidApiKey(key: string | null): boolean {
   if (!key) return false;
   const validKeys = getApiKeys();
   return validKeys.has(key);
 }
 
-/**
- * Get client identifier (IP or API key)
- */
 function getClientId(req: Request): string {
   return req.ip || req.socket.remoteAddress || 'unknown';
 }
 
-// ============================================
-// Rate Limiting Middleware
-// ============================================
-
-/**
- * Get the appropriate tier for rate limiting
- */
 function getUserTier(apiKey: string | null, isValid: boolean): 'anonymous' | 'authenticated' | 'premium' {
   if (!isValid) return 'anonymous';
   if (isPremiumKey(apiKey)) return 'premium';
   return 'authenticated';
 }
 
-/**
- * General API rate limiter
- * Different limits for anonymous vs authenticated vs premium
- */
+// ============================================
+// Rate Limiting Middleware
+// ============================================
+
 export const rateLimiter = async (
   req: Request,
   res: Response,
@@ -208,16 +263,16 @@ export const rateLimiter = async (
   const isAuthenticated = isValidApiKey(apiKey);
   const tier = getUserTier(apiKey, isAuthenticated);
   const clientId = tier === 'anonymous' ? `anon:${getClientId(req)}` : `${tier}:${apiKey?.slice(0, 12)}`;
+  const isProd = isProduction();
 
-  // Add auth status to request for logging
   (req as any).isAuthenticated = isAuthenticated;
   (req as any).clientType = tier;
   (req as any).isPremium = tier === 'premium';
 
   try {
-    const limiter = tier === 'premium' ? premiumLimiter
-      : tier === 'authenticated' ? authenticatedLimiter
-        : anonymousLimiter;
+    const limiter = tier === 'premium' ? getPremiumLimiter()
+      : tier === 'authenticated' ? getAuthenticatedLimiter()
+        : getAnonymousLimiter();
     await limiter.consume(clientId);
     next();
   } catch (rejRes: any) {
@@ -232,19 +287,15 @@ export const rateLimiter = async (
       retryAfter: secs,
       tier: tier,
       limit: tier === 'premium'
-        ? (isProduction ? '1000 requests per minute' : '10000 requests per minute')
+        ? (isProd ? '1000 requests per minute' : '10000 requests per minute')
         : tier === 'authenticated'
-          ? (isProduction ? '100 requests per minute' : '1000 requests per minute')
-          : (isProduction ? '5 requests per hour' : '50 requests per minute'),
+          ? (isProd ? '100 requests per minute' : '1000 requests per minute')
+          : (isProd ? '5 requests per hour' : '50 requests per minute'),
       getApiKey: tier === 'anonymous' ? 'Contact admin or visit /docs for API key information' : undefined,
-      upgradeToPremium: tier === 'authenticated' ? 'Contact admin for a premium API key with 10x higher limits' : undefined
     });
   }
 };
 
-/**
- * Scrape endpoint rate limiter
- */
 export const scrapeRateLimiter = async (
   req: Request,
   res: Response,
@@ -254,14 +305,15 @@ export const scrapeRateLimiter = async (
   const isAuthenticated = isValidApiKey(apiKey);
   const tier = getUserTier(apiKey, isAuthenticated);
   const clientId = tier === 'anonymous' ? `anon:${getClientId(req)}` : `${tier}:${apiKey?.slice(0, 12)}`;
+  const isProd = isProduction();
 
   (req as any).isAuthenticated = isAuthenticated;
   (req as any).clientType = tier;
 
   try {
-    const limiter = tier === 'premium' ? premiumScrapeLimiter
-      : tier === 'authenticated' ? authenticatedScrapeLimiter
-        : anonymousScrapeLimiter;
+    const limiter = tier === 'premium' ? getPremiumScrapeLimiter()
+      : tier === 'authenticated' ? getAuthenticatedScrapeLimiter()
+        : getAnonymousScrapeLimiter();
     await limiter.consume(clientId);
     next();
   } catch (rejRes: any) {
@@ -271,22 +323,19 @@ export const scrapeRateLimiter = async (
       success: false,
       error: 'Scraping Rate Limit Exceeded',
       message: tier === 'anonymous'
-        ? `Anonymous users are limited to ${isProduction ? '3 scrapes per hour' : '50 per minute'}. Get an API key for more.`
+        ? `Anonymous users are limited to ${isProd ? '3 scrapes per hour' : '50 per minute'}. Get an API key for more.`
         : `Too many scraping requests. Try again in ${secs} seconds.`,
       retryAfter: secs,
       tier: tier,
       limit: tier === 'premium'
-        ? (isProduction ? '200 requests per minute' : '1000 requests per minute')
+        ? (isProd ? '200 requests per minute' : '1000 requests per minute')
         : tier === 'authenticated'
-          ? (isProduction ? '20 requests per minute' : '100 requests per minute')
-          : (isProduction ? '3 requests per hour' : '50 requests per minute')
+          ? (isProd ? '20 requests per minute' : '100 requests per minute')
+          : (isProd ? '3 requests per hour' : '50 requests per minute')
     });
   }
 };
 
-/**
- * Batch scrape rate limiter
- */
 export const batchScrapeRateLimiter = async (
   req: Request,
   res: Response,
@@ -296,14 +345,15 @@ export const batchScrapeRateLimiter = async (
   const isAuthenticated = isValidApiKey(apiKey);
   const tier = getUserTier(apiKey, isAuthenticated);
   const clientId = tier === 'anonymous' ? `anon:${getClientId(req)}` : `${tier}:${apiKey?.slice(0, 12)}`;
+  const isProd = isProduction();
 
   (req as any).isAuthenticated = isAuthenticated;
   (req as any).clientType = tier;
 
   try {
-    const limiter = tier === 'premium' ? premiumBatchLimiter
-      : tier === 'authenticated' ? authenticatedBatchLimiter
-        : anonymousBatchLimiter;
+    const limiter = tier === 'premium' ? getPremiumBatchLimiter()
+      : tier === 'authenticated' ? getAuthenticatedBatchLimiter()
+        : getAnonymousBatchLimiter();
     await limiter.consume(clientId);
     next();
   } catch (rejRes: any) {
@@ -313,22 +363,19 @@ export const batchScrapeRateLimiter = async (
       success: false,
       error: 'Batch Scraping Rate Limit Exceeded',
       message: tier === 'anonymous'
-        ? `Anonymous users are limited to ${isProduction ? '1 batch per hour' : '20 per 5 minutes'}. Get an API key for more.`
+        ? `Anonymous users are limited to ${isProd ? '1 batch per hour' : '20 per 5 minutes'}. Get an API key for more.`
         : `Too many batch scraping requests. Try again in ${secs} seconds.`,
       retryAfter: secs,
       tier: tier,
       limit: tier === 'premium'
-        ? (isProduction ? '50 requests per 5 minutes (10 URLs each)' : '500 requests per 5 minutes')
+        ? (isProd ? '50 requests per 5 minutes (10 URLs each)' : '500 requests per 5 minutes')
         : tier === 'authenticated'
-          ? (isProduction ? '5 requests per 5 minutes (10 URLs each)' : '50 requests per 5 minutes')
-          : (isProduction ? '1 request per hour (10 URLs max)' : '20 requests per 5 minutes')
+          ? (isProd ? '5 requests per 5 minutes (10 URLs each)' : '50 requests per 5 minutes')
+          : (isProd ? '1 request per hour (10 URLs max)' : '20 requests per 5 minutes')
     });
   }
 };
 
-/**
- * Crawler rate limiter - requires authentication in production
- */
 export const crawlerRateLimiter = async (
   req: Request,
   res: Response,
@@ -338,12 +385,13 @@ export const crawlerRateLimiter = async (
   const isAuthenticated = isValidApiKey(apiKey);
   const tier = getUserTier(apiKey, isAuthenticated);
   const clientId = tier === 'anonymous' ? `anon:${getClientId(req)}` : `${tier}:${apiKey?.slice(0, 12)}`;
+  const isProd = isProduction();
 
   (req as any).isAuthenticated = isAuthenticated;
   (req as any).clientType = tier;
 
   // In production, crawler requires authentication
-  if (isProduction && tier === 'anonymous') {
+  if (isProd && tier === 'anonymous') {
     res.status(401).json({
       success: false,
       error: 'Authentication Required',
@@ -354,7 +402,7 @@ export const crawlerRateLimiter = async (
   }
 
   try {
-    const limiter = tier === 'premium' ? premiumCrawlerLimiter : authenticatedCrawlerLimiter;
+    const limiter = tier === 'premium' ? getPremiumCrawlerLimiter() : getAuthenticatedCrawlerLimiter();
     await limiter.consume(clientId);
     next();
   } catch (rejRes: any) {
@@ -367,8 +415,8 @@ export const crawlerRateLimiter = async (
       retryAfter: secs,
       tier: tier,
       limit: tier === 'premium'
-        ? (isProduction ? '30 requests per 5 minutes (200 pages each)' : '200 requests per 5 minutes')
-        : (isProduction ? '3 requests per 5 minutes (200 pages max)' : '20 requests per 5 minutes')
+        ? (isProd ? '30 requests per 5 minutes (200 pages each)' : '200 requests per 5 minutes')
+        : (isProd ? '3 requests per 5 minutes (200 pages max)' : '20 requests per 5 minutes')
     });
   }
 };
